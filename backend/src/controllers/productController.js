@@ -2,7 +2,7 @@
 const { MongoClient } = require('mongodb');
 
 // MongoDB connection URI
-const MONGO_URI = "mongodb+srv://kietnguyen:7AHlwIiOSRZcMkJv@shoppingbadminton.44m9i.mongodb.net/?retryWrites=true&w=majority&appName=Shoppingbadminton";
+const MONGO_URI = process.env.MONGO_URI;
 
 // MongoDB client
 let db;
