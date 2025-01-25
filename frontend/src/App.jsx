@@ -1,24 +1,10 @@
-import { useState, useEffect } from 'react'
-import { fetchData } from './services/apiService' // Import the fetchData function
+import RacketItem from './components/RacketItem' // Import the RacketItem component
 
 function App() {
-  const [data, setData] = useState(null) // State to hold fetched data
-
-  useEffect(() => {
-    // Fetch data when the component mounts
-    fetchData()
-      .then((data) => setData(data))
-      .catch((error) => console.error('Error fetching data:', error))
-  }, [])
-
   return (
     <div>
-      <h1>Fetched Data:</h1>
-      {data ? (
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      ) : (
-        <p>Loading data...</p>
-      )}
+      <h1>Product Data</h1>
+      <RacketItem /> {/* Use the RacketItem component */}
     </div>
   )
 }
