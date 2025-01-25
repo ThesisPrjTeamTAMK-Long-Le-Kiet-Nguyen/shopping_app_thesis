@@ -11,7 +11,7 @@ app.use(express.json());
 // TO-DO: Implement users routes
 // const userRoutes = require('./routes/userRoutes');
 
-const productRoutes = require('./src/routes/productRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 // TO-DO: Implement order routes
 // const orderRoutes = require('./routes/orderRoutes');
