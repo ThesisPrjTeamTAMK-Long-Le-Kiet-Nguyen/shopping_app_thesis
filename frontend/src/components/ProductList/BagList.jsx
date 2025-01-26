@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchBags } from '../../services/apiService'
 import { Link } from 'react-router-dom'
 
-function BagList() {
+const BagList = () => {
   const [bags, setBags] = useState(null)
 
   useEffect(() => {

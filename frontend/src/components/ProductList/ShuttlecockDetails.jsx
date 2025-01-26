@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchShuttlecocks } from '../../services/apiService'
 
-function ShuttlecockDetails() {
+const ShuttlecockDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [shuttlecock, setShuttlecock] = useState(null)

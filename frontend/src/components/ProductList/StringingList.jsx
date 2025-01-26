@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchStringings } from '../../services/apiService'
 import { Link } from 'react-router-dom'
 
-function StringingList() {
+const StringingList = () => {
   const [stringings, setStringings] = useState(null)
 
   useEffect(() => {

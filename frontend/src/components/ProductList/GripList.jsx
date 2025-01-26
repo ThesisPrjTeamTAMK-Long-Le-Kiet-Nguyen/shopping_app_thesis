@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchGrips } from '../../services/apiService'
 import { Link } from 'react-router-dom'
 
-function GripList() {
+const GripList = () => {
   const [grips, setGrips] = useState(null)
 
   useEffect(() => {

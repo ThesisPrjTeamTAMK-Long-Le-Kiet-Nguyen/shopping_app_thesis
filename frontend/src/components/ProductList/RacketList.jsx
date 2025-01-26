@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchRackets } from '../../services/apiService'
 import { Link } from 'react-router-dom'
 
-function RacketList() {
+const RacketList = () => {
   const [rackets, setRackets] = useState(null)
 
   useEffect(() => {

@@ -12,7 +12,7 @@ import GripDetails from './GripDetails'
 import BagList from './BagList'
 import BagDetails from './BagDetails'
 
-function ProductRoutes() {
+const ProductRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<div><RacketList /><ShoeList /><StringingList /><ShuttlecockList /><GripList /><BagList /></div>} />

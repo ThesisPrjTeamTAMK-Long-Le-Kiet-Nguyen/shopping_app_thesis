@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import './Navbar.css'
 
-function Navbar() {
+const Navbar = () => {
   return (
     <header className="header">
       <nav className="navbar">

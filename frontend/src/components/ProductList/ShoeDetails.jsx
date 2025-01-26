@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchShoes } from '../../services/apiService'
 
-function ShoeDetails() {
+const ShoeDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [shoe, setShoe] = useState(null)
