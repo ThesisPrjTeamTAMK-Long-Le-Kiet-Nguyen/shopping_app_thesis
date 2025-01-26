@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchStringings } from '../../services/apiService'
 
-function StringingDetails() {
+const StringingDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [stringing, setStringing] = useState(null)

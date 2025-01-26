@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchRackets } from '../../services/apiService'
 
-function RacketDetails() {
+const RacketDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [racket, setRacket] = useState(null)

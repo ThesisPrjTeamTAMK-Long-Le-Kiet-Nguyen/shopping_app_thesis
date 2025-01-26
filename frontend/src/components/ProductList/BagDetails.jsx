@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchBags } from '../../services/apiService'
 
-function BagDetails() {
+const BagDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [bag, setBag] = useState(null)

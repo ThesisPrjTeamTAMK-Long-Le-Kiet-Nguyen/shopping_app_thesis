@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchGrips } from '../../services/apiService'
 
-function GripDetails() {
+const GripDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [grip, setGrip] = useState(null)

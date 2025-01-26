@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchShuttlecocks } from '../../services/apiService'
 import { Link } from 'react-router-dom'
 
-function ShuttlecockList() {
+const ShuttlecockList = () => {
   const [shuttlecocks, setShuttlecocks] = useState(null)
 
   useEffect(() => {

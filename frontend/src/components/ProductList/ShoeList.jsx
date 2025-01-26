@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchShoes } from '../../services/apiService'
 import { Link } from 'react-router-dom'
 
-function ShoeList() {
+const ShoeList = () => {
   const [shoes, setShoes] = useState(null)
 
   useEffect(() => {
