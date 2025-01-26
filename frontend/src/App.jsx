@@ -1,11 +1,16 @@
-import RacketItem from './components/RacketItem' // Import the RacketItem component
+import { BrowserRouter as Router } from 'react-router-dom'
+import ProductRoutes from './components/ProductList'
+import Navbar from './components/Header/Navbar'
 
 function App() {
   return (
-    <div>
-      <h1>Product Data</h1>
-      <RacketItem /> {/* Use the RacketItem component */}
-    </div>
+    <Router>
+      <div>
+        <Navbar />
+        <h1>Product Data</h1>
+        <ProductRoutes />
+      </div>
+    </Router>
   )
 }
 
