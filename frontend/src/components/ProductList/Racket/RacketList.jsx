@@ -1,46 +1,46 @@
 import { useState, useEffect } from 'react'
-import { fetchStringings } from '../../services/apiService'
+import { fetchRackets } from '../../../services/apiService'
 import { Link } from 'react-router-dom'
 
-const StringingList = () => {
-  const [stringings, setStringings] = useState(null)
+const RacketList = () => {
+  const [rackets, setRackets] = useState(null)
 
   useEffect(() => {
-    fetchStringings()
-      .then((data) => setStringings(data))
-      .catch((error) => console.error('Error fetching stringings:', error))
+    fetchRackets()
+      .then((data) => setRackets(data))
+      .catch((error) => console.error('Error fetching rackets:', error))
   }, [])
 
-  const groupStringings = (stringings) => {
-    return stringings.reduce((acc, stringing) => {
-      const { brand, series } = stringing
+  const groupRackets = (rackets) => {
+    return rackets.reduce((acc, racket) => {
+      const { brand, series } = racket
       if (!acc[brand]) {
         acc[brand] = {}
       }
       if (!acc[brand][series]) {
         acc[brand][series] = []
       }
-      acc[brand][series].push(stringing)
+      acc[brand][series].push(racket)
       return acc
     }, {})
   }
 
-  const groupedStringings = stringings ? groupStringings(stringings) : {}
+  const groupedRackets = rackets ? groupRackets(rackets) : {}
 
   return (
     <div>
-      <h2>Stringing Items</h2>
-      {stringings ? (
-        Object.entries(groupedStringings).map(([brand, seriesMap]) => (
+      <h2>Racket Items</h2>
+      {rackets ? (
+        Object.entries(groupedRackets).map(([brand, seriesMap]) => (
           <div key={brand}>
             <h3>{brand}</h3>
-            {Object.entries(seriesMap).map(([series, stringings]) => (
+            {Object.entries(seriesMap).map(([series, rackets]) => (
               <div key={series}>
                 <h4>{series}</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                  {stringings.map((stringing) => (
+                  {rackets.map((racket) => (
                     <div
-                      key={stringing._id}
+                      key={racket._id}
                       style={{
                         border: '1px solid #ccc',
                         borderRadius: '8px',
@@ -49,16 +49,16 @@ const StringingList = () => {
                         textAlign: 'center',
                       }}
                     >
-                      <Link to={`/stringings/${stringing._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link to={`/racket/${racket._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <img
-                          src={stringing.colors[0].photo}
-                          alt={stringing.name}
+                          src={racket.colors[0].photo}
+                          alt={racket.name}
                           width="100%"
                           height="auto"
                           style={{ borderRadius: '8px' }}
                         />
-                        <h3>{stringing.name}</h3>
-                        <p>Price: ${stringing.price}</p>
+                        <h3>{racket.name}</h3>
+                        <p>Price: ${racket.price}</p>
                       </Link>
                     </div>
                   ))}
@@ -68,10 +68,10 @@ const StringingList = () => {
           </div>
         ))
       ) : (
-        <p>Loading stringings...</p>
+        <p>Loading rackets...</p>
       )}
     </div>
   )
 }
 
-export default StringingList
+export default RacketList

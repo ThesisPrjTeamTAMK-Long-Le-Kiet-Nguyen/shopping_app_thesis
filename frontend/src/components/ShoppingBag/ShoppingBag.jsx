@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ShoppingBag = () => {
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto', border: '1px solid #ccc', borderRadius: '8px' }}>
@@ -10,4 +8,4 @@ const ShoppingBag = () => {
   )
 }
 
-export default ShoppingBag 
+export default ShoppingBag

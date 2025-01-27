@@ -1,16 +1,16 @@
 import { Routes, Route } from 'react-router-dom'
-import RacketList from './RacketList'
-import RacketDetails from './RacketDetails'
-import ShoeList from './ShoeList'
-import ShoeDetails from './ShoeDetails'
-import StringingList from './StringingList'
-import StringingDetails from './StringingDetails'
-import ShuttlecockList from './ShuttlecockList'
-import ShuttlecockDetails from './ShuttlecockDetails'
-import GripList from './GripList'
-import GripDetails from './GripDetails'
-import BagList from './BagList'
-import BagDetails from './BagDetails'
+import RacketList from './Racket/RacketList'
+import RacketDetails from './Racket/RacketDetails'
+import ShoeList from './Shoe/ShoeList'
+import ShoeDetails from './Shoe/ShoeDetails'
+import StringingList from './Stringing/StringingList'
+import StringingDetails from './Stringing/StringingDetails'
+import ShuttlecockList from './Shuttlecock/ShuttlecockList'
+import ShuttlecockDetails from './Shuttlecock/ShuttlecockDetails'
+import GripList from './Grip/GripList'
+import GripDetails from './Grip/GripDetails'
+import BagList from './Bag/BagList'
+import BagDetails from './Bag/BagDetails'
 
 const ProductRoutes = () => {
   return (
@@ -32,4 +32,4 @@ const ProductRoutes = () => {
   )
 }
 
-export default ProductRoutes 
+export default ProductRoutes

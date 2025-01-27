@@ -1,46 +1,46 @@
 import { useState, useEffect } from 'react'
-import { fetchShoes } from '../../services/apiService'
+import { fetchStringings } from '../../../services/apiService'
 import { Link } from 'react-router-dom'
 
-const ShoeList = () => {
-  const [shoes, setShoes] = useState(null)
+const StringingList = () => {
+  const [stringings, setStringings] = useState(null)
 
   useEffect(() => {
-    fetchShoes()
-      .then((data) => setShoes(data))
-      .catch((error) => console.error('Error fetching shoes:', error))
+    fetchStringings()
+      .then((data) => setStringings(data))
+      .catch((error) => console.error('Error fetching stringings:', error))
   }, [])
 
-  const groupShoes = (shoes) => {
-    return shoes.reduce((acc, shoe) => {
-      const { brand, series } = shoe
+  const groupStringings = (stringings) => {
+    return stringings.reduce((acc, stringing) => {
+      const { brand, series } = stringing
       if (!acc[brand]) {
         acc[brand] = {}
       }
       if (!acc[brand][series]) {
         acc[brand][series] = []
       }
-      acc[brand][series].push(shoe)
+      acc[brand][series].push(stringing)
       return acc
     }, {})
   }
 
-  const groupedShoes = shoes ? groupShoes(shoes) : {}
+  const groupedStringings = stringings ? groupStringings(stringings) : {}
 
   return (
     <div>
-      <h2>Shoe Items</h2>
-      {shoes ? (
-        Object.entries(groupedShoes).map(([brand, seriesMap]) => (
+      <h2>Stringing Items</h2>
+      {stringings ? (
+        Object.entries(groupedStringings).map(([brand, seriesMap]) => (
           <div key={brand}>
             <h3>{brand}</h3>
-            {Object.entries(seriesMap).map(([series, shoes]) => (
+            {Object.entries(seriesMap).map(([series, stringings]) => (
               <div key={series}>
                 <h4>{series}</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                  {shoes.map((shoe) => (
+                  {stringings.map((stringing) => (
                     <div
-                      key={shoe._id}
+                      key={stringing._id}
                       style={{
                         border: '1px solid #ccc',
                         borderRadius: '8px',
@@ -49,16 +49,16 @@ const ShoeList = () => {
                         textAlign: 'center',
                       }}
                     >
-                      <Link to={`/shoes/${shoe._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link to={`/stringings/${stringing._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <img
-                          src={shoe.colors[0].photo}
-                          alt={shoe.name}
+                          src={stringing.colors[0].photo}
+                          alt={stringing.name}
                           width="100%"
                           height="auto"
                           style={{ borderRadius: '8px' }}
                         />
-                        <h3>{shoe.name}</h3>
-                        <p>Price: ${shoe.price}</p>
+                        <h3>{stringing.name}</h3>
+                        <p>Price: ${stringing.price}</p>
                       </Link>
                     </div>
                   ))}
@@ -68,10 +68,10 @@ const ShoeList = () => {
           </div>
         ))
       ) : (
-        <p>Loading shoes...</p>
+        <p>Loading stringings...</p>
       )}
     </div>
   )
 }
 
-export default ShoeList
+export default StringingList
