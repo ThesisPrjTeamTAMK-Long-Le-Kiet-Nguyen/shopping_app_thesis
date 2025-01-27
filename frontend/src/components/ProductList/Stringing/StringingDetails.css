@@ -1,0 +1,38 @@
+.stringing-details {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.back-button {
+  margin-bottom: 10px;
+}
+
+.color-button,
+.add-to-bag-button {
+  margin: 5px;
+  padding: 10px;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.color-button.selected {
+  background-color: #007bff;
+}
+
+.color-button:not(.selected) {
+  background-color: #ccc;
+}
+
+.add-to-bag-button {
+  background-color: #28a745;
+}
+
+.stringing-image {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 10px;
+} 

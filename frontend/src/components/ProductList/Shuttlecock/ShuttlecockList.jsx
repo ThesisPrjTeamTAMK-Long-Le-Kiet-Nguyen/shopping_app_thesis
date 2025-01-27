@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchShuttlecocks } from '../../services/apiService'
+import { fetchShuttlecocks } from '../../../services/apiService'
 import { Link } from 'react-router-dom'
 
 const ShuttlecockList = () => {
