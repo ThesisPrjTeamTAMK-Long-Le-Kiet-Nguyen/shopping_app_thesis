@@ -1,11 +1,10 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchRackets } from '../../../services/apiService'
-import './RacketDetails.css'
+import '../index.css'
 
 const RacketDetails = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
   const [racket, setRacket] = useState(null)
   const [selectedColor, setSelectedColor] = useState(null)
   const [selectedType, setSelectedType] = useState(null)
@@ -41,25 +40,29 @@ const RacketDetails = () => {
   }
 
   const handleAddToBag = () => {
-    if (window.confirm(`Add ${racket.name} (${selectedColor.color}, ${selectedType.type}) to your shopping bag?`)) {
-      const itemToAdd = {
-        _id: racket._id,
-        name: racket.name,
-        price: racket.price,
-        brand: racket.brand,
-        series: racket.series,
-        racketType: racket.racketType,
-        flexibility: racket.flexibility,
-        material: racket.material,
-        balancePoint: racket.balancePoint,
-        cover: racket.cover,
-        color: selectedColor.color,
-        type: selectedType.type,
-        maxTension: selectedType.maxTension,
-        quantity: 1 // Default quantity to 1, can be adjusted as needed
+    if (selectedType.quantity > 0) {
+      if (window.confirm(`Add ${racket.name} (${selectedColor.color}, ${selectedType.type}) to your shopping bag?`)) {
+        const itemToAdd = {
+          _id: racket._id,
+          name: racket.name,
+          price: racket.price,
+          brand: racket.brand,
+          series: racket.series,
+          racketType: racket.racketType,
+          flexibility: racket.flexibility,
+          material: racket.material,
+          balancePoint: racket.balancePoint,
+          cover: racket.cover,
+          color: selectedColor.color,
+          type: selectedType.type,
+          maxTension: selectedType.maxTension,
+          quantity: 1 // Default quantity to 1, can be adjusted as needed
+        }
+        console.log('Item to add to shopping bag:', itemToAdd)
+        // Logic to send this object to the backend goes here
       }
-      console.log('Item to add to shopping bag:', itemToAdd)
-      // Logic to send this object to the backend goes here
+    } else {
+      alert('This item is out of stock and cannot be added to the shopping bag.');
     }
   }
 
@@ -68,56 +71,72 @@ const RacketDetails = () => {
   }
 
   return (
-    <div className="racket-details">
-      <button onClick={() => navigate(-1)} className="back-button">Back to List</button>
-      <h3>{racket.name}</h3>
-      <p>Price: ${racket.price}</p>
-      <p>Brand: {racket.brand}</p>
-      <p>Series: {racket.series}</p>
-      <p>Type: {racket.racketType}</p>
-      <p>Flexibility: {racket.flexibility}</p>
-      <p>Material: {racket.material}</p>
-      <p>Balance Point: {racket.balancePoint} mm</p>
-      <p>Cover: {racket.cover ? 'Yes' : 'No'}</p>
-
-      <div>
-        <h4>Select Color:</h4>
-        {racket.colors.map((colorInfo, index) => (
-          <button
-            key={index}
-            onClick={() => handleColorChange(colorInfo)}
-            className={`color-button ${selectedColor === colorInfo ? 'selected' : ''}`}
-          >
-            {colorInfo.color}
-          </button>
-        ))}
-      </div>
-
-      {selectedColor && (
-        <div>
+    <div className="product-details">
+      <div className="product-details-container">
+        <div className="product-image-column">
           <img
             src={selectedColor.photo}
             alt={`${racket.name} in ${selectedColor.color}`}
-            width="200"
-            height="auto"
-            className="racket-image"
+            className="product-image"
           />
-          <h4>Select Type:</h4>
-          {selectedColor.types.map((typeInfo, typeIndex) => (
-            <button
-              key={typeIndex}
-              onClick={() => handleTypeChange(typeInfo)}
-              className={`type-button ${selectedType === typeInfo ? 'selected' : ''}`}
-            >
-              {typeInfo.type}
-            </button>
-          ))}
         </div>
-      )}
+        <div className="product-info-column">
+          <h3>{racket.name}</h3>
+          <p className="price-tag">${racket.price}</p>
+          <div>
+            <h4>Select Color:</h4>
+            <div className="color-options">
+              {racket.colors.map((colorInfo, index) => (
+                <div key={index}>
+                  <button
+                    onClick={() => handleColorChange(colorInfo)}
+                    className={`color-button ${selectedColor === colorInfo ? 'selected' : ''}`}
+                    disabled={colorInfo.types.every(type => type.quantity === 0)} // Disable if all types are out of stock
+                  >
+                    {colorInfo.color}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <button onClick={handleAddToBag} className="add-to-bag-button">
-        Add to Shopping Bag
-      </button>
+          {selectedColor && (
+            <div>
+              <h4>Select Type:</h4>
+              <div className="type-options">
+                {selectedColor.types.map((typeInfo, typeIndex) => (
+                  <div key={typeIndex}>
+                    <button
+                      onClick={() => handleTypeChange(typeInfo)}
+                      className={`type-button ${selectedType === typeInfo ? 'selected' : ''}`}
+                      disabled={typeInfo.quantity === 0} // Disable if out of stock
+                    >
+                      {typeInfo.type}
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p>
+                {selectedColor.types.every(type => type.quantity === 0) ? 'Out of stock' : 'Still in stock'}
+              </p>
+            </div>
+          )}
+
+          <button onClick={handleAddToBag} className="add-to-bag-button" disabled={selectedType.quantity === 0}>
+            Add to Shopping Bag
+          </button>
+        </div>
+        <div className="product-properties-column">
+          <h4>Details:</h4>
+          <p>Brand: {racket.brand}</p>
+          <p>Series: {racket.series}</p>
+          <p>Type: {racket.racketType}</p>
+          <p>Flexibility: {racket.flexibility}</p>
+          <p>Material: {racket.material}</p>
+          <p>Balance Point: {racket.balancePoint} mm</p>
+          <p>Cover: {racket.cover ? 'Yes' : 'No'}</p>
+        </div>
+      </div>
     </div>
   )
 }
