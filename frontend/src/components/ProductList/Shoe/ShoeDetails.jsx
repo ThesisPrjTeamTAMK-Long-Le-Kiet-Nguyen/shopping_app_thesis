@@ -13,7 +13,7 @@ const ShoeDetails = () => {
     const fetchData = async () => {
       try {
         const data = await fetchShoes()
-        const selectedShoe = data.find((s) => s._id === id)
+        const selectedShoe = data.find((s) => s.id === id)
         setShoe(selectedShoe)
         if (selectedShoe && selectedShoe.colors.length > 0) {
           const defaultColor = selectedShoe.colors[0]

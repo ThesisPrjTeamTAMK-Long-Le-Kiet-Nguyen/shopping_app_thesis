@@ -12,7 +12,7 @@ const BagDetails = () => {
     const fetchData = async () => {
       try {
         const data = await fetchBags()
-        const selectedBag = data.find((b) => b._id === id)
+        const selectedBag = data.find((b) => b.id === id)
         setBag(selectedBag)
         if (selectedBag && selectedBag.colors.length > 0) {
           setSelectedColor(selectedBag.colors[0]) // Default to the first color

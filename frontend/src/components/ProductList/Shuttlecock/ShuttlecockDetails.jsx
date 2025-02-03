@@ -13,7 +13,7 @@ const ShuttlecockDetails = () => {
     const fetchData = async () => {
       try {
         const data = await fetchShuttlecocks()
-        const selectedShuttlecock = data.find((s) => s._id === id)
+        const selectedShuttlecock = data.find((s) => s.id === id)
         setShuttlecock(selectedShuttlecock)
         if (selectedShuttlecock && selectedShuttlecock.colors.length > 0) {
           const defaultColor = selectedShuttlecock.colors[0]

@@ -12,7 +12,7 @@ const GripDetails = () => {
     const fetchData = async () => {
       try {
         const data = await fetchGrips()
-        const selectedGrip = data.find((g) => g._id === id)
+        const selectedGrip = data.find((g) => g.id === id)
         setGrip(selectedGrip)
         if (selectedGrip && selectedGrip.colors.length > 0) {
           const defaultColor = selectedGrip.colors[0]
