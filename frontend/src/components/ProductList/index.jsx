@@ -15,7 +15,16 @@ import BagDetails from './Bag/BagDetails'
 const ProductRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<div><RacketList /><ShoeList /><StringingList /><ShuttlecockList /><GripList /><BagList /></div>} />
+      <Route path="/" element={
+        <div>
+          <RacketList />
+          <ShoeList />
+          <StringingList />
+          <ShuttlecockList />
+          <GripList />
+          <BagList />
+        </div>
+      } />
       <Route path="/racket" element={<RacketList />} />
       <Route path="/racket/:id" element={<RacketDetails />} />
       <Route path="/shoes" element={<ShoeList />} />
