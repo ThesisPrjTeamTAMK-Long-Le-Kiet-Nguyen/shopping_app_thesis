@@ -40,7 +40,7 @@ const StringingList = () => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                   {stringings.map((stringing) => (
                     <div
-                      key={stringing._id}
+                      key={stringing.id}
                       style={{
                         border: '1px solid #ccc',
                         borderRadius: '8px',
@@ -49,7 +49,7 @@ const StringingList = () => {
                         textAlign: 'center',
                       }}
                     >
-                      <Link to={`/stringings/${stringing._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link to={`/stringings/${stringing.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <img
                           src={stringing.colors[0].photo}
                           alt={stringing.name}

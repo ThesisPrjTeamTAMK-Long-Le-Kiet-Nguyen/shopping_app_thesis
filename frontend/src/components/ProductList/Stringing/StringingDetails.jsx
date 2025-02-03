@@ -12,7 +12,7 @@ const StringingDetails = () => {
     const fetchData = async () => {
       try {
         const data = await fetchStringings()
-        const selectedStringing = data.find((s) => s._id === id)
+        const selectedStringing = data.find((s) => s.id === id)
         setStringing(selectedStringing)
         if (selectedStringing && selectedStringing.colors.length > 0) {
           const defaultColor = selectedStringing.colors[0]

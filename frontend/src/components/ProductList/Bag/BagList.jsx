@@ -34,7 +34,7 @@ const BagList = () => {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
               {bags.map((bag) => (
                 <div
-                  key={bag._id}
+                  key={bag.id}
                   style={{
                     border: '1px solid #ccc',
                     borderRadius: '8px',
@@ -43,7 +43,7 @@ const BagList = () => {
                     textAlign: 'center',
                   }}
                 >
-                  <Link to={`/bags/${bag._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/bags/${bag.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <img
                       src={bag.colors[0].photo}
                       alt={bag.name}

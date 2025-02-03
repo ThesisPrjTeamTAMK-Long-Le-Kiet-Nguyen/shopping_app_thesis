@@ -34,7 +34,7 @@ const ShuttlecockList = () => {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
               {shuttlecocks.map((shuttlecock) => (
                 <div
-                  key={shuttlecock._id}
+                  key={shuttlecock.id}
                   style={{
                     border: '1px solid #ccc',
                     borderRadius: '8px',
@@ -43,7 +43,7 @@ const ShuttlecockList = () => {
                     textAlign: 'center',
                   }}
                 >
-                  <Link to={`/shuttlecocks/${shuttlecock._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/shuttlecocks/${shuttlecock.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <img
                       src={shuttlecock.colors[0].photo}
                       alt={shuttlecock.name}

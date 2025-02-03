@@ -40,7 +40,7 @@ const ShoeList = () => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                   {shoes.map((shoe) => (
                     <div
-                      key={shoe._id}
+                      key={shoe.id}
                       style={{
                         border: '1px solid #ccc',
                         borderRadius: '8px',
@@ -49,7 +49,7 @@ const ShoeList = () => {
                         textAlign: 'center',
                       }}
                     >
-                      <Link to={`/shoes/${shoe._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link to={`/shoes/${shoe.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <img
                           src={shoe.colors[0].photo}
                           alt={shoe.name}

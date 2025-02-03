@@ -40,7 +40,7 @@ const RacketList = () => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                   {rackets.map((racket) => (
                     <div
-                      key={racket._id}
+                      key={racket.id}
                       style={{
                         border: '1px solid #ccc',
                         borderRadius: '8px',
@@ -49,7 +49,7 @@ const RacketList = () => {
                         textAlign: 'center',
                       }}
                     >
-                      <Link to={`/racket/${racket._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link to={`/racket/${racket.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <img
                           src={racket.colors[0].photo}
                           alt={racket.name}

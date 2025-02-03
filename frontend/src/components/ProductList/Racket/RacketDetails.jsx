@@ -13,7 +13,7 @@ const RacketDetails = () => {
     const fetchData = async () => {
       try {
         const data = await fetchRackets()
-        const selectedRacket = data.find((r) => r._id === id)
+        const selectedRacket = data.find((r) => r.id === id)
         setRacket(selectedRacket)
         if (selectedRacket && selectedRacket.colors.length > 0) {
           const defaultColor = selectedRacket.colors[0]

@@ -34,7 +34,7 @@ const GripList = () => {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
               {grips.map((grip) => (
                 <div
-                  key={grip._id}
+                  key={grip.id}
                   style={{
                     border: '1px solid #ccc',
                     borderRadius: '8px',
@@ -43,7 +43,7 @@ const GripList = () => {
                     textAlign: 'center',
                   }}
                 >
-                  <Link to={`/grips/${grip._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/grips/${grip.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <img
                       src={grip.colors[0].photo}
                       alt={grip.name}
