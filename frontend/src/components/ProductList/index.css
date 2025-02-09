@@ -1,0 +1,102 @@
+/* General Styles */
+.product-details {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.product-details-container {
+  display: flex;
+  align-items: flex-start; /* Align items to the top */
+}
+
+.product-image-column {
+  flex: 1; /* First column for the image */
+  display: flex;
+  justify-content: center; /* Center the image horizontally */
+}
+
+.product-image {
+  width: 300px; /* Make the image bigger */
+  height: auto; /* Maintain aspect ratio */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.product-info-column {
+  flex: 1; /* Second column for name, price, color selection, and add to bag */
+  padding: 0 20px; /* Add some padding */
+}
+
+.product-properties-column {
+  flex: 1; /* Third column for additional properties */
+  padding: 0 20px; /* Add some padding */
+}
+
+.price-tag {
+  font-size: 24px; /* Make the price tag larger */
+  color: #d9534f; /* Change the color of the price tag */
+  margin: 10px 0; /* Add some margin for spacing */
+}
+
+.color-button,
+.size-button,
+.type-button,
+.add-to-bag-button {
+  margin: 5px;
+  padding: 10px;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.color-button.selected,
+.size-button.selected,
+.type-button.selected {
+  background-color: #007bff;
+}
+
+.color-button:not(.selected),
+.size-button:not(.selected),
+.type-button:not(.selected) {
+  background-color: #ccc;
+}
+
+.add-to-bag-button {
+  background-color: #28a745;
+}
+
+.color-options,
+.size-options,
+.type-options {
+  display: flex;
+}
+
+/* Main Page Styles */
+.main-page {
+  padding: 20px;
+}
+
+.product-type-section {
+  margin-bottom: 40px;
+}
+
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between product items */
+}
+
+.product-item {
+  flex: 1 1 200px; /* Responsive item size */
+  text-align: center;
+}
+
+.product-image {
+  width: 100%; /* Make the image responsive */
+  height: auto; /* Maintain aspect ratio */
+}
+
+
