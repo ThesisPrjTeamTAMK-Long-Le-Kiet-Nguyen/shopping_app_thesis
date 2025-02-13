@@ -25,10 +25,10 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-        console.log(username)
-        const user = await User.findOne({ username });
+        console.log(email)
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
