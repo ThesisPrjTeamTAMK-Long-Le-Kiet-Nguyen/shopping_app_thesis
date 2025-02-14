@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
 import './Navbar.css'
+import { useState } from 'react'
 
 const Navbar = () => {
   const location = useLocation();
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -41,10 +43,15 @@ const Navbar = () => {
         <ul className="auth-links">
           <Link to="/cart">Shopping Bag</Link>
           {token ? (
-            <>
-              <span>Welcome, {username}</span>
-              <button onClick={handleLogout}>Sign Out</button>
-            </>
+            <div className="user-menu" onMouseEnter={() => setDropdownVisible(true)} onMouseLeave={() => setDropdownVisible(false)}>
+              <i style={{ fontSize: '24px', cursor: 'pointer' }} className='fas'>&#xf406;</i>
+              {dropdownVisible && (
+                <div className="dropdown-menu">
+                  <span>{username}</span>
+                  <button onClick={handleLogout}>Sign Out</button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link to="/login">Log In</Link>
           )}
