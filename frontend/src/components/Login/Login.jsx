@@ -13,8 +13,14 @@ const Login = () => {
       const data = await loginService.login({ email, password }); // Use the login service
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username); // Store username
-      localStorage.setItem('role', data.role);
-      navigate('/'); // Redirect to home or another page
+      localStorage.setItem('role', data.role); // Store user role
+
+      // Redirect based on user role
+      if (data.role === 'admin') {
+        navigate('/seller'); // Redirect to seller page
+      } else {
+        navigate('/'); // Redirect to home or another page for customers
+      }
     } catch (error) {
       console.error('Error logging in:', error);
       alert('Login failed. Please check your credentials.');
