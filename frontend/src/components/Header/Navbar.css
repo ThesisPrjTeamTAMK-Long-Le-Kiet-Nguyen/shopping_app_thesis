@@ -42,6 +42,7 @@
   text-decoration: none;
   color: #333;
   font-weight: bold;
+  list-style-type: none;
 }
 
 .auth-links {
@@ -60,4 +61,43 @@
   text-decoration: none;
   color: inherit;
   font-weight: normal;
+}
+
+.user-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  display: none; /* Initially hidden */
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  right: 0; /* Align dropdown to the right */
+  padding: 10px;
+}
+
+.user-menu:hover .dropdown-menu {
+  display: block; /* Show dropdown on hover */
+}
+
+.dropdown-menu span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.dropdown-menu button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%; /* Make button full width */
+}
+
+.dropdown-menu button:hover {
+  background-color: #0056b3;
 }
