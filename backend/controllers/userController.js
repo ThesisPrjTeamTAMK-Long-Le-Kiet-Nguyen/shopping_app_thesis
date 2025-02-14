@@ -9,15 +9,21 @@ exports.registerUser = async (req, res) => {
         if (!username || !email || !password || !confirmPassword) {
             return res.status(400).json({ error: 'All fields are required' });
         }
-        if (password != confirmPassword) {
-            return res.status(400).json({ error: 'Password does not match' })
+        if (password !== confirmPassword) {
+            return res.status(400).json({ error: 'Password does not match' });
         }
+
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user
-        const newUser = new User({ username, email, password: hashedPassword });
-        console.log(newUser)
+        // Create user with default role as 'customer'
+        const newUser = new User({
+            username,
+            email,
+            password: hashedPassword,
+            role: 'customer' // Set default role
+        });
+        console.log(newUser);
         await newUser.save();
 
         res.status(201).json({ message: 'User registered successfully' });
@@ -43,7 +49,7 @@ exports.loginUser = async (req, res) => {
 
         // Generate token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token , username: user.username });
+        res.json({ token , username: user.username , role: user.role});
     } catch (error) {
         res.status(500).json({ error: 'Failed to login' });
     }

@@ -13,6 +13,7 @@ const Login = () => {
       const data = await loginService.login({ email, password }); // Use the login service
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username); // Store username
+      localStorage.setItem('role', data.role);
       navigate('/'); // Redirect to home or another page
     } catch (error) {
       console.error('Error logging in:', error);

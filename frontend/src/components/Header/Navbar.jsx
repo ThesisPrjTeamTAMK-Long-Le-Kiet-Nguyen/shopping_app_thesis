@@ -11,6 +11,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('role');
     window.location.reload();
   };
 
@@ -56,6 +57,7 @@ const Navbar = () => {
             <Link to="/login">Log In</Link>
           )}
         </ul>
+
       </nav>
     </header>
   )
