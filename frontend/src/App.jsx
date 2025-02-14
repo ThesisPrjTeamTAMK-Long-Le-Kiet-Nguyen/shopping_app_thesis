@@ -4,6 +4,8 @@ import Navbar from './components/Header/Navbar'
 import Login from './components/Login/Login'
 import SignUp from './components/Login/SignUp'
 import ShoppingBag from './components/ShoppingBag/ShoppingBag'
+import SellerPage from './components/SellerPage/SellerPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 const App = () => {
   return (
@@ -15,6 +17,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/cart" element={<ShoppingBag />} />
+          <Route path="/seller" element={<ProtectedRoute element={<SellerPage />} allowedRoles={['admin']} />} />
           <Route path="/*" element={<ProductRoutes />} />
         </Routes>
       </div>

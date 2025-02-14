@@ -101,3 +101,16 @@
 .dropdown-menu button:hover {
   background-color: #0056b3;
 }
+
+.modify-button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.modify-button:hover {
+  background-color: #81c18f;
+}

@@ -6,6 +6,7 @@ const Navbar = () => {
   const location = useLocation();
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
+  const role = localStorage.getItem('role');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const handleLogout = () => {
@@ -40,6 +41,11 @@ const Navbar = () => {
           <li className={`nav-item ${location.pathname === '/bags' ? 'active' : ''}`}>
             <Link to="/bags" className="nav-link">Bags</Link>
           </li>
+          {role === 'admin' && (
+            <li className={`nav-item`}>
+              <Link to="/seller" className="nav-link modify-button">Modify</Link>
+            </li>
+          )}
         </ul>
         <ul className="auth-links">
           <Link to="/cart">Shopping Bag</Link>
