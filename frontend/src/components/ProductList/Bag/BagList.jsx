@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchBags } from '../../../services/apiService'
+import { fetchBags } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 
 const BagList = () => {

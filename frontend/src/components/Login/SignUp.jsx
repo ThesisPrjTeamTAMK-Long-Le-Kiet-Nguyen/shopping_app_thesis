@@ -1,5 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import signupService from '../../services/signupService'; // Import the signup service
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -11,29 +12,18 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
+      alert('Passwords do not match!');
+      return;
     }
     try {
-        const response = await fetch('http://localhost:3000/users/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, email, password, confirmPassword }), // Include confirmPassword
-        });
-
-        if (!response.ok) {
-            throw new Error('Registration failed');
-        }
-
-        alert('Registration successful! You can now log in.');
-        navigate('/login'); // Redirect to login page
+      await signupService.signup({ username, email, password }); // Use the signup service
+      alert('Registration successful! You can now log in.');
+      navigate('/login'); // Redirect to login page
     } catch (error) {
-        console.error('Error signing up:', error);
-        alert('Registration failed. Please try again.');
+      console.error('Error signing up:', error);
+      alert('Registration failed. Please try again.');
     }
-};
+  };
 
   return (
     <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto', border: '1px solid #ccc', borderRadius: '8px' }}>

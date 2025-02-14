@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchGrips } from '../../../services/apiService'
+import { fetchGrips } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 
 const GripList = () => {

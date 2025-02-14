@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchShoes } from '../../../services/apiService'
+import { fetchShoes } from '../../../services/productService'
 import '../index.css'
 
 const ShoeDetails = () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchShoes } from '../../../services/apiService'
+import { fetchShoes } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 
 const ShoeList = () => {

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchStringings } from '../../../services/apiService'
+import { fetchStringings } from '../../../services/productService'
 import '../index.css'
 
 const StringingDetails = () => {

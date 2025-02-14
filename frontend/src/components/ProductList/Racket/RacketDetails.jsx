@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchRackets } from '../../../services/apiService'
+import { fetchRackets } from '../../../services/productService'
 import '../index.css'
 
 const RacketDetails = () => {

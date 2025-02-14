@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchBags } from '../../../services/apiService'
+import { fetchBags } from '../../../services/productService'
 import '../index.css'
 
 const BagDetails = () => {

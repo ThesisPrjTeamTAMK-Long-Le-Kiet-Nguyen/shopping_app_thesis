@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchGrips } from '../../../services/apiService'
+import { fetchGrips } from '../../../services/productService'
 import '../index.css'
 
 const GripDetails = () => {

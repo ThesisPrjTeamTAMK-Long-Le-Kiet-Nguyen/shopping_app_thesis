@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import loginService from '../../services/loginService'; // Import the login service
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -9,20 +10,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3000/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
-      // Store the token in local storage or context
+      const data = await loginService.login({ email, password }); // Use the login service
       localStorage.setItem('token', data.token);
       navigate('/'); // Redirect to home or another page
     } catch (error) {

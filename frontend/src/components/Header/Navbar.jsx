@@ -31,8 +31,8 @@ const Navbar = () => {
           </li>
         </ul>
         <ul className="auth-links">
-          <Link to="/login">Log In</Link>
           <Link to="/cart">Shopping Bag</Link>
+          <Link to="/login">Log In</Link>
         </ul>
       </nav>
     </header>
