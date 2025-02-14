@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchRackets } from '../../../services/apiService'
+import { fetchRackets } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 
 const RacketList = () => {

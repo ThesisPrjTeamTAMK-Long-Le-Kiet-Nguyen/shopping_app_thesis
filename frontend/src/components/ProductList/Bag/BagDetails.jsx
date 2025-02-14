@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchBags } from '../../../services/apiService'
+import { fetchBags } from '../../../services/productService'
 import '../index.css'
 
 const BagDetails = () => {
@@ -35,9 +35,6 @@ const BagDetails = () => {
         _id: bag._id,
         name: bag.name,
         price: bag.price,
-        brand: bag.brand,
-        type: bag.type,
-        size: bag.size,
         color: selectedColor.color,
         quantity: 1 // Default quantity to 1, can be adjusted as needed
       }

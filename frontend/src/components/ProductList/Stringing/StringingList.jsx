@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchStringings } from '../../../services/apiService'
+import { fetchStringings } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 
 const StringingList = () => {

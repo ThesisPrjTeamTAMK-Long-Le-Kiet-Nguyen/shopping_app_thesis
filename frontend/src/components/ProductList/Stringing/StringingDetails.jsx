@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchStringings } from '../../../services/apiService'
+import { fetchStringings } from '../../../services/productService'
 import '../index.css'
 
 const StringingDetails = () => {
@@ -37,9 +37,6 @@ const StringingDetails = () => {
           _id: stringing._id,
           name: stringing.name,
           price: stringing.price,
-          brand: stringing.brand,
-          series: stringing.series,
-          gauge: stringing.gauge,
           type: stringing.type,
           color: selectedColor.color,
           quantity: 1 // Default quantity to 1, can be adjusted as needed

@@ -3,6 +3,14 @@ import './Navbar.css'
 
 const Navbar = () => {
   const location = useLocation();
+  const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    window.location.reload();
+  };
 
   return (
     <header className="header">
@@ -31,8 +39,15 @@ const Navbar = () => {
           </li>
         </ul>
         <ul className="auth-links">
-          <Link to="/login">Log In</Link>
           <Link to="/cart">Shopping Bag</Link>
+          {token ? (
+            <>
+              <span>Welcome, {username}</span>
+              <button onClick={handleLogout}>Sign Out</button>
+            </>
+          ) : (
+            <Link to="/login">Log In</Link>
+          )}
         </ul>
       </nav>
     </header>

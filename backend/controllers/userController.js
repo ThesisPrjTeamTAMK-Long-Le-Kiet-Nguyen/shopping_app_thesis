@@ -3,18 +3,20 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 
 exports.registerUser = async (req, res) => {
-    const { username, password, email } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
     try {
         // Validate input
-        if (!username || !password || !email) {
+        if (!username || !email || !password || !confirmPassword) {
             return res.status(400).json({ error: 'All fields are required' });
         }
-
+        if (password != confirmPassword) {
+            return res.status(400).json({ error: 'Password does not match' })
+        }
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create user
-        const newUser = new User({ username, password: hashedPassword, email });
+        const newUser = new User({ username, email, password: hashedPassword });
         console.log(newUser)
         await newUser.save();
 
@@ -25,10 +27,10 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-        console.log(username)
-        const user = await User.findOne({ username });
+        console.log(email)
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
@@ -41,7 +43,7 @@ exports.loginUser = async (req, res) => {
 
         // Generate token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
+        res.json({ token , username: user.username });
     } catch (error) {
         res.status(500).json({ error: 'Failed to login' });
     }

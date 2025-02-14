@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { fetchGrips } from '../../../services/apiService'
+import { fetchGrips } from '../../../services/productService'
 import '../index.css'
 
 const GripDetails = () => {
@@ -37,9 +37,6 @@ const GripDetails = () => {
           _id: grip._id,
           name: grip.name,
           price: grip.price,
-          brand: grip.brand,
-          thickness: grip.thickness,
-          length: grip.length,
           color: selectedColor.color,
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
