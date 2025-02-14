@@ -16,7 +16,7 @@ const SignUp = () => {
       return;
     }
     try {
-      await signupService.signup({ username, email, password }); // Use the signup service
+      await signupService.signup({ username, email, password, confirmPassword }); // Use the signup service
       alert('Registration successful! You can now log in.');
       navigate('/login'); // Redirect to login page
     } catch (error) {
