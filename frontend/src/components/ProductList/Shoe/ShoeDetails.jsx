@@ -46,10 +46,6 @@ const ShoeDetails = () => {
           _id: shoe._id,
           name: shoe.name,
           price: shoe.price,
-          brand: shoe.brand,
-          series: shoe.series,
-          midsole: shoe.midsole,
-          outsole: shoe.outsole,
           color: selectedColor.color,
           size: selectedSize.size,
           quantity: 1 // Default quantity to 1, can be adjusted as needed

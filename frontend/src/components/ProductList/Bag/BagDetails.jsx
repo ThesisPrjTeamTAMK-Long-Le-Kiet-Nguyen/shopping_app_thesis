@@ -35,9 +35,6 @@ const BagDetails = () => {
         _id: bag._id,
         name: bag.name,
         price: bag.price,
-        brand: bag.brand,
-        type: bag.type,
-        size: bag.size,
         color: selectedColor.color,
         quantity: 1 // Default quantity to 1, can be adjusted as needed
       }

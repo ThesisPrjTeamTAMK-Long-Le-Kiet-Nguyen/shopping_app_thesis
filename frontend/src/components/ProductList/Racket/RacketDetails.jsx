@@ -46,16 +46,9 @@ const RacketDetails = () => {
           _id: racket._id,
           name: racket.name,
           price: racket.price,
-          brand: racket.brand,
-          series: racket.series,
-          racketType: racket.racketType,
-          flexibility: racket.flexibility,
-          material: racket.material,
-          balancePoint: racket.balancePoint,
           cover: racket.cover,
           color: selectedColor.color,
           type: selectedType.type,
-          maxTension: selectedType.maxTension,
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
         console.log('Item to add to shopping bag:', itemToAdd)

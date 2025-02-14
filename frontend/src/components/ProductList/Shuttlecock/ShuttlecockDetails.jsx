@@ -46,12 +46,8 @@ const ShuttlecockDetails = () => {
           _id: shuttlecock._id,
           name: shuttlecock.name,
           price: shuttlecock.price,
-          brand: shuttlecock.brand,
-          featherType: shuttlecock.featherType,
-          unitsPerTube: shuttlecock.unitsPerTube,
           color: selectedColor.color,
           type: selectedType.type,
-          speed: selectedType.speed,
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
         console.log('Item to add to shopping bag:', itemToAdd)
