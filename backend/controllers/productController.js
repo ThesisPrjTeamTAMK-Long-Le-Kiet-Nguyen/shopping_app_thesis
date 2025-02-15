@@ -1,5 +1,5 @@
 // backend/src/controllers/productController.js
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 // MongoDB connection URI
 const MONGO_URI = process.env.MONGO_URI;
@@ -43,68 +43,20 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
-// Fetch products from bags collection
-exports.getBags = async (req, res) => {
+// Delete a product (generic for all products)
+exports.deleteProduct = async (req, res) => {
+    const { id } = req.params; // Get product ID from the URL
+    const { category } = req.body; // Expecting category in the request body
     try {
         await connectToDB();
-        const bags = await db.collection('bags').find().toArray();
-        res.json(bags);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch bags' });
-    }
-};
+        const result = await db.collection(category).deleteOne({ id: id }); // Use the custom id for lookup
 
-// Fetch products from grips collection
-exports.getGrips = async (req, res) => {
-    try {
-        await connectToDB();
-        const grips = await db.collection('grips').find().toArray();
-        res.json(grips);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch grips' });
-    }
-};
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
 
-// Fetch products from rackets collection
-exports.getRackets = async (req, res) => {
-    try {
-        await connectToDB();
-        const rackets = await db.collection('rackets').find().toArray();
-        res.json(rackets);
+        res.json({ message: 'Product deleted successfully' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch rackets' });
-    }
-};
-
-// Fetch products from shoes collection
-exports.getShoes = async (req, res) => {
-    try {
-        await connectToDB();
-        const shoes = await db.collection('shoes').find().toArray();
-        res.json(shoes);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch shoes' });
-    }
-};
-
-// Fetch products from shuttlecocks collection
-exports.getShuttlecocks = async (req, res) => {
-    try {
-        await connectToDB();
-        const shuttlecocks = await db.collection('shuttlecocks').find().toArray();
-        res.json(shuttlecocks);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch shuttlecocks' });
-    }
-};
-
-// Fetch products from stringings collection
-exports.getStringings = async (req, res) => {
-    try {
-        await connectToDB();
-        const stringings = await db.collection('stringings').find().toArray();
-        res.json(stringings);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch stringings' });
+        res.status(500).json({ error: 'Failed to delete product' });
     }
 };
