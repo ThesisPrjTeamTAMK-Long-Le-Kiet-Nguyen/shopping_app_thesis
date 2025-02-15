@@ -14,6 +14,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 const userRoutes = require('./backend/routes/userRoutes');
 const productRoutes = require('./backend/routes/productRoutes');
 const orderRoutes = require('./backend/routes/orderRoutes');
+const cartRoutes = require('./backend/routes/cartRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+app.use('/carts', cartRoutes);
 
 // Starting the server
 app.listen(port, () => {

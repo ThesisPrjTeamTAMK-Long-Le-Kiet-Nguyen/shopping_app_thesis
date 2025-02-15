@@ -47,7 +47,6 @@ const ShoeDetails = () => {
           name: shoe.name,
           price: shoe.price,
           color: selectedColor.color,
-          size: selectedSize.size,
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
         console.log('Item to add to shopping bag:', itemToAdd)
