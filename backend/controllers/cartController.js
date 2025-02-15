@@ -1,15 +1,31 @@
-const Cart = require('../models/cart');
+const { MongoClient } = require('mongodb');
+
+// MongoDB connection URI
+const MONGO_URI = process.env.MONGO_URI;
+
+// MongoDB client
+let db;
+
+// Connect to MongoDB
+const connectToDB = async () => {
+    if (!db) {
+        const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log('Connected to Database');
+        db = client.db('badminton');
+    }
+};
 
 // Add item to cart
 exports.addToCart = async (req, res) => {
-    const { id, name, quantity, color, type } = req.body; // Expecting these fields in the request body
-    const userId = req.user.id; // Get user ID from the authenticated request
+    const { id, name, quantity, color, type } = req.body;
 
     try {
-        // Find the user's cart or create a new one if it doesn't exist
-        let cart = await Cart.findOne({ user: userId });
+        await connectToDB();
+
+        // For now, we will not associate the cart with a user
+        let cart = await db.collection('carts').findOne({}); // Fetch the first cart (or create a new one if needed)
         if (!cart) {
-            cart = new Cart({ user: userId, items: [] });
+            cart = { items: [] };
         }
 
         // Check if the item already exists in the cart
@@ -22,21 +38,28 @@ exports.addToCart = async (req, res) => {
             cart.items.push({ id, name, quantity, color, type });
         }
 
-        await cart.save(); // Save the cart
+        // Upsert the cart
+        await db.collection('carts').updateOne(
+            {},
+            { $set: { items: cart.items } },
+            { upsert: true }
+        );
+
         res.status(201).json({ message: 'Item added to cart successfully', cart });
     } catch (error) {
+        console.error('Failed to add item to cart:', error);
         res.status(500).json({ error: 'Failed to add item to cart' });
     }
 };
 
-// Get user's cart
+// Get cart
 exports.getCart = async (req, res) => {
-    const userId = req.user.id; // Get user ID from the authenticated request
-
     try {
-        const cart = await Cart.findOne({ user: userId }).populate('items'); // Populate item details if needed
+        await connectToDB();
+        const cart = await db.collection('carts').findOne({});
         res.json(cart || { items: [] }); // Return the cart or an empty array if no cart exists
     } catch (error) {
+        console.error('Failed to fetch cart:', error);
         res.status(500).json({ error: 'Failed to fetch cart' });
     }
 };
@@ -44,11 +67,11 @@ exports.getCart = async (req, res) => {
 // Remove item from cart
 exports.removeFromCart = async (req, res) => {
     const { id } = req.params; // Get item ID from the URL
-    const userId = req.user.id; // Get user ID from the authenticated request
 
     try {
-        // Find the user's cart
-        const cart = await Cart.findOne({ user: userId });
+        await connectToDB();
+        // Find the cart
+        const cart = await db.collection('carts').findOne({});
         if (!cart) {
             return res.status(404).json({ error: 'Cart not found' });
         }
@@ -61,10 +84,16 @@ exports.removeFromCart = async (req, res) => {
 
         // Remove the item from the cart
         cart.items.splice(itemIndex, 1);
-        await cart.save();
+
+        // Update the cart in the database
+        await db.collection('carts').updateOne(
+            {},
+            { $set: { items: cart.items } }
+        );
 
         res.json({ message: 'Item removed from cart successfully', cart });
     } catch (error) {
+        console.error('Failed to remove item from cart:', error);
         res.status(500).json({ error: 'Failed to remove item from cart' });
     }
-}; 
+};
