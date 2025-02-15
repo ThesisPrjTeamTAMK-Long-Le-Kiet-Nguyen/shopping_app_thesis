@@ -7,9 +7,9 @@ const { authenticateUser } = require('../middleware/authenticate');
 router.post('/', authenticateUser, cartController.addToCart);
 
 // Get user's cart
-router.get('/', authenticateUser, cartController.getCart);
+router.get('/', cartController.getCart);
 
 // Remove item from cart
 router.delete('/:id', authenticateUser, cartController.removeFromCart);
 
-module.exports = router; 
+module.exports = router;
