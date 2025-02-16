@@ -17,7 +17,7 @@ const connectToDB = async () => {
 
 // Add item to cart
 exports.addToCart = async (req, res) => {
-    const { id, name, quantity, color, type } = req.body;
+    const { id, name, quantity, color, type, price } = req.body;
     const userId = req.user.id; // Get user ID from the authenticated request
 
     try {
@@ -36,8 +36,8 @@ exports.addToCart = async (req, res) => {
             // If it exists, update the quantity
             cart.items[existingItemIndex].quantity += quantity;
         } else {
-            // If it doesn't exist, add a new item
-            cart.items.push({ id, name, quantity, color, type });
+            // If it doesn't exist, add a new item with price
+            cart.items.push({ id, name, quantity, color, type, price });
         }
 
         // Upsert the cart

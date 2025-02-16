@@ -1,0 +1,25 @@
+.shopping-cart {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.shopping-cart h2 {
+    margin-bottom: 20px;
+}
+
+.shopping-cart-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.shopping-cart-item h4 {
+    margin: 0;
+}
+
+.shopping-cart-item p {
+    margin: 5px 0;
+}

@@ -48,7 +48,7 @@ const Navbar = () => {
           )}
         </ul>
         <ul className="auth-links">
-          <Link to="/cart">Shopping Bag</Link>
+          <Link to="/cart">Your Cart</Link>
           {token ? (
             <div className="user-menu" onMouseEnter={() => setDropdownVisible(true)} onMouseLeave={() => setDropdownVisible(false)}>
               <i style={{ fontSize: '24px', cursor: 'pointer' }} className='fas'>&#xf406;</i>

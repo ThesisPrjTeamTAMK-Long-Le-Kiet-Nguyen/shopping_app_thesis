@@ -27,6 +27,10 @@ const cartSchema = new mongoose.Schema({
         type: {
             type: String, // For products like rackets or shoes that have types
         },
+        price: {
+            type: Number,
+            required: true, // Price of the product
+        },
     }],
 }, { collection: 'carts', timestamps: true });
 
