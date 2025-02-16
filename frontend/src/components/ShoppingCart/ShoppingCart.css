@@ -8,18 +8,40 @@
 
 .shopping-cart h2 {
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .shopping-cart-item {
     margin-bottom: 15px;
     border-bottom: 1px solid #ccc;
     padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .shopping-cart-item h4 {
     margin: 0;
+    font-size: 1.5em;
+}
+
+.shopping-cart-item .price {
+    font-size: 1.5em;
 }
 
 .shopping-cart-item p {
     margin: 5px 0;
+}
+
+.remove-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.remove-button:hover {
+    background-color: #ff1a1a;
 }
