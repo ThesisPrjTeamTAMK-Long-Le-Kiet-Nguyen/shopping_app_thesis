@@ -17,15 +17,17 @@ const connectToDB = async () => {
 
 // Add item to cart
 exports.addToCart = async (req, res) => {
-    const { id, name, quantity, color, type } = req.body;
+    const { id, name, quantity, color, type, price } = req.body;
+    const userId = req.user.id; // Get user ID from the authenticated request
 
     try {
         await connectToDB();
 
-        // For now, we will not associate the cart with a user
-        let cart = await db.collection('carts').findOne({}); // Fetch the first cart (or create a new one if needed)
+        // Find the cart for the user
+        let cart = await db.collection('carts').findOne({ userId });
         if (!cart) {
-            cart = { items: [] };
+            // If no cart exists for the user, create a new one
+            cart = { userId, items: [] };
         }
 
         // Check if the item already exists in the cart
@@ -34,13 +36,13 @@ exports.addToCart = async (req, res) => {
             // If it exists, update the quantity
             cart.items[existingItemIndex].quantity += quantity;
         } else {
-            // If it doesn't exist, add a new item
-            cart.items.push({ id, name, quantity, color, type });
+            // If it doesn't exist, add a new item with price
+            cart.items.push({ id, name, quantity, color, type, price });
         }
 
         // Upsert the cart
         await db.collection('carts').updateOne(
-            {},
+            { userId },
             { $set: { items: cart.items } },
             { upsert: true }
         );
@@ -54,9 +56,11 @@ exports.addToCart = async (req, res) => {
 
 // Get cart
 exports.getCart = async (req, res) => {
+    const userId = req.user.id; // Get user ID from the authenticated request
+
     try {
         await connectToDB();
-        const cart = await db.collection('carts').findOne({});
+        const cart = await db.collection('carts').findOne({ userId });
         res.json(cart || { items: [] }); // Return the cart or an empty array if no cart exists
     } catch (error) {
         console.error('Failed to fetch cart:', error);
@@ -67,11 +71,12 @@ exports.getCart = async (req, res) => {
 // Remove item from cart
 exports.removeFromCart = async (req, res) => {
     const { id } = req.params; // Get item ID from the URL
+    const userId = req.user.id; // Get user ID from the authenticated request
 
     try {
         await connectToDB();
-        // Find the cart
-        const cart = await db.collection('carts').findOne({});
+        // Find the cart for the user
+        const cart = await db.collection('carts').findOne({ userId });
         if (!cart) {
             return res.status(404).json({ error: 'Cart not found' });
         }
@@ -87,7 +92,7 @@ exports.removeFromCart = async (req, res) => {
 
         // Update the cart in the database
         await db.collection('carts').updateOne(
-            {},
+            { userId },
             { $set: { items: cart.items } }
         );
 

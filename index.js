@@ -4,6 +4,7 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 const mongoose = require('mongoose');
+const middleware = require('./backend/middleware/middleware');
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -23,6 +24,10 @@ app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/carts', cartRoutes);
+
+app.use(middleware.requestLogger);
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
 
 // Starting the server
 app.listen(port, () => {
