@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchShuttlecocks } from '../../../services/productService'
+import cartService from '../../../services/cartService'
 import '../index.css'
 
 const ShuttlecockDetails = () => {
@@ -39,7 +40,7 @@ const ShuttlecockDetails = () => {
     setSelectedType(type)
   }
 
-  const handleAddToBag = () => {
+  const handleAddToBag = async () => {
     if (selectedType.quantity > 0) {
       if (window.confirm(`Add ${shuttlecock.name} (${selectedColor.color}, ${selectedType.type}) to your shopping bag?`)) {
         const itemToAdd = {
@@ -51,10 +52,18 @@ const ShuttlecockDetails = () => {
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
         console.log('Item to add to shopping bag:', itemToAdd)
-        // Logic to send this object to the backend goes here
+        
+        try {
+          const response = await cartService.addToCart(itemToAdd)
+          alert('Item added to cart successfully!')
+          console.log('Response from cart service:', response)
+        } catch (error) {
+          console.error('Failed to add item to cart:', error)
+          alert('Failed to add item to cart. Please try again.')
+        }
       }
     } else {
-      alert('This item is out of stock and cannot be added to the shopping bag.');
+      alert('This item is out of stock and cannot be added to the shopping bag.')
     }
   }
 

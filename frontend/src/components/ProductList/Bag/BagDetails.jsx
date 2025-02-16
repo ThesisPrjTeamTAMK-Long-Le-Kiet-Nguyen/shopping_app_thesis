@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { fetchBags } from '../../../services/productService'
+import cartService from '../../../services/cartService'
 import '../index.css'
 
 const BagDetails = () => {
@@ -29,17 +30,29 @@ const BagDetails = () => {
     setSelectedColor(color)
   }
 
-  const handleAddToBag = () => {
-    if (window.confirm(`Add ${bag.name} (${selectedColor.color}) to your shopping bag?`)) {
-      const itemToAdd = {
-        _id: bag._id,
-        name: bag.name,
-        price: bag.price,
-        color: selectedColor.color,
-        quantity: 1 // Default quantity to 1, can be adjusted as needed
+  const handleAddToBag = async () => {
+    if (selectedColor.quantity > 0) {
+      if (window.confirm(`Add ${bag.name} (${selectedColor.color}) to your shopping bag?`)) {
+        const itemToAdd = {
+          id: bag.id,
+          name: bag.name,
+          price: bag.price,
+          color: selectedColor.color,
+          quantity: 1 // Default quantity to 1, can be adjusted as needed
+        }
+        console.log('Item to add to shopping bag:', itemToAdd)
+        
+        try {
+          const response = await cartService.addToCart(itemToAdd)
+          alert('Item added to cart successfully!')
+          console.log('Response from cart service:', response)
+        } catch (error) {
+          console.error('Failed to add item to cart:', error)
+          alert('Failed to add item to cart. Please try again.')
+        }
       }
-      console.log('Item to add to shopping bag:', itemToAdd)
-      // Logic to send this object to the backend goes here
+    } else {
+      alert('This item is out of stock and cannot be added to the shopping bag.')
     }
   }
 
@@ -78,7 +91,7 @@ const BagDetails = () => {
             ))}
           </div>
 
-          <button onClick={handleAddToBag} className="add-to-bag-button">
+          <button onClick={handleAddToBag} className="add-to-bag-button" disabled={selectedColor.quantity === 0}>
             Add to Shopping Bag
           </button>
         </div>
