@@ -23,6 +23,15 @@ const ShoppingCart = () => {
     fetchCartItems();
   }, []);
 
+  const handleRemoveFromCart = async (itemId) => {
+    try {
+      await cartService.removeFromCart(itemId); // Call the remove function
+      setCartItems(cartItems.filter(item => item.id !== itemId)); // Update the state to remove the item
+    } catch (error) {
+      console.error('Failed to remove item from cart:', error);
+    }
+  };
+
   if (loading) {
     return <p>Loading your shopping cart...</p>;
   }
@@ -40,11 +49,19 @@ const ShoppingCart = () => {
         <div>
           {cartItems.map((item, index) => (
             <div key={index} className="shopping-cart-item">
-              <h4>{item.name}</h4>
-              <p>Price: ${item.price}</p>
-              <p>Color: {item.color}</p>
-              <p>Type: {item.type}</p>
-              <p>Quantity: {item.quantity}</p>
+              <div>
+                <h4>{item.name}</h4>
+                <p className="price">Price: ${item.price}</p>
+                <p>Color: {item.color}</p>
+                <p>Type: {item.type}</p>
+                <p>Quantity: {item.quantity}</p>
+              </div>
+              <button 
+                className="remove-button" 
+                onClick={() => handleRemoveFromCart(item.id)}
+              >
+                Remove
+              </button>
             </div>
           ))}
         </div>

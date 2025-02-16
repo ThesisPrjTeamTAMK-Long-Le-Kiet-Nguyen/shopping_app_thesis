@@ -35,7 +35,7 @@ const StringingDetails = () => {
     if (selectedColor.quantity > 0) {
       if (window.confirm(`Add ${stringing.name} (${selectedColor.color}) to your shopping bag?`)) {
         const itemToAdd = {
-          _id: stringing._id,
+          id: stringing.id,
           name: stringing.name,
           price: stringing.price,
           type: stringing.type,
@@ -43,7 +43,7 @@ const StringingDetails = () => {
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
         console.log('Item to add to shopping bag:', itemToAdd)
-        
+
         try {
           const response = await cartService.addToCart(itemToAdd)
           alert('Item added to cart successfully!')

@@ -44,7 +44,7 @@ const ShuttlecockDetails = () => {
     if (selectedType.quantity > 0) {
       if (window.confirm(`Add ${shuttlecock.name} (${selectedColor.color}, ${selectedType.type}) to your shopping bag?`)) {
         const itemToAdd = {
-          _id: shuttlecock._id,
+          id: shuttlecock.id,
           name: shuttlecock.name,
           price: shuttlecock.price,
           color: selectedColor.color,
@@ -52,7 +52,7 @@ const ShuttlecockDetails = () => {
           quantity: 1 // Default quantity to 1, can be adjusted as needed
         }
         console.log('Item to add to shopping bag:', itemToAdd)
-        
+
         try {
           const response = await cartService.addToCart(itemToAdd)
           alert('Item added to cart successfully!')
