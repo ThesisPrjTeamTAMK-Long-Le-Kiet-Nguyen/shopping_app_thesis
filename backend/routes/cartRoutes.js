@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const cartController = require('../controllers/cartController');
-const { authenticateUser } = require('../middleware/authenticate');
+const cartController = require('../controllers/cart');
+const { authenticateUser } = require('../utils/authenticate');
 
 // Add item to cart
 router.post('/', authenticateUser, cartController.addToCart);

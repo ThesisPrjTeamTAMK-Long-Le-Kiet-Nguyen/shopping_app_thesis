@@ -1,25 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI
-const MONGO_URI = process.env.MONGO_URI;
-
-// MongoDB client
-let db;
-
-// Connect to MongoDB
-const connectToDB = async () => {
-    if (!db) {
-        const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to Database');
-        db = client.db('badminton');
-    }
-};
+const Shoe = require('../models/shoe'); // Import the Shoe model
 
 // Get all shoes
 exports.getAllShoes = async (req, res) => {
     try {
-        await connectToDB();
-        const shoes = await db.collection('shoes').find().toArray();
+        const shoes = await Shoe.find(); // Use Mongoose to find all shoes
         res.json(shoes);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch shoes' });
@@ -40,7 +24,7 @@ exports.addShoe = async (req, res) => {
             return res.status(400).json({ error: 'Colors must be a non-empty array' });
         }
 
-        const newShoe = {
+        const newShoe = new Shoe({
             id,
             name,
             price,
@@ -49,9 +33,9 @@ exports.addShoe = async (req, res) => {
             midsole,
             outsole,
             colors, // Keep the colors array as provided
-        };
+        });
 
-        await db.collection('shoes').insertOne(newShoe);
+        await newShoe.save(); // Use Mongoose to save the new shoe
         res.status(201).json({ message: 'Shoe added successfully', shoe: newShoe });
     } catch (error) {
         res.status(500).json({ error: 'Failed to add shoe' });
@@ -63,18 +47,18 @@ exports.updateShoe = async (req, res) => {
     const { id } = req.params; // Get shoe ID from the URL
     const updates = req.body; // Expecting updated shoe details in the request body
     try {
-        const result = await db.collection('shoes').findOneAndUpdate(
+        const result = await Shoe.findOneAndUpdate(
             { id: id }, // Use the custom id for lookup
             { $set: updates },
-            { returnOriginal: false }
+            { new: true } // Return the updated document
         );
 
-        if (!result.value) {
+        if (!result) {
             return res.status(404).json({ error: 'Shoe not found' });
         }
 
-        res.json({ message: 'Shoe updated successfully', shoe: result.value });
+        res.json({ message: 'Shoe updated successfully', shoe: result });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update shoe' });
     }
-}; 
+};

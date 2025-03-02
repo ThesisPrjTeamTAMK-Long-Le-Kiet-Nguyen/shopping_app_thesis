@@ -1,25 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI
-const MONGO_URI = process.env.MONGO_URI;
-
-// MongoDB client
-let db;
-
-// Connect to MongoDB
-const connectToDB = async () => {
-    if (!db) {
-        const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to Database');
-        db = client.db('badminton');
-    }
-};
+const Racket = require('../models/racket'); // Import the Racket model
 
 // Get all rackets
 exports.getAllRackets = async (req, res) => {
     try {
-        await connectToDB();
-        const rackets = await db.collection('rackets').find().toArray();
+        const rackets = await Racket.find(); // Use Mongoose to find all rackets
         res.json(rackets);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch rackets' });
@@ -40,7 +24,7 @@ exports.addRacket = async (req, res) => {
             return res.status(400).json({ error: 'Colors must be a non-empty array' });
         }
 
-        const newRacket = {
+        const newRacket = new Racket({
             id,
             name,
             price,
@@ -51,10 +35,10 @@ exports.addRacket = async (req, res) => {
             material,
             balancePoint,
             cover,
-            colors,
-        };
+            colors, // Keep the colors array as provided
+        });
 
-        await db.collection('rackets').insertOne(newRacket);
+        await newRacket.save(); // Use Mongoose to save the new racket
         res.status(201).json({ message: 'Racket added successfully', racket: newRacket });
     } catch (error) {
         res.status(500).json({ error: 'Failed to add racket' });
@@ -66,17 +50,17 @@ exports.updateRacket = async (req, res) => {
     const { id } = req.params; // Get racket ID from the URL
     const updates = req.body; // Expecting updated racket details in the request body
     try {
-        const result = await db.collection('rackets').findOneAndUpdate(
+        const result = await Racket.findOneAndUpdate(
             { id: id }, // Use the custom id for lookup
             { $set: updates },
-            { returnOriginal: false }
+            { new: true } // Return the updated document
         );
 
-        if (!result.value) {
+        if (!result) {
             return res.status(404).json({ error: 'Racket not found' });
         }
 
-        res.json({ message: 'Racket updated successfully', racket: result.value });
+        res.json({ message: 'Racket updated successfully', racket: result });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update racket' });
     }

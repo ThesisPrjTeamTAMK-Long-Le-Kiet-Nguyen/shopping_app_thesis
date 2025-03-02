@@ -1,25 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI
-const MONGO_URI = process.env.MONGO_URI;
-
-// MongoDB client
-let db;
-
-// Connect to MongoDB
-const connectToDB = async () => {
-    if (!db) {
-        const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to Database');
-        db = client.db('badminton');
-    }
-};
+const Bag = require('../models/bag'); // Import the Bag model
 
 // Get all bags
 exports.getAllBags = async (req, res) => {
     try {
-        await connectToDB();
-        const bags = await db.collection('bags').find().toArray();
+        const bags = await Bag.find(); // Use Mongoose to find all bags
         res.json(bags);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch bags' });
@@ -40,7 +24,7 @@ exports.addBag = async (req, res) => {
             return res.status(400).json({ error: 'Colors must be a non-empty array' });
         }
 
-        const newBag = {
+        const newBag = new Bag({
             id,
             name,
             price,
@@ -48,9 +32,9 @@ exports.addBag = async (req, res) => {
             type,
             size,
             colors, // Keep the colors array as provided
-        };
+        });
 
-        await db.collection('bags').insertOne(newBag);
+        await newBag.save(); // Use Mongoose to save the new bag
         res.status(201).json({ message: 'Bag added successfully', bag: newBag });
     } catch (error) {
         res.status(500).json({ error: 'Failed to add bag' });
@@ -62,18 +46,18 @@ exports.updateBag = async (req, res) => {
     const { id } = req.params; // Get bag ID from the URL
     const updates = req.body; // Expecting updated bag details in the request body
     try {
-        const result = await db.collection('bags').findOneAndUpdate(
+        const result = await Bag.findOneAndUpdate(
             { id: id }, // Use the custom id for lookup
             { $set: updates },
-            { returnOriginal: false }
+            { new: true } // Return the updated document
         );
 
-        if (!result.value) {
+        if (!result) {
             return res.status(404).json({ error: 'Bag not found' });
         }
 
-        res.json({ message: 'Bag updated successfully', bag: result.value });
+        res.json({ message: 'Bag updated successfully', bag: result });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update bag' });
     }
-}; 
+};
