@@ -1,25 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI
-const MONGODB_URI = process.env.MONGODB_URI;
-
-// MongoDB client
-let db;
-
-// Connect to MongoDB
-const connectToDB = async () => {
-    if (!db) {
-        const client = await MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to Database');
-        db = client.db('badminton');
-    }
-};
+const Stringing = require('../models/stringing'); // Import the Stringing model
 
 // Get all stringings
 exports.getAllStringings = async (req, res) => {
     try {
-        await connectToDB();
-        const stringings = await db.collection('stringings').find().toArray();
+        const stringings = await Stringing.find(); // Use Mongoose to find all stringings
         res.json(stringings);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch stringings' });
@@ -40,7 +24,7 @@ exports.addStringing = async (req, res) => {
             return res.status(400).json({ error: 'Colors must be a non-empty array' });
         }
 
-        const newStringing = {
+        const newStringing = new Stringing({
             id,
             name,
             price,
@@ -49,9 +33,9 @@ exports.addStringing = async (req, res) => {
             gauge,
             type,
             colors, // Keep the colors array as provided
-        };
+        });
 
-        await db.collection('stringings').insertOne(newStringing);
+        await newStringing.save(); // Use Mongoose to save the new stringing
         res.status(201).json({ message: 'Stringing added successfully', stringing: newStringing });
     } catch (error) {
         res.status(500).json({ error: 'Failed to add stringing' });
@@ -63,17 +47,17 @@ exports.updateStringing = async (req, res) => {
     const { id } = req.params; // Get stringing ID from the URL
     const updates = req.body; // Expecting updated stringing details in the request body
     try {
-        const result = await db.collection('stringings').findOneAndUpdate(
+        const result = await Stringing.findOneAndUpdate(
             { id: id }, // Use the custom id for lookup
             { $set: updates },
-            { returnOriginal: false }
+            { new: true } // Return the updated document
         );
 
-        if (!result.value) {
+        if (!result) {
             return res.status(404).json({ error: 'Stringing not found' });
         }
 
-        res.json({ message: 'Stringing updated successfully', stringing: result.value });
+        res.json({ message: 'Stringing updated successfully', stringing: result });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update stringing' });
     }

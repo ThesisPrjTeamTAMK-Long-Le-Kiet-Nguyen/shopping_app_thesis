@@ -1,25 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI
-const MONGODB_URI = process.env.MONGODB_URI;
-
-// MongoDB client
-let db;
-
-// Connect to MongoDB
-const connectToDB = async () => {
-    if (!db) {
-        const client = await MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to Database');
-        db = client.db('badminton');
-    }
-};
+const Shuttlecock = require('../models/shuttlecock'); // Import the Shuttlecock model
 
 // Get all shuttlecocks
 exports.getAllShuttlecocks = async (req, res) => {
     try {
-        await connectToDB();
-        const shuttlecocks = await db.collection('shuttlecocks').find().toArray();
+        const shuttlecocks = await Shuttlecock.find(); // Use Mongoose to find all shuttlecocks
         res.json(shuttlecocks);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch shuttlecocks' });
@@ -40,7 +24,7 @@ exports.addShuttlecock = async (req, res) => {
             return res.status(400).json({ error: 'Colors must be a non-empty array' });
         }
 
-        const newShuttlecock = {
+        const newShuttlecock = new Shuttlecock({
             id,
             name,
             price,
@@ -48,9 +32,9 @@ exports.addShuttlecock = async (req, res) => {
             featherType,
             unitsPerTube,
             colors, // Keep the colors array as provided
-        };
+        });
 
-        await db.collection('shuttlecocks').insertOne(newShuttlecock);
+        await newShuttlecock.save(); // Use Mongoose to save the new shuttlecock
         res.status(201).json({ message: 'Shuttlecock added successfully', shuttlecock: newShuttlecock });
     } catch (error) {
         res.status(500).json({ error: 'Failed to add shuttlecock' });
@@ -62,17 +46,17 @@ exports.updateShuttlecock = async (req, res) => {
     const { id } = req.params; // Get shuttlecock ID from the URL
     const updates = req.body; // Expecting updated shuttlecock details in the request body
     try {
-        const result = await db.collection('shuttlecocks').findOneAndUpdate(
+        const result = await Shuttlecock.findOneAndUpdate(
             { id: id }, // Use the custom id for lookup
             { $set: updates },
-            { returnOriginal: false }
+            { new: true } // Return the updated document
         );
 
-        if (!result.value) {
+        if (!result) {
             return res.status(404).json({ error: 'Shuttlecock not found' });
         }
 
-        res.json({ message: 'Shuttlecock updated successfully', shuttlecock: result.value });
+        res.json({ message: 'Shuttlecock updated successfully', shuttlecock: result });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update shuttlecock' });
     }

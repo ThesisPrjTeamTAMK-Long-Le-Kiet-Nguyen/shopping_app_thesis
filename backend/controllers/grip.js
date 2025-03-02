@@ -1,25 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI
-const MONGODB_URI = process.env.MONGODB_URI;
-
-// MongoDB client
-let db;
-
-// Connect to MongoDB
-const connectToDB = async () => {
-    if (!db) {
-        const client = await MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to Database');
-        db = client.db('badminton');
-    }
-};
+const Grip = require('../models/grip'); // Import the Grip model
 
 // Get all grips
 exports.getAllGrips = async (req, res) => {
     try {
-        await connectToDB();
-        const grips = await db.collection('grips').find().toArray();
+        const grips = await Grip.find(); // Use Mongoose to find all grips
         res.json(grips);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch grips' });
@@ -40,7 +24,7 @@ exports.addGrip = async (req, res) => {
             return res.status(400).json({ error: 'Colors must be a non-empty array' });
         }
 
-        const newGrip = {
+        const newGrip = new Grip({
             id,
             name,
             price,
@@ -48,9 +32,9 @@ exports.addGrip = async (req, res) => {
             thickness,
             length,
             colors, // Keep the colors array as provided
-        };
+        });
 
-        await db.collection('grips').insertOne(newGrip);
+        await newGrip.save(); // Use Mongoose to save the new grip
         res.status(201).json({ message: 'Grip added successfully', grip: newGrip });
     } catch (error) {
         res.status(500).json({ error: 'Failed to add grip' });
@@ -62,17 +46,17 @@ exports.updateGrip = async (req, res) => {
     const { id } = req.params; // Get grip ID from the URL
     const updates = req.body; // Expecting updated grip details in the request body
     try {
-        const result = await db.collection('grips').findOneAndUpdate(
+        const result = await Grip.findOneAndUpdate(
             { id: id }, // Use the custom id for lookup
             { $set: updates },
-            { returnOriginal: false }
+            { new: true } // Return the updated document
         );
 
-        if (!result.value) {
+        if (!result) {
             return res.status(404).json({ error: 'Grip not found' });
         }
 
-        res.json({ message: 'Grip updated successfully', grip: result.value });
+        res.json({ message: 'Grip updated successfully', grip: result });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update grip' });
     }
