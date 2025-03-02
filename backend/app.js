@@ -26,6 +26,10 @@ app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/carts', cartRoutes);
 
+//Login route
+const loginRouter = require('./controllers/login')
+app.use('/api/login', loginRouter)
+
 app.use(middleware.requestLogger);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

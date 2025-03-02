@@ -6,9 +6,6 @@ const { authenticateUser } = require('../utils/authenticate');
 // User registration route
 router.post('/register', user.registerUser);
 
-// User login route
-router.post('/login', user.loginUser);
-
 // Get user profile route (protected)
 router.get('/profile', authenticateUser, user.getUserProfile);
 
