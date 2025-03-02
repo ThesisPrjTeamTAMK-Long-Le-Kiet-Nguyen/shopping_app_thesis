@@ -17,7 +17,7 @@ loginRouter.post('/', async (req, res) => {
       }
 
       // Generate token
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
       res.json({ token, username: user.username, role: user.role });
   } catch (error) {
       res.status(500).json({ error: 'Failed to login' });

@@ -32,7 +32,7 @@ router.get('/shuttlecocks', shuttlecockController.getAllShuttlecocks);
 router.get('/stringings', stringingController.getAllStringings);
 
 // Racket routes
-router.post('/rackets/add', authenticateUser, racketController.addRacket);
+router.post('/rackets/add', authenticateUser, isAdmin, racketController.addRacket);
 router.put('/rackets/:id', authenticateUser, isAdmin, racketController.updateRacket);
 router.delete('/rackets/:id', authenticateUser, isAdmin, productController.deleteProduct);
 
