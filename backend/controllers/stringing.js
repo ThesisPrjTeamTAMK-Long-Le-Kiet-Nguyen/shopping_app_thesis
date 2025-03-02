@@ -1,7 +1,7 @@
 const { MongoClient, ObjectId } = require('mongodb');
 
 // MongoDB connection URI
-const MONGO_URI = process.env.MONGO_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // MongoDB client
 let db;
@@ -9,7 +9,7 @@ let db;
 // Connect to MongoDB
 const connectToDB = async () => {
     if (!db) {
-        const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        const client = await MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('Connected to Database');
         db = client.db('badminton');
     }
@@ -77,4 +77,4 @@ exports.updateStringing = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Failed to update stringing' });
     }
-}; 
+};

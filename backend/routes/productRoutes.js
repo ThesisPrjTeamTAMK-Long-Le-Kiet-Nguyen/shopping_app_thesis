@@ -1,14 +1,14 @@
 // backend/src/routes/productRoutes.js
 const express = require('express');
 const router = express.Router();
-const productController = require('../controllers/productController');
-const racketController = require('../controllers/racketController');
-const bagController = require('../controllers/bagController');
-const shoeController = require('../controllers/shoeController');
-const stringingController = require('../controllers/stringingController');
-const gripController = require('../controllers/gripController');
-const shuttlecockController = require('../controllers/shuttlecockController');
-const { authenticateUser, isAdmin } = require('../middleware/authenticate');
+const productController = require('../controllers/product');
+const racketController = require('../controllers/racket');
+const bagController = require('../controllers/bag');
+const shoeController = require('../controllers/shoe');
+const stringingController = require('../controllers/stringing');
+const gripController = require('../controllers/grip');
+const shuttlecockController = require('../controllers/shuttlecock');
+const { authenticateUser, isAdmin } = require('../utils/authenticate');
 
 // Fetch all products from all collections
 router.get('/', productController.getAllProducts);
