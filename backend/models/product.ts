@@ -234,17 +234,7 @@ const shuttlecockSchema = new Schema<Shuttlecock>({
     colors: [colorSchema],
 }, { collection: 'shuttlecocks' });
 
-// Common toJSON transform function
-const commonToJSON = (_document: any, returnedObject: any) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-};
 
-// Apply toJSON transform to all schemas
-[racketSchema, shoeSchema, stringingSchema, bagSchema, gripSchema, shuttlecockSchema].forEach(schema => {
-    schema.set('toJSON', { transform: commonToJSON });
-});
 
 // Export schemas if needed elsewhere
 export { typeSchema as TypeSchema, colorSchema as ColorSchema };
@@ -255,4 +245,4 @@ export const ShoeModel = mongoose.models.Shoe || mongoose.model<Shoe>('Shoe', sh
 export const StringingModel = mongoose.models.Stringing || mongoose.model<Stringing>('Stringing', stringingSchema, 'stringings');
 export const BagModel = mongoose.models.Bag || mongoose.model<Bag>('Bag', bagSchema, 'bags');
 export const GripModel = mongoose.models.Grip || mongoose.model<Grip>('Grip', gripSchema, 'grips');
-export const ShuttlecockModel = mongoose.models.Shuttlecock || mongoose.model<Shuttlecock>('Shuttlecock', shuttlecockSchema, 'shuttlecocks'); 
+export const ShuttlecockModel = mongoose.models.Shuttlecock || mongoose.model<Shuttlecock>('Shuttlecock', shuttlecockSchema, 'shuttlecocks');

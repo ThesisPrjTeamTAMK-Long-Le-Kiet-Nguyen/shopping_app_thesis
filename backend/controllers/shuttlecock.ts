@@ -109,3 +109,30 @@ export const updateShuttlecock = async (
         });
     }
 };
+
+export const getShuttlecockById = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Shuttlecock>>
+) => {
+    const { id } = req.params;
+    try {
+        const shuttlecock = await ShuttlecockModel.findOne({ id });
+        
+        if (!shuttlecock) {
+            return res.status(404).json({
+                success: false,
+                error: 'Shuttlecock not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: shuttlecock
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch shuttlecock'
+        });
+    }
+};
