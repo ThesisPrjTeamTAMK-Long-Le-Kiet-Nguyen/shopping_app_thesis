@@ -58,9 +58,41 @@
 }
 
 .nav-link {
+  padding: 0.5rem 1rem;
+  color: #333;
+  font-weight: 500;
   text-decoration: none;
-  color: inherit;
-  font-weight: normal;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: #f3f4f6;
+}
+
+.nav-active {
+  background-color: #519ded;
+  color: white;
+}
+
+.cart-button,
+.user-button,
+.login-button {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  color: #333;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.cart-button:hover,
+.user-button:hover,
+.login-button:hover {
+  background-color: #f3f4f6;
 }
 
 .user-menu {
@@ -69,48 +101,55 @@
 }
 
 .dropdown-menu {
-  display: none; /* Initially hidden */
+  display: none;
   position: absolute;
+  right: 0;
+  top: 100%;
   background-color: white;
-  min-width: 160px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  right: 0; /* Align dropdown to the right */
-  padding: 10px;
+  min-width: 160px;
 }
 
 .user-menu:hover .dropdown-menu {
-  display: block; /* Show dropdown on hover */
-}
-
-.dropdown-menu span {
   display: block;
-  margin-bottom: 5px;
 }
 
-.dropdown-menu button {
-  padding: 5px 10px;
-  background-color: #007bff;
+.user-name {
+  display: block;
+  padding: 0.5rem;
+  color: #333;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  background-color: #ef4444;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
-  width: 100%; /* Make button full width */
+  transition: background-color 0.2s;
 }
 
-.dropdown-menu button:hover {
-  background-color: #0056b3;
+.logout-button:hover {
+  background-color: #dc2626;
 }
 
 .modify-button {
   background-color: #28a745;
   color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
   text-decoration: none;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
 .modify-button:hover {
-  background-color: #81c18f;
+  background-color: #218838;
 }

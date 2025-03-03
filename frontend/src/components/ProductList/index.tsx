@@ -12,7 +12,7 @@ import GripDetails from './Grip/GripDetails'
 import BagList from './Bag/BagList'
 import BagDetails from './Bag/BagDetails'
 
-const ProductRoutes = () => {
+const ProductList = () => {
   return (
     <Routes>
       <Route path="/" element={
@@ -41,4 +41,4 @@ const ProductRoutes = () => {
   )
 }
 
-export default ProductRoutes
+export default ProductList

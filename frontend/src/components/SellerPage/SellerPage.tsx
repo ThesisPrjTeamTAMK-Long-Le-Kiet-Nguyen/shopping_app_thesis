@@ -8,4 +8,4 @@ const SellerPage = () => {
   );
 };
 
-export default SellerPage; 
+export default SellerPage;
