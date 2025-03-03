@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { fetchRackets } from '../../../services/productService'
 import { Link } from 'react-router-dom'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 
 const RacketList = () => {
   const [rackets, setRackets] = useState(null)
@@ -28,47 +30,47 @@ const RacketList = () => {
   const groupedRackets = rackets ? groupRackets(rackets) : {}
 
   return (
-    <div>
-      <h2>Racket Items</h2>
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-6">Racket Items</h2>
       {rackets ? (
         Object.entries(groupedRackets).map(([brand, seriesMap]) => (
-          <div key={brand}>
-            <h3>{brand}</h3>
+          <div key={brand} className="mb-8">
+            <h3 className="text-2xl font-semibold mb-4">{brand}</h3>
             {Object.entries(seriesMap).map(([series, rackets]) => (
-              <div key={series}>
-                <h4>{series}</h4>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+              <div key={series} className="mb-6">
+                <h4 className="text-xl font-medium mb-3">{series}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {rackets.map((racket) => (
-                    <div
-                      key={racket.id}
-                      style={{
-                        border: '1px solid #ccc',
-                        borderRadius: '8px',
-                        padding: '16px',
-                        width: '200px',
-                        textAlign: 'center',
-                      }}
+                    <Link 
+                      key={racket.id} 
+                      to={`/racket/${racket.id}`}
+                      className="no-underline"
                     >
-                      <Link to={`/racket/${racket.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <img
-                          src={racket.colors[0].photo}
-                          alt={racket.name}
-                          width="100%"
-                          height="auto"
-                          style={{ borderRadius: '8px' }}
-                        />
-                        <h3>{racket.name}</h3>
-                        <p>Price: ${racket.price}</p>
-                      </Link>
-                    </div>
+                      <Card className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="p-4">
+                          <img
+                            src={racket.colors[0].photo}
+                            alt={racket.name}
+                            className="w-full h-48 object-contain rounded-md"
+                          />
+                        </CardHeader>
+                        <CardContent className="p-4">
+                          <CardTitle className="text-lg mb-2">{racket.name}</CardTitle>
+                          <p className="text-primary font-semibold">${racket.price}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               </div>
             ))}
+            <Separator className="my-8" />
           </div>
         ))
       ) : (
-        <p>Loading rackets...</p>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <p className="text-lg text-muted-foreground">Loading rackets...</p>
+        </div>
       )}
     </div>
   )
