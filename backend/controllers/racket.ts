@@ -114,3 +114,30 @@ export const updateRacket = async (
         });
     }
 };
+
+export const getRacketById = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Racket>>
+) => {
+    const { id } = req.params;
+    try {
+        const racket = await RacketModel.findOne({ id });
+        
+        if (!racket) {
+            return res.status(404).json({
+                success: false,
+                error: 'Racket not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: racket
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch racket'
+        });
+    }
+};

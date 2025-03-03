@@ -108,3 +108,30 @@ export const updateStringing = async (
         });
     }
 };
+
+export const getStringingById = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Stringing>>
+) => {
+    const { id } = req.params;
+    try {
+        const stringing = await StringingModel.findOne({ id });
+        
+        if (!stringing) {
+            return res.status(404).json({
+                success: false,
+                error: 'Stringing not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: stringing
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch stringing'
+        });
+    }
+};

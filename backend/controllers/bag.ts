@@ -109,3 +109,30 @@ export const updateBag = async (
         });
     }
 };
+
+export const getBagById = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Bag>>
+) => {
+    const { id } = req.params;
+    try {
+        const bag = await BagModel.findOne({ id });
+        
+        if (!bag) {
+            return res.status(404).json({
+                success: false,
+                error: 'Bag not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: bag
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch bag'
+        });
+    }
+};

@@ -111,3 +111,30 @@ export const updateShoe = async (
         });
     }
 };
+
+export const getShoeById = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Shoe>>
+) => {
+    const { id } = req.params;
+    try {
+        const shoe = await ShoeModel.findOne({ id });
+        
+        if (!shoe) {
+            return res.status(404).json({
+                success: false,
+                error: 'Shoe not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: shoe
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch shoe'
+        });
+    }
+};

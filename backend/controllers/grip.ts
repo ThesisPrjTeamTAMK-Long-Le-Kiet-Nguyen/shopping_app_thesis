@@ -109,3 +109,30 @@ export const updateGrip = async (
         });
     }
 };
+
+export const getGripById = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Grip>>
+) => {
+    const { id } = req.params;
+    try {
+        const grip = await GripModel.findOne({ id });
+        
+        if (!grip) {
+            return res.status(404).json({
+                success: false,
+                error: 'Grip not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: grip
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch grip'
+        });
+    }
+};
