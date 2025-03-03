@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
-import { useState, useEffect, SetStateAction } from 'react'
-import { fetchRackets } from '../../../services/productService'
+import { useState, useEffect } from 'react'
+import { fetchProductById } from '../../../services/productService'
 import cartService from '../../../services/cartService'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,25 +8,29 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
+import { Racket, Color, Type, CartItem } from '../../../types'
 
 const RacketDetails = () => {
-  const { id } = useParams()
-  const [racket, setRacket] = useState(null)
-  const [selectedColor, setSelectedColor] = useState(null)
-  const [selectedType, setSelectedType] = useState(null)
-  const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const { id } = useParams<{ id: string }>()
+  const [racket, setRacket] = useState<Racket | null>(null)
+  const [selectedColor, setSelectedColor] = useState<Color | null>(null)
+  const [selectedType, setSelectedType] = useState<Type | null>(null)
+  const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchRackets()
-        const selectedRacket = data.find((r) => r.id === id)
-        setRacket(selectedRacket)
-        if (selectedRacket && selectedRacket.colors.length > 0) {
-          const defaultColor = selectedRacket.colors[0]
-          setSelectedColor(defaultColor)
-          const defaultType = defaultColor.types.find((type: { type: string }) => type.type === "4ug5") || defaultColor.types[0]
-          setSelectedType(defaultType)
+        if (!id) return
+        const response = await fetchProductById('rackets', id)
+        if (response.success && response.data) {
+          const racketData = response.data as Racket
+          setRacket(racketData)
+          if (racketData.colors.length > 0) {
+            const defaultColor = racketData.colors[0]
+            setSelectedColor(defaultColor)
+            const defaultType = defaultColor.types?.find(type => type.type === "4ug5") || defaultColor.types?.[0]
+            setSelectedType(defaultType || null)
+          }
         }
       } catch (error) {
         console.error('Error fetching racket details:', error)
@@ -37,53 +41,60 @@ const RacketDetails = () => {
     fetchData()
   }, [id])
 
-  const handleColorChange = (color: SetStateAction<null>) => {
+  const handleColorChange = (color: Color) => {
     setSelectedColor(color)
-    const defaultType = color.types.find((type: { type: string }) => type.type === "4ug5") || color.types[0]
-    setSelectedType(defaultType)
+    const defaultType = color.types?.find(type => type.type === "4ug5") || color.types?.[0]
+    setSelectedType(defaultType || null)
   }
 
-  const handleTypeChange = (type) => {
+  const handleTypeChange = (type: Type) => {
     setSelectedType(type)
   }
 
   const handleAddToCart = async () => {
-    if (selectedType.quantity > 0) {
-      const confirmAdd = window.confirm(
-        `Are you sure you want to add this item to your cart?\n\n` +
-        `${racket.name}\n` +
-        `Color: ${selectedColor.color}\n` +
-        `Type: ${selectedType.type}\n` +
-        `Price: $${racket.price}`
-      )
+    if (!racket || !selectedColor || !selectedType || selectedType.quantity <= 0) return
 
-      if (confirmAdd) {
-        try {
-          setIsAddingToCart(true)
-          const itemToAdd = {
-            id: racket.id,
-            name: racket.name,
-            price: racket.price,
-            color: selectedColor.color,
-            type: selectedType.type,
-            quantity: 1
-          }
+    const confirmAdd = window.confirm(
+      `Are you sure you want to add this item to your cart?\n\n` +
+      `${racket.name}\n` +
+      `Color: ${selectedColor.color}\n` +
+      `Type: ${selectedType.type}\n` +
+      `Price: $${racket.price}`
+    )
 
-          await cartService.addToCart(itemToAdd)
+    if (confirmAdd) {
+      try {
+        setIsAddingToCart(true)
+        const itemToAdd: CartItem = {
+          id: racket.id,
+          name: racket.name,
+          price: racket.price,
+          color: selectedColor.color,
+          type: selectedType.type,
+          quantity: 1
+        }
+
+        const response = await cartService.addToCart(itemToAdd)
+        if (response.success) {
           toast.success('Added to shopping cart', {
             description: `${racket.name} - ${selectedColor.color} (${selectedType.type})`,
             duration: 3000,
           })
-        } catch (error) {
-          console.error('Failed to add item to cart:', error)
-          toast.error('Failed to add item to cart', {
-            description: 'Please try again later',
-          })
-        } finally {
-          setIsAddingToCart(false)
         }
+      } catch (error) {
+        console.error('Failed to add item to cart:', error)
+        toast.error('Failed to add item to cart', {
+          description: 'Please try again later',
+        })
+      } finally {
+        setIsAddingToCart(false)
       }
     }
+  }
+
+  // Add type guard function
+  const hasTypes = (color: Color): color is Color & { types: Type[] } => {
+    return Array.isArray(color.types) && color.types.length > 0
   }
 
   if (!racket) {
@@ -126,11 +137,11 @@ const RacketDetails = () => {
                       key={index}
                       variant={selectedColor === colorInfo ? "default" : "outline"}
                       onClick={() => handleColorChange(colorInfo)}
-                      disabled={colorInfo.types.every(type => type.quantity === 0)}
+                      disabled={!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)}
                       className={`
                         relative px-4 py-2 min-w-[80px]
                         ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                        ${colorInfo.types.every(type => type.quantity === 0) ? 'opacity-50' : ''}
+                        ${!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0) ? 'opacity-50' : ''}
                       `}
                     >
                       {colorInfo.color}
@@ -140,7 +151,7 @@ const RacketDetails = () => {
               </div>
 
               {/* Type Selection */}
-              {selectedColor && (
+              {selectedColor && hasTypes(selectedColor) && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Select Type</h3>
                   <div className="flex flex-wrap gap-2">

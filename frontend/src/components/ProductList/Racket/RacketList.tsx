@@ -3,17 +3,37 @@ import { fetchRackets } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Racket } from '../../../types'
+import { toast } from 'sonner'
+
+interface GroupedRackets {
+  [brand: string]: {
+    [series: string]: Racket[]
+  }
+}
 
 const RacketList = () => {
-  const [rackets, setRackets] = useState(null)
+  const [rackets, setRackets] = useState<Racket[] | null>(null)
 
   useEffect(() => {
-    fetchRackets()
-      .then((data) => setRackets(data))
-      .catch((error) => console.error('Error fetching rackets:', error))
+    const fetchData = async () => {
+      try {
+        const response = await fetchRackets()
+        if (response.success && response.data) {
+          setRackets(response.data)
+        } else {
+          toast.error('Failed to load rackets')
+        }
+      } catch (error) {
+        console.error('Error fetching rackets:', error)
+        toast.error('Error loading rackets')
+      }
+    }
+
+    fetchData()
   }, [])
 
-  const groupRackets = (rackets) => {
+  const groupRackets = (rackets: Racket[]): GroupedRackets => {
     return rackets.reduce((acc, racket) => {
       const { brand, series } = racket
       if (!acc[brand]) {
@@ -24,7 +44,7 @@ const RacketList = () => {
       }
       acc[brand][series].push(racket)
       return acc
-    }, {})
+    }, {} as GroupedRackets)
   }
 
   const groupedRackets = rackets ? groupRackets(rackets) : {}

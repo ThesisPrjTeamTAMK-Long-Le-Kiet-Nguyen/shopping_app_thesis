@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CartItem, ApiResponse } from '../types';
+import { CartItem, ApiResponse, Cart } from '../types';
 
 const baseUrl = 'http://localhost:3000/carts';
 
@@ -13,7 +13,7 @@ const getConfig = () => ({
 });
 
 // Add an item to the cart
-export async function addToCart(item: CartItem): Promise<ApiResponse<CartItem>> {
+export async function addToCart(item: CartItem): Promise<ApiResponse<Cart>> {
   try {
     const response = await axios.post(baseUrl, item, getConfig());
     return response.data;
@@ -24,7 +24,7 @@ export async function addToCart(item: CartItem): Promise<ApiResponse<CartItem>> 
 }
 
 // Get the user's cart
-export async function getCart(): Promise<ApiResponse<CartItem[]>> {
+export async function getCart(): Promise<ApiResponse<Cart>> {
   try {
     const response = await axios.get(baseUrl, getConfig());
     return response.data;

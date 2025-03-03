@@ -2,13 +2,12 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   NavigationMenu,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, User } from "lucide-react";
 import './Navbar.css'
-
 
 interface NavbarProps {}
 
@@ -17,7 +16,6 @@ const Navbar: React.FC<NavbarProps> = () => {
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
   const role = localStorage.getItem('role');
-
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -33,83 +31,77 @@ const Navbar: React.FC<NavbarProps> = () => {
           <NavigationMenuList className="flex gap-4">
             {/* Home */}
             <NavigationMenuItem>
-              <Link to="/">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/' ? 'nav-active' : ''}`}
-                >
-                  Home
-                </NavigationMenuLink>
+              <Link 
+                to="/" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/' ? 'nav-active' : ''}`}
+              >
+                Home
               </Link>
             </NavigationMenuItem>
 
             {/* All Product Types */}
             <NavigationMenuItem>
-              <Link to="/racket">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/racket' ? 'nav-active' : ''}`}
-                >
-                  Rackets
-                </NavigationMenuLink>
+              <Link 
+                to="/racket" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/racket' ? 'nav-active' : ''}`}
+              >
+                Rackets
               </Link>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link to="/shoes">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/shoes' ? 'nav-active' : ''}`}
-                >
-                  Shoes
-                </NavigationMenuLink>
+              <Link 
+                to="/shoes" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/shoes' ? 'nav-active' : ''}`}
+              >
+                Shoes
               </Link>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link to="/stringings">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/stringings' ? 'nav-active' : ''}`}
-                >
-                  Stringings
-                </NavigationMenuLink>
+              <Link 
+                to="/stringings" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/stringings' ? 'nav-active' : ''}`}
+              >
+                Stringings
               </Link>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link to="/shuttlecocks">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/shuttlecocks' ? 'nav-active' : ''}`}
-                >
-                  Shuttlecocks
-                </NavigationMenuLink>
+              <Link 
+                to="/shuttlecocks" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/shuttlecocks' ? 'nav-active' : ''}`}
+              >
+                Shuttlecocks
               </Link>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link to="/grips">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/grips' ? 'nav-active' : ''}`}
-                >
-                  Grips
-                </NavigationMenuLink>
+              <Link 
+                to="/grips" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/grips' ? 'nav-active' : ''}`}
+              >
+                Grips
               </Link>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link to="/bags">
-                <NavigationMenuLink
-                  className={`nav-link ${location.pathname === '/bags' ? 'nav-active' : ''}`}
-                >
-                  Bags
-                </NavigationMenuLink>
+              <Link 
+                to="/bags" 
+                className={`${navigationMenuTriggerStyle()} ${location.pathname === '/bags' ? 'nav-active' : ''}`}
+              >
+                Bags
               </Link>
             </NavigationMenuItem>
 
             {/* Admin Section */}
             {role === 'admin' && (
               <NavigationMenuItem>
-                <Link to="/seller">
-                  <NavigationMenuLink className="modify-button">
-                    Admin Dashboard
-                  </NavigationMenuLink>
+                <Link 
+                  to="/seller" 
+                  className={`${navigationMenuTriggerStyle()} modify-button`}
+                >
+                  Admin Dashboard
                 </Link>
               </NavigationMenuItem>
             )}
@@ -118,7 +110,7 @@ const Navbar: React.FC<NavbarProps> = () => {
 
         {/* Right side: Cart and User */}
         <div className="ml-auto flex items-center space-x-4">
-          <Link to="/cart" className="cart-link">
+          <Link to="/cart">
             <Button variant="ghost" className="cart-button">
               <ShoppingCart className="h-5 w-5" />
               <span className="ml-2">Cart</span>
@@ -139,7 +131,7 @@ const Navbar: React.FC<NavbarProps> = () => {
               </div>
             </div>
           ) : (
-            <Link to="/login" className="login-link">
+            <Link to="/login">
               <Button variant="ghost" className="login-button">
                 Login
               </Button>

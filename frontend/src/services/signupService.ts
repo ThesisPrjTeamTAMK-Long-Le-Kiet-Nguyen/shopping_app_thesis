@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { UserData, ApiResponse } from '../types';
 
-const baseUrl = 'http://localhost:3000/users/register';
+// Update the base URL to match our new backend structure
+const baseUrl = 'http://localhost:3000/users';
 
 interface SignupResponse {
   id: string;
@@ -12,7 +13,7 @@ interface SignupResponse {
 
 async function signup(userData: UserData): Promise<ApiResponse<SignupResponse>> {
   try {
-    const response = await axios.post(baseUrl, userData);
+    const response = await axios.post(`${baseUrl}/register`, userData);
     return response.data;
   } catch (error) {
     console.error('Failed to sign up:', error);
