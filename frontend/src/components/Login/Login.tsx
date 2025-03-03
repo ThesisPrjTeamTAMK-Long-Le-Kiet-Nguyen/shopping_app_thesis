@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import loginService from '../../services/loginService';
+import { useAuth } from '../../context/AuthContext';
 
 // Define the form schema
 const loginSchema = z.object({
@@ -24,6 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const navigate = useNavigate();
+  const { updateAuth } = useAuth();
 
   // Initialize form
   const form = useForm<LoginFormValues>({
@@ -37,14 +39,20 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       const response = await loginService.login(values);
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('username', response.username);
-      localStorage.setItem('role', response.role);
 
-      if (response.role === 'admin') {
-        navigate('/seller');
-      } else {
-        navigate('/');
+      if (response.success && response.data) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('username', response.data.username);
+        localStorage.setItem('role', response.data.role);
+
+        // Update auth context
+        updateAuth(response.data.token, response.data.username, response.data.role);
+
+        if (response.data.role === 'admin') {
+          navigate('/seller');
+        } else {
+          navigate('/');
+        }
       }
     } catch (error) {
       console.error('Error logging in:', error);

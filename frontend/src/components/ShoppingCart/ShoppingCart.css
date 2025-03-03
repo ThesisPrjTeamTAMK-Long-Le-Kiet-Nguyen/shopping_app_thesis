@@ -1,7 +1,7 @@
 .shopping-cart {
     padding: 20px;
-    max-width: 600px;
-    margin: auto;
+    max-width: 800px;
+    margin: 0 auto;
     border: 1px solid #ccc;
     border-radius: 8px;
 }
@@ -44,4 +44,64 @@
 
 .remove-button:hover {
     background-color: #ff1a1a;
+}
+
+.cart-item {
+    position: relative;
+}
+
+.cart-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .cart-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .cart-item .flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .cart-item .items-center {
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+
+/* Animation for item removal */
+.cart-item {
+    transition: all 0.2s ease-in-out;
+}
+
+.cart-item.removing {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+/* Hover effects */
+.cart-item button {
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.cart-item:hover button {
+    opacity: 1;
+}
+
+/* Loading and error states */
+.loading-state,
+.error-state {
+    text-align: center;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-state {
+    color: #ef4444;
 }

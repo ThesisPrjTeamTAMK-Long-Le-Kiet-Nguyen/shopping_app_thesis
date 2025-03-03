@@ -19,7 +19,7 @@ const getConfig = () => ({
 // Racket operations
 export async function addRacket(racketData: Racket): Promise<ApiResponse<Racket>> {
   try {
-    const response = await axios.post(`${baseUrl}/rackets/add`, racketData, getConfig());
+    const response = await axios.post(`${baseUrl}/rackets`, racketData, getConfig());
     return response.data;
   } catch (error) {
     console.error('Failed to add racket:', error);
@@ -40,7 +40,7 @@ export async function updateRacket(id: string, racketData: Partial<Racket>): Pro
 // Bag operations
 export async function addBag(bagData: Bag): Promise<ApiResponse<Bag>> {
   try {
-    const response = await axios.post(`${baseUrl}/bags/add`, bagData, getConfig());
+    const response = await axios.post(`${baseUrl}/bags`, bagData, getConfig());
     return response.data;
   } catch (error) {
     console.error('Failed to add bag:', error);
@@ -61,7 +61,7 @@ export async function updateBag(id: string, bagData: Partial<Bag>): Promise<ApiR
 // Shoe operations
 export async function addShoe(shoeData: Shoe): Promise<ApiResponse<Shoe>> {
   try {
-    const response = await axios.post(`${baseUrl}/shoes/add`, shoeData, getConfig());
+    const response = await axios.post(`${baseUrl}/shoes`, shoeData, getConfig());
     return response.data;
   } catch (error) {
     console.error('Failed to add shoe:', error);
@@ -82,7 +82,7 @@ export async function updateShoe(id: string, shoeData: Partial<Shoe>): Promise<A
 // Stringing operations
 export async function addStringing(stringingData: Stringing): Promise<ApiResponse<Stringing>> {
   try {
-    const response = await axios.post(`${baseUrl}/stringings/add`, stringingData, getConfig());
+    const response = await axios.post(`${baseUrl}/stringings`, stringingData, getConfig());
     return response.data;
   } catch (error) {
     console.error('Failed to add stringing:', error);
@@ -103,7 +103,7 @@ export async function updateStringing(id: string, stringingData: Partial<Stringi
 // Grip operations
 export async function addGrip(gripData: Grip): Promise<ApiResponse<Grip>> {
   try {
-    const response = await axios.post(`${baseUrl}/grips/add`, gripData, getConfig());
+    const response = await axios.post(`${baseUrl}/grips`, gripData, getConfig());
     return response.data;
   } catch (error) {
     console.error('Failed to add grip:', error);
@@ -124,7 +124,7 @@ export async function updateGrip(id: string, gripData: Partial<Grip>): Promise<A
 // Shuttlecock operations
 export async function addShuttlecock(shuttlecockData: Shuttlecock): Promise<ApiResponse<Shuttlecock>> {
   try {
-    const response = await axios.post(`${baseUrl}/shuttlecocks/add`, shuttlecockData, getConfig());
+    const response = await axios.post(`${baseUrl}/shuttlecocks`, shuttlecockData, getConfig());
     return response.data;
   } catch (error) {
     console.error('Failed to add shuttlecock:', error);

@@ -7,10 +7,11 @@ import ShoppingCart from './components/ShoppingCart/ShoppingCart'
 import SellerPage from './components/SellerPage/SellerPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { Toaster } from 'sonner'
+import { AuthProvider } from './context/AuthContext'
 
 const App = () => {
   return (
-    <>
+    <AuthProvider>
       <Toaster richColors position="top-center" />
       <Router>
         <div>
@@ -24,7 +25,7 @@ const App = () => {
           </Routes>
         </div>
       </Router>
-    </>
+    </AuthProvider>
   )
 }
 

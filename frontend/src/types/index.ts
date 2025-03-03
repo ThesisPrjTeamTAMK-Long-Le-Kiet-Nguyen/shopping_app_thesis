@@ -11,6 +11,7 @@ interface ProductType {
   quantity: number;
   maxTension?: string;
   size?: string;
+  speed?: number;
 }
 
 // Base Product Interface
@@ -60,6 +61,16 @@ export interface Shuttlecock extends BaseProduct {
 }
 
 // Auth Types
+export type UserRole = 'admin' | 'customer';
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: UserRole;
+  createdAt: Date;
+}
+
 export interface LoginResponse {
   token: string;
   username: string;
@@ -80,18 +91,58 @@ export interface UserData extends Credentials {
 export interface CartItem {
   id: string;
   name: string;
-  price: number;
-  color: string;
   quantity: number;
+  color: string;
   type?: string;
+  price: number;
+}
+
+export interface Cart {
+  userId: string;
+  items: CartItem[];
+  _id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // API Response Types
 export interface ApiResponse<T> {
   role: string;
-  token: string;
   username: string;
-  data: T;
-  message?: string;
+  token: string;
+  success: boolean;
+  data?: T;
   error?: string;
+  message?: string;
+}
+
+// Config type (if needed in frontend)
+export interface Config {
+  MONGODB_URI: string;
+  PORT: number;
+  JWT_SECRET: string;
+}
+
+// Collection type for all products
+export interface AllProducts {
+  rackets: Racket[];
+  bags: Bag[];
+  shoes: Shoe[];
+  stringings: Stringing[];
+  grips: Grip[];
+  shuttlecocks: Shuttlecock[];
+}
+
+export interface Color {
+  color: string;
+  photo: string;
+  types?: Type[];
+  quantity?: number;
+}
+
+export interface Type {
+  type: string;
+  quantity: number;
+  speed?: number;
+  maxTension?: string;
 }
