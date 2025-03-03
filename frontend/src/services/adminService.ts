@@ -1,21 +1,23 @@
 import axios from 'axios';
+import {
+  Racket, Bag, Shoe, Stringing, Grip, Shuttlecock,
+  ApiResponse
+} from '../types';
 
 const baseUrl = 'http://localhost:3000/products';
 
 // Function to get the token from localStorage
-const getToken = () => {
+const getToken = (): string | null => {
   return localStorage.getItem('token');
 };
 
 // Helper function to create config with authorization header
-const getConfig = () => {
-  return {
-    headers: { Authorization: `Bearer ${getToken()}` }
-  };
-};
+const getConfig = () => ({
+  headers: { Authorization: `Bearer ${getToken()}` }
+});
 
 // Racket operations
-export async function addRacket(racketData) {
+export async function addRacket(racketData: Racket): Promise<ApiResponse<Racket>> {
   try {
     const response = await axios.post(`${baseUrl}/rackets/add`, racketData, getConfig());
     return response.data;
@@ -25,7 +27,7 @@ export async function addRacket(racketData) {
   }
 }
 
-export async function updateRacket(id, racketData) {
+export async function updateRacket(id: string, racketData: Partial<Racket>): Promise<ApiResponse<Racket>> {
   try {
     const response = await axios.put(`${baseUrl}/rackets/${id}`, racketData, getConfig());
     return response.data;
@@ -36,7 +38,7 @@ export async function updateRacket(id, racketData) {
 }
 
 // Bag operations
-export async function addBag(bagData) {
+export async function addBag(bagData: Bag): Promise<ApiResponse<Bag>> {
   try {
     const response = await axios.post(`${baseUrl}/bags/add`, bagData, getConfig());
     return response.data;
@@ -46,7 +48,7 @@ export async function addBag(bagData) {
   }
 }
 
-export async function updateBag(id, bagData) {
+export async function updateBag(id: string, bagData: Partial<Bag>): Promise<ApiResponse<Bag>> {
   try {
     const response = await axios.put(`${baseUrl}/bags/${id}`, bagData, getConfig());
     return response.data;
@@ -57,7 +59,7 @@ export async function updateBag(id, bagData) {
 }
 
 // Shoe operations
-export async function addShoe(shoeData) {
+export async function addShoe(shoeData: Shoe): Promise<ApiResponse<Shoe>> {
   try {
     const response = await axios.post(`${baseUrl}/shoes/add`, shoeData, getConfig());
     return response.data;
@@ -67,7 +69,7 @@ export async function addShoe(shoeData) {
   }
 }
 
-export async function updateShoe(id, shoeData) {
+export async function updateShoe(id: string, shoeData: Partial<Shoe>): Promise<ApiResponse<Shoe>> {
   try {
     const response = await axios.put(`${baseUrl}/shoes/${id}`, shoeData, getConfig());
     return response.data;
@@ -78,7 +80,7 @@ export async function updateShoe(id, shoeData) {
 }
 
 // Stringing operations
-export async function addStringing(stringingData) {
+export async function addStringing(stringingData: Stringing): Promise<ApiResponse<Stringing>> {
   try {
     const response = await axios.post(`${baseUrl}/stringings/add`, stringingData, getConfig());
     return response.data;
@@ -88,7 +90,7 @@ export async function addStringing(stringingData) {
   }
 }
 
-export async function updateStringing(id, stringingData) {
+export async function updateStringing(id: string, stringingData: Partial<Stringing>): Promise<ApiResponse<Stringing>> {
   try {
     const response = await axios.put(`${baseUrl}/stringings/${id}`, stringingData, getConfig());
     return response.data;
@@ -99,7 +101,7 @@ export async function updateStringing(id, stringingData) {
 }
 
 // Grip operations
-export async function addGrip(gripData) {
+export async function addGrip(gripData: Grip): Promise<ApiResponse<Grip>> {
   try {
     const response = await axios.post(`${baseUrl}/grips/add`, gripData, getConfig());
     return response.data;
@@ -109,7 +111,7 @@ export async function addGrip(gripData) {
   }
 }
 
-export async function updateGrip(id, gripData) {
+export async function updateGrip(id: string, gripData: Partial<Grip>): Promise<ApiResponse<Grip>> {
   try {
     const response = await axios.put(`${baseUrl}/grips/${id}`, gripData, getConfig());
     return response.data;
@@ -120,7 +122,7 @@ export async function updateGrip(id, gripData) {
 }
 
 // Shuttlecock operations
-export async function addShuttlecock(shuttlecockData) {
+export async function addShuttlecock(shuttlecockData: Shuttlecock): Promise<ApiResponse<Shuttlecock>> {
   try {
     const response = await axios.post(`${baseUrl}/shuttlecocks/add`, shuttlecockData, getConfig());
     return response.data;
@@ -130,7 +132,7 @@ export async function addShuttlecock(shuttlecockData) {
   }
 }
 
-export async function updateShuttlecock(id, shuttlecockData) {
+export async function updateShuttlecock(id: string, shuttlecockData: Partial<Shuttlecock>): Promise<ApiResponse<Shuttlecock>> {
   try {
     const response = await axios.put(`${baseUrl}/shuttlecocks/${id}`, shuttlecockData, getConfig());
     return response.data;
@@ -141,7 +143,7 @@ export async function updateShuttlecock(id, shuttlecockData) {
 }
 
 // Generic delete operation for any product type
-export async function deleteProduct(productType, id) {
+export async function deleteProduct(productType: string, id: string): Promise<ApiResponse<void>> {
   try {
     const response = await axios.delete(`${baseUrl}/${productType}/${id}`, getConfig());
     return response.data;
@@ -165,4 +167,4 @@ export default {
   addShuttlecock,
   updateShuttlecock,
   deleteProduct
-}; 
+};
