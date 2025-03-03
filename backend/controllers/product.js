@@ -52,19 +52,58 @@ exports.getAllProducts = async (req, res) => {
 
 // Delete a product (generic for all products)
 exports.deleteProduct = async (req, res) => {
-    const { id } = req.params; // Get product ID from the URL
-    const { category } = req.body; // Expecting category in the request body
+    const { id } = req.params;
+    
+    // Get the full path and extract the product type
+    const fullPath = req.baseUrl + req.path; // This will be like '/products/rackets/racket-2106'
+    const pathParts = fullPath.split('/');
+    const productType = pathParts[2]; // This will get 'rackets' from the path
+    
+    console.log('Product type:', productType); // Debug log
+    console.log('Product ID:', id); // Debug log
 
     try {
-        const result = await getModelByCategory(category).deleteOne({ id: id }); // Use the custom id for lookup
+        let Model;
+        switch (productType) {
+            case 'rackets':
+                Model = Racket;
+                break;
+            case 'bags':
+                Model = Bag;
+                break;
+            case 'shoes':
+                Model = Shoe;
+                break;
+            case 'stringings':
+                Model = Stringing;
+                break;
+            case 'grips':
+                Model = Grip;
+                break;
+            case 'shuttlecocks':
+                Model = Shuttlecock;
+                break;
+            default:
+                return res.status(400).json({ 
+                    error: 'Invalid product type',
+                    receivedType: productType,
+                    fullPath: fullPath 
+                });
+        }
 
-        if (result.deletedCount === 0) {
+        const result = await Model.findOneAndDelete({ id: id });
+
+        if (!result) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        res.json({ message: 'Product deleted successfully' });
+        res.json({ 
+            message: 'Product deleted successfully',
+            deletedProduct: result
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to delete product' });
+        console.error('Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete product', details: error.message });
     }
 };
 
