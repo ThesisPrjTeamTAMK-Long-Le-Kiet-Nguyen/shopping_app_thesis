@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
   Racket, Bag, Shoe, Stringing, Grip, Shuttlecock,
-  ApiResponse
+  ApiResponse, ColorAddRequest, TypeAddRequest
 } from '../types';
 
 const baseUrl = 'http://localhost:3000/products';
@@ -142,6 +142,80 @@ export async function updateShuttlecock(id: string, shuttlecockData: Partial<Shu
   }
 }
 
+// Add new functions for racket color and type management
+export async function addRacketColor(
+  productId: string,
+  colorData: ColorAddRequest
+): Promise<ApiResponse<Racket>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/rackets/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add racket color:', error);
+    throw error;
+  }
+}
+
+export async function addRacketType(
+  productId: string,
+  colorId: string,
+  typeData: TypeAddRequest
+): Promise<ApiResponse<Racket>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/rackets/${productId}/colors/${colorId}/types`,
+      typeData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add racket type:', error);
+    throw error;
+  }
+}
+
+// Generic functions for color and type management
+export async function addProductColor<T extends Racket | Bag | Shoe | Stringing | Grip | Shuttlecock>(
+  productType: string,
+  productId: string,
+  colorData: ColorAddRequest
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/${productType}/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to add ${productType} color:`, error);
+    throw error;
+  }
+}
+
+export async function addProductType<T extends Racket | Bag | Shoe | Stringing | Grip | Shuttlecock>(
+  productType: string,
+  productId: string,
+  colorId: string,
+  typeData: TypeAddRequest
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/${productType}/${productId}/colors/${colorId}/types`,
+      typeData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to add ${productType} type:`, error);
+    throw error;
+  }
+}
+
 // Generic delete operation for any product type
 export async function deleteProduct(productType: string, id: string): Promise<ApiResponse<void>> {
   try {
@@ -204,5 +278,9 @@ export default {
   updateShuttlecock,
   deleteProduct,
   deleteProductType,
-  deleteProductColor
+  deleteProductColor,
+  addRacketColor,
+  addRacketType,
+  addProductColor,
+  addProductType
 };

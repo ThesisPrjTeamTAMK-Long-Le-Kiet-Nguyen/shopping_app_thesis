@@ -18,7 +18,8 @@ import {
     getAllBags,
     getBagById,
     addBag,
-    updateBag
+    updateBag,
+    addBagColor
 } from '../controllers/bag';
 import {
     getAllShoes,
@@ -66,6 +67,7 @@ router.get('/bags/:id', getBagById);
 router.post('/bags', authenticateUser, isAdmin, addBag);
 router.put('/bags/:id', authenticateUser, isAdmin, updateBag);
 router.delete('/bags/:id', authenticateUser, isAdmin, deleteProduct);
+router.post('/bags/:id/colors', authenticateUser, isAdmin, addBagColor);
 
 // Shoe routes
 router.get('/shoes', getAllShoes);

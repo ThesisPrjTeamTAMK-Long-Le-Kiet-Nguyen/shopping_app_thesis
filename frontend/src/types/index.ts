@@ -146,3 +146,22 @@ export interface Type {
   speed?: number;
   maxTension?: string;
 }
+
+// Admin Service Types
+export interface ColorAddRequest {
+  color: string;
+  photo: string;
+  types: Array<{
+    type: string;
+    quantity: number;
+    speed?: number;
+    maxTension?: string;
+  }>;
+}
+
+export interface TypeAddRequest {
+  type: string;
+  quantity: number;
+  speed?: number;
+  maxTension?: string;
+}
