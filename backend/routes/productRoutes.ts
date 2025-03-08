@@ -2,7 +2,9 @@
 import { Router } from 'express';
 import { 
     getAllProducts,
-    deleteProduct 
+    deleteProduct,
+    deleteProductType,
+    deleteProductColor
 } from '../controllers/product';
 import {
     getAllRackets,
@@ -88,5 +90,8 @@ router.get('/shuttlecocks/:id', getShuttlecockById);
 router.post('/shuttlecocks', authenticateUser, isAdmin, addShuttlecock);
 router.put('/shuttlecocks/:id', authenticateUser, isAdmin, updateShuttlecock);
 router.delete('/shuttlecocks/:id', authenticateUser, isAdmin, deleteProduct);
+
+router.delete('/:productType/:id/colors/:colorId/types/:typeId', deleteProductType);
+router.delete('/:productType/:id/colors/:colorId', deleteProductColor);
 
 export default router;
