@@ -153,6 +153,42 @@ export async function deleteProduct(productType: string, id: string): Promise<Ap
   }
 }
 
+// Add these new delete functions
+export async function deleteProductType(
+  productType: string,
+  productId: string,
+  colorId: string,
+  typeId: string
+): Promise<ApiResponse<void>> {
+  try {
+    const response = await axios.delete(
+      `${baseUrl}/${productType}/${productId}/colors/${colorId}/types/${typeId}`,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete ${productType} type:`, error);
+    throw error;
+  }
+}
+
+export async function deleteProductColor(
+  productType: string,
+  productId: string,
+  colorId: string
+): Promise<ApiResponse<void>> {
+  try {
+    const response = await axios.delete(
+      `${baseUrl}/${productType}/${productId}/colors/${colorId}`,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete ${productType} color:`, error);
+    throw error;
+  }
+}
+
 export default {
   addRacket,
   updateRacket,
@@ -166,5 +202,7 @@ export default {
   updateGrip,
   addShuttlecock,
   updateShuttlecock,
-  deleteProduct
+  deleteProduct,
+  deleteProductType,
+  deleteProductColor
 };

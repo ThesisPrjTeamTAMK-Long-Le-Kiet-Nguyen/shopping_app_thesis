@@ -10,7 +10,9 @@ import {
     getAllRackets,
     getRacketById,
     addRacket,
-    updateRacket
+    updateRacket,
+    addRacketColor,
+    addRacketType
 } from '../controllers/racket';
 import {
     getAllBags,
@@ -55,6 +57,8 @@ router.get('/rackets/:id', getRacketById);
 router.post('/rackets', authenticateUser, isAdmin, addRacket);
 router.put('/rackets/:id', authenticateUser, isAdmin, updateRacket);
 router.delete('/rackets/:id', authenticateUser, isAdmin, deleteProduct);
+router.post('/rackets/:id/colors', authenticateUser, isAdmin, addRacketColor);
+router.post('/rackets/:id/colors/:colorId/types', authenticateUser, isAdmin, addRacketType);
 
 // Bag routes
 router.get('/bags', getAllBags);
