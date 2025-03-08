@@ -35,7 +35,7 @@ export const getAllRackets = async (
 };
 
 export const addRacket = async (
-    req: Request<{}, {}, RacketRequest>,
+    req: Request<object, object, RacketRequest>,
     res: Response<ApiResponse<Racket>>
 ) => {
     const { id, name, price, brand, series, racketType, flexibility, material, balancePoint, cover, colors } = req.body;
@@ -83,24 +83,37 @@ export const addRacket = async (
 };
 
 export const updateRacket = async (
-    req: Request<{ id: string }, {}, Partial<RacketRequest>>,
+    req: Request<{ id: string }, object, Partial<RacketRequest>>,
     res: Response<ApiResponse<Racket>>
 ) => {
     const { id } = req.params;
     const updates = req.body;
     try {
-        const result = await RacketModel.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+        // Find the racket first
+        const existingRacket = await RacketModel.findOne({ id });
 
-        if (!result) {
+
+        if (!existingRacket) {
             return res.status(404).json({
                 success: false,
                 error: 'Racket not found'
             });
         }
+
+        // Update the racket with the new data
+        // Using spread operator to merge existing data with updates
+        const updatedData = {
+            ...existingRacket.toObject(),
+            ...updates,
+            // If colors are being updated, replace the entire colors array
+            ...(updates.colors && { colors: updates.colors })
+        };
+
+        const result = await RacketModel.findOneAndUpdate(
+            { id },
+            { $set: updatedData },
+            { new: true }
+        );
 
         res.json({
             success: true,
@@ -108,6 +121,7 @@ export const updateRacket = async (
             message: 'Racket updated successfully'
         });
     } catch (error) {
+        console.error('Error updating racket:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update racket'
@@ -122,7 +136,7 @@ export const getRacketById = async (
     const { id } = req.params;
     try {
         const racket = await RacketModel.findOne({ id });
-        
+
         if (!racket) {
             return res.status(404).json({
                 success: false,

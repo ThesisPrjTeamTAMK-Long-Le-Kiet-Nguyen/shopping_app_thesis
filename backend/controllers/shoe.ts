@@ -34,7 +34,7 @@ export const getAllShoes = async (
 
 // Add a new shoe
 export const addShoe = async (
-    req: Request<{}, {}, ShoeRequest>,
+    req: Request<object, object, ShoeRequest>,
     res: Response<ApiResponse<Shoe>>
 ) => {
     const { id, name, price, brand, series, midsole, outsole, colors } = req.body;
@@ -80,24 +80,35 @@ export const addShoe = async (
 
 // Update a shoe
 export const updateShoe = async (
-    req: Request<{ id: string }, {}, Partial<ShoeRequest>>,
+    req: Request<{ id: string }, object, Partial<ShoeRequest>>,
     res: Response<ApiResponse<Shoe>>
 ) => {
     const { id } = req.params;
     const updates = req.body;
     try {
-        const result = await ShoeModel.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+        // Find the shoe first
+        const existingShoe = await ShoeModel.findOne({ id });
 
-        if (!result) {
+        if (!existingShoe) {
             return res.status(404).json({
                 success: false,
                 error: 'Shoe not found'
             });
         }
+
+        // Update the shoe with the new data
+        const updatedData = {
+            ...existingShoe.toObject(),
+            ...updates,
+            // If colors are being updated, replace the entire colors array
+            ...(updates.colors && { colors: updates.colors })
+        };
+
+        const result = await ShoeModel.findOneAndUpdate(
+            { id },
+            { $set: updatedData },
+            { new: true }
+        );
 
         res.json({
             success: true,
@@ -105,6 +116,7 @@ export const updateShoe = async (
             message: 'Shoe updated successfully'
         });
     } catch (error) {
+        console.error('Error updating shoe:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update shoe'
@@ -119,7 +131,7 @@ export const getShoeById = async (
     const { id } = req.params;
     try {
         const shoe = await ShoeModel.findOne({ id });
-        
+
         if (!shoe) {
             return res.status(404).json({
                 success: false,
