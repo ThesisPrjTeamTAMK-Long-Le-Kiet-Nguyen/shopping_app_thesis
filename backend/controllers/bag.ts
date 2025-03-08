@@ -33,7 +33,7 @@ export const getAllBags = async (
 
 // Add a new bag
 export const addBag = async (
-    req: Request<{}, {}, BagRequest>,
+    req: Request<object, object, BagRequest>,
     res: Response<ApiResponse<Bag>>
 ) => {
     const { id, name, price, brand, type, size, colors } = req.body;
@@ -78,24 +78,35 @@ export const addBag = async (
 
 // Update a bag
 export const updateBag = async (
-    req: Request<{ id: string }, {}, Partial<BagRequest>>,
+    req: Request<{ id: string }, object, Partial<BagRequest>>,
     res: Response<ApiResponse<Bag>>
 ) => {
     const { id } = req.params;
     const updates = req.body;
     try {
-        const result = await BagModel.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+        // Find the bag first
+        const existingBag = await BagModel.findOne({ id });
 
-        if (!result) {
+        if (!existingBag) {
             return res.status(404).json({
                 success: false,
                 error: 'Bag not found'
             });
         }
+
+        // Update the bag with the new data
+        const updatedData = {
+            ...existingBag.toObject(),
+            ...updates,
+            // If colors are being updated, replace the entire colors array
+            ...(updates.colors && { colors: updates.colors })
+        };
+
+        const result = await BagModel.findOneAndUpdate(
+            { id },
+            { $set: updatedData },
+            { new: true }
+        );
 
         res.json({
             success: true,
@@ -103,6 +114,7 @@ export const updateBag = async (
             message: 'Bag updated successfully'
         });
     } catch (error) {
+        console.error('Error updating bag:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update bag'
@@ -117,7 +129,7 @@ export const getBagById = async (
     const { id } = req.params;
     try {
         const bag = await BagModel.findOne({ id });
-        
+
         if (!bag) {
             return res.status(404).json({
                 success: false,

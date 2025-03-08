@@ -33,7 +33,7 @@ export const getAllShuttlecocks = async (
 
 // Add a new shuttlecock
 export const addShuttlecock = async (
-    req: Request<{}, {}, ShuttlecockRequest>,
+    req: Request<object, object, ShuttlecockRequest>,
     res: Response<ApiResponse<Shuttlecock>>
 ) => {
     const { id, name, price, brand, featherType, unitsPerTube, colors } = req.body;
@@ -78,24 +78,35 @@ export const addShuttlecock = async (
 
 // Update a shuttlecock
 export const updateShuttlecock = async (
-    req: Request<{ id: string }, {}, Partial<ShuttlecockRequest>>,
+    req: Request<{ id: string }, object, Partial<ShuttlecockRequest>>,
     res: Response<ApiResponse<Shuttlecock>>
 ) => {
     const { id } = req.params;
     const updates = req.body;
     try {
-        const result = await ShuttlecockModel.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+        // Find the shuttlecock first
+        const existingShuttlecock = await ShuttlecockModel.findOne({ id });
 
-        if (!result) {
+        if (!existingShuttlecock) {
             return res.status(404).json({
                 success: false,
                 error: 'Shuttlecock not found'
             });
         }
+
+        // Update the shuttlecock with the new data
+        const updatedData = {
+            ...existingShuttlecock.toObject(),
+            ...updates,
+            // If colors are being updated, replace the entire colors array
+            ...(updates.colors && { colors: updates.colors })
+        };
+
+        const result = await ShuttlecockModel.findOneAndUpdate(
+            { id },
+            { $set: updatedData },
+            { new: true }
+        );
 
         res.json({
             success: true,
@@ -103,6 +114,7 @@ export const updateShuttlecock = async (
             message: 'Shuttlecock updated successfully'
         });
     } catch (error) {
+        console.error('Error updating shuttlecock:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update shuttlecock'
@@ -117,7 +129,7 @@ export const getShuttlecockById = async (
     const { id } = req.params;
     try {
         const shuttlecock = await ShuttlecockModel.findOne({ id });
-        
+
         if (!shuttlecock) {
             return res.status(404).json({
                 success: false,

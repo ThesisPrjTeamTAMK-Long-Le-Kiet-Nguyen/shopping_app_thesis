@@ -33,7 +33,7 @@ export const getAllGrips = async (
 
 // Add a new grip
 export const addGrip = async (
-    req: Request<{}, {}, GripRequest>,
+    req: Request<object, object, GripRequest>,
     res: Response<ApiResponse<Grip>>
 ) => {
     const { id, name, price, brand, thickness, length, colors } = req.body;
@@ -78,24 +78,35 @@ export const addGrip = async (
 
 // Update a grip
 export const updateGrip = async (
-    req: Request<{ id: string }, {}, Partial<GripRequest>>,
+    req: Request<{ id: string }, object, Partial<GripRequest>>,
     res: Response<ApiResponse<Grip>>
 ) => {
     const { id } = req.params;
     const updates = req.body;
     try {
-        const result = await GripModel.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+        // Find the grip first
+        const existingGrip = await GripModel.findOne({ id });
 
-        if (!result) {
+        if (!existingGrip) {
             return res.status(404).json({
                 success: false,
                 error: 'Grip not found'
             });
         }
+
+        // Update the grip with the new data
+        const updatedData = {
+            ...existingGrip.toObject(),
+            ...updates,
+            // If colors are being updated, replace the entire colors array
+            ...(updates.colors && { colors: updates.colors })
+        };
+
+        const result = await GripModel.findOneAndUpdate(
+            { id },
+            { $set: updatedData },
+            { new: true }
+        );
 
         res.json({
             success: true,
@@ -103,6 +114,7 @@ export const updateGrip = async (
             message: 'Grip updated successfully'
         });
     } catch (error) {
+        console.error('Error updating grip:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update grip'
@@ -117,7 +129,7 @@ export const getGripById = async (
     const { id } = req.params;
     try {
         const grip = await GripModel.findOne({ id });
-        
+
         if (!grip) {
             return res.status(404).json({
                 success: false,

@@ -32,7 +32,7 @@ export const getAllStringings = async (
 };
 
 export const addStringing = async (
-    req: Request<{}, {}, StringingRequest>,
+    req: Request<object, object, StringingRequest>,
     res: Response<ApiResponse<Stringing>>
 ) => {
     const { id, name, price, brand, series, gauge, type, colors } = req.body;
@@ -77,24 +77,35 @@ export const addStringing = async (
 };
 
 export const updateStringing = async (
-    req: Request<{ id: string }, {}, Partial<StringingRequest>>,
+    req: Request<{ id: string }, object, Partial<StringingRequest>>,
     res: Response<ApiResponse<Stringing>>
 ) => {
     const { id } = req.params;
     const updates = req.body;
     try {
-        const result = await StringingModel.findOneAndUpdate(
-            { id },
-            { $set: updates },
-            { new: true }
-        );
+        // Find the stringing first
+        const existingStringing = await StringingModel.findOne({ id });
 
-        if (!result) {
+        if (!existingStringing) {
             return res.status(404).json({
                 success: false,
                 error: 'Stringing not found'
             });
         }
+
+        // Update the stringing with the new data
+        const updatedData = {
+            ...existingStringing.toObject(),
+            ...updates,
+            // If colors are being updated, replace the entire colors array
+            ...(updates.colors && { colors: updates.colors })
+        };
+
+        const result = await StringingModel.findOneAndUpdate(
+            { id },
+            { $set: updatedData },
+            { new: true }
+        );
 
         res.json({
             success: true,
@@ -102,6 +113,7 @@ export const updateStringing = async (
             message: 'Stringing updated successfully'
         });
     } catch (error) {
+        console.error('Error updating stringing:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update stringing'
@@ -116,7 +128,7 @@ export const getStringingById = async (
     const { id } = req.params;
     try {
         const stringing = await StringingModel.findOne({ id });
-        
+
         if (!stringing) {
             return res.status(404).json({
                 success: false,
