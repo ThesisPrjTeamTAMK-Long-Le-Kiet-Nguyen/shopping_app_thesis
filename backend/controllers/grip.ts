@@ -9,7 +9,18 @@ interface GripRequest {
     brand: string;
     thickness: number;
     length: number;
-    colors: string[];
+    colors: Array<{
+        color: string;
+        photo: string;
+        quantity: number;
+    }>;
+}
+
+// Add new interface for color addition
+interface ColorAddRequest {
+    color: string;
+    photo: string;
+    quantity: number;
 }
 
 // Get all grips
@@ -94,12 +105,32 @@ export const updateGrip = async (
             });
         }
 
-        // Update the grip with the new data
+        // Handle color updates specifically
+        if (updates.colors) {
+            for (const updateColor of updates.colors) {
+                // Find matching color in existing grip
+                const existingColorIndex = existingGrip.colors.findIndex(
+                    (c: { color: string; }) => c.color === updateColor.color
+                );
+
+                if (existingColorIndex !== -1) {
+                    // Color exists, update its properties
+                    if (updateColor.photo) {
+                        existingGrip.colors[existingColorIndex].photo = updateColor.photo;
+                    }
+                    if (updateColor.quantity !== undefined) {
+                        existingGrip.colors[existingColorIndex].quantity = updateColor.quantity;
+                    }
+                }
+                // Don't add new colors here - that should be done through addGripColor endpoint
+            }
+        }
+
+        // Handle other updates
         const updatedData = {
             ...existingGrip.toObject(),
             ...updates,
-            // If colors are being updated, replace the entire colors array
-            ...(updates.colors && { colors: updates.colors })
+            colors: existingGrip.colors // Preserve the modified colors array
         };
 
         const result = await GripModel.findOneAndUpdate(
@@ -118,6 +149,62 @@ export const updateGrip = async (
         res.status(500).json({
             success: false,
             error: 'Failed to update grip'
+        });
+    }
+};
+
+// Add new function to add a color to a grip
+export const addGripColor = async (
+    req: Request<{ id: string }, object, ColorAddRequest>,
+    res: Response<ApiResponse<Grip>>
+) => {
+    const { id } = req.params;
+    const { color, photo, quantity } = req.body;
+
+    try {
+        // Validate required fields
+        if (!color || !photo || quantity === undefined) {
+            return res.status(400).json({
+                success: false,
+                error: 'Color, photo, and quantity are required'
+            });
+        }
+
+        // Find the grip
+        const grip = await GripModel.findOne({ id });
+        if (!grip) {
+            return res.status(404).json({
+                success: false,
+                error: 'Grip not found'
+            });
+        }
+
+        // Check if color already exists
+        if (grip.colors.some((c: { color: string; }) => c.color === color)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Color already exists for this grip'
+            });
+        }
+
+        // Add the new color
+        grip.colors.push({
+            color,
+            photo,
+            quantity
+        });
+
+        const updatedGrip = await grip.save();
+        res.json({
+            success: true,
+            data: updatedGrip,
+            message: 'Color added successfully'
+        });
+    } catch (error) {
+        console.error('Error adding color:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to add color'
         });
     }
 };

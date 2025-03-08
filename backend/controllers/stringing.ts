@@ -10,7 +10,18 @@ interface StringingRequest {
     series: string;
     gauge: number;
     type: string;
-    colors: string[];
+    colors: Array<{
+        color: string;
+        photo: string;
+        quantity: number;
+    }>;
+}
+
+// Add new interface for color addition
+interface ColorAddRequest {
+    color: string;
+    photo: string;
+    quantity: number;
 }
 
 export const getAllStringings = async (
@@ -93,12 +104,32 @@ export const updateStringing = async (
             });
         }
 
-        // Update the stringing with the new data
+        // Handle color updates specifically
+        if (updates.colors) {
+            for (const updateColor of updates.colors) {
+                // Find matching color in existing stringing
+                const existingColorIndex = existingStringing.colors.findIndex(
+                    (c: { color: string; }) => c.color === updateColor.color
+                );
+
+                if (existingColorIndex !== -1) {
+                    // Color exists, update its properties
+                    if (updateColor.photo) {
+                        existingStringing.colors[existingColorIndex].photo = updateColor.photo;
+                    }
+                    if (updateColor.quantity !== undefined) {
+                        existingStringing.colors[existingColorIndex].quantity = updateColor.quantity;
+                    }
+                }
+                // Don't add new colors here - that should be done through addStringingColor endpoint
+            }
+        }
+
+        // Handle other updates
         const updatedData = {
             ...existingStringing.toObject(),
             ...updates,
-            // If colors are being updated, replace the entire colors array
-            ...(updates.colors && { colors: updates.colors })
+            colors: existingStringing.colors // Preserve the modified colors array
         };
 
         const result = await StringingModel.findOneAndUpdate(
@@ -144,6 +175,62 @@ export const getStringingById = async (
         res.status(500).json({
             success: false,
             error: 'Failed to fetch stringing'
+        });
+    }
+};
+
+// Add new function to add a color to a stringing
+export const addStringingColor = async (
+    req: Request<{ id: string }, object, ColorAddRequest>,
+    res: Response<ApiResponse<Stringing>>
+) => {
+    const { id } = req.params;
+    const { color, photo, quantity } = req.body;
+
+    try {
+        // Validate required fields
+        if (!color || !photo || quantity === undefined) {
+            return res.status(400).json({
+                success: false,
+                error: 'Color, photo, and quantity are required'
+            });
+        }
+
+        // Find the stringing
+        const stringing = await StringingModel.findOne({ id });
+        if (!stringing) {
+            return res.status(404).json({
+                success: false,
+                error: 'Stringing not found'
+            });
+        }
+
+        // Check if color already exists
+        if (stringing.colors.some((c: { color: string; }) => c.color === color)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Color already exists for this stringing'
+            });
+        }
+
+        // Add the new color
+        stringing.colors.push({
+            color,
+            photo,
+            quantity
+        });
+
+        const updatedStringing = await stringing.save();
+        res.json({
+            success: true,
+            data: updatedStringing,
+            message: 'Color added successfully'
+        });
+    } catch (error) {
+        console.error('Error adding color:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to add color'
         });
     }
 };
