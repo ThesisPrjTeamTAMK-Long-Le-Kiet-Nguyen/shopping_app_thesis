@@ -13,7 +13,14 @@ interface RacketRequest {
     material: string;
     balancePoint: number;
     cover: boolean;
-    colors: string[];
+    colors: Array<{
+        color: string;
+        photo: string;
+        types: Array<{
+            type: string;
+            quantity: number;
+        }>;
+    }>;
 }
 
 // Add new interface for color addition
@@ -108,7 +115,6 @@ export const updateRacket = async (
         // Find the racket first
         const existingRacket = await RacketModel.findOne({ id });
 
-
         if (!existingRacket) {
             return res.status(404).json({
                 success: false,
@@ -116,13 +122,45 @@ export const updateRacket = async (
             });
         }
 
-        // Update the racket with the new data
-        // Using spread operator to merge existing data with updates
+        // Handle color updates specifically
+        if (updates.colors) {
+            for (const updateColor of updates.colors) {
+                // Find matching color in existing racket
+                const existingColorIndex = existingRacket.colors.findIndex(
+                    (c: { color: string; }) => c.color === updateColor.color
+                );
+
+                if (existingColorIndex !== -1) {
+                    // Color exists, update its properties
+                    if (updateColor.photo) {
+                        existingRacket.colors[existingColorIndex].photo = updateColor.photo;
+                    }
+
+                    // Update types if provided
+                    if (updateColor.types) {
+                        for (const updateType of updateColor.types) {
+                            // Find matching type in existing color
+                            const existingTypeIndex = existingRacket.colors[existingColorIndex].types.findIndex(
+                                (t: { type: string; }) => t.type === updateType.type
+                            );
+
+                            if (existingTypeIndex !== -1) {
+                                // Type exists, update quantity
+                                existingRacket.colors[existingColorIndex].types[existingTypeIndex].quantity = updateType.quantity;
+                            }
+                            // Don't add new types here - that should be done through addRacketType endpoint
+                        }
+                    }
+                }
+                // Don't add new colors here - that should be done through addRacketColor endpoint
+            }
+        }
+
+        // Handle other updates
         const updatedData = {
             ...existingRacket.toObject(),
             ...updates,
-            // If colors are being updated, replace the entire colors array
-            ...(updates.colors && { colors: updates.colors })
+            colors: existingRacket.colors // Preserve the modified colors array
         };
 
         const result = await RacketModel.findOneAndUpdate(
