@@ -131,12 +131,6 @@ const getModelByCategory = (category: string): ProductModel => {
     }
 };
 
-// New interface for delete requests
-interface DeleteRequest {
-  colorId?: string;
-  typeId?: string;
-}
-
 // Delete a specific type from a color
 export const deleteProductType = async (
     req: Request<{ id: string; colorId: string; typeId: string }>,
