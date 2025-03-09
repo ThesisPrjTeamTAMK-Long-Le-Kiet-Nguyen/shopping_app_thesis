@@ -34,53 +34,31 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-// Update the form schema to include colors and types
+// First, update the schema to handle arrays
+const racketTypeSchema = z.object({
+  type: z.string().min(1, { message: "Type variant is required" }),
+  quantity: z.string().min(1, { message: "Quantity is required" }),
+  maxTension: z.string().min(1, { message: "Max tension is required" })
+})
+
+const colorSchema = z.object({
+  color: z.string().min(1, { message: "Color is required" }),
+  photo: z.string().url({ message: "Please enter a valid URL for the photo" }),
+  types: z.array(racketTypeSchema).min(1, { message: "At least one type is required" })
+})
+
 const racketFormSchema = z.object({
-  id: z.string().min(2, {
-    message: "ID must be at least 2 characters.",
-  }),
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  price: z.string().min(1, {
-    message: "Price is required.",
-  }),
-  brand: z.string().min(1, {
-    message: "Brand is required.",
-  }),
-  series: z.string().min(1, {
-    message: "Series is required.",
-  }),
-  racketType: z.string().min(1, {
-    message: "Racket type is required.",
-  }),
-  flexibility: z.string().min(1, {
-    message: "Flexibility is required.",
-  }),
-  material: z.string().min(1, {
-    message: "Material is required.",
-  }),
-  balancePoint: z.string().min(1, {
-    message: "Balance point is required.",
-  }),
+  id: z.string().min(2, { message: "ID must be at least 2 characters" }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  price: z.string().min(1, { message: "Price is required" }),
+  brand: z.string().min(1, { message: "Brand is required" }),
+  series: z.string().min(1, { message: "Series is required" }),
+  racketType: z.string().min(1, { message: "Racket type is required" }),
+  flexibility: z.string().min(1, { message: "Flexibility is required" }),
+  material: z.string().min(1, { message: "Material is required" }),
+  balancePoint: z.string().min(1, { message: "Balance point is required" }),
   cover: z.boolean(),
-  // Add color fields
-  color: z.string().min(1, {
-    message: "Color is required.",
-  }),
-  photo: z.string().url({
-    message: "Please enter a valid URL for the photo.",
-  }),
-  // Add type fields
-  racketTypeVariant: z.string().min(1, {
-    message: "Type variant is required.",
-  }),
-  quantity: z.string().min(1, {
-    message: "Quantity is required.",
-  }),
-  maxTension: z.string().min(1, {
-    message: "Max tension is required.",
-  }),
+  colors: z.array(colorSchema).min(1, { message: "At least one color is required" })
 })
 
 type RacketFormValues = z.infer<typeof racketFormSchema>
@@ -88,6 +66,7 @@ type RacketFormValues = z.infer<typeof racketFormSchema>
 export default function RacketManagement() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<RacketFormValues | null>(null)
+  const [colors, setColors] = useState([{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }])
 
   const form = useForm<RacketFormValues>({
     resolver: zodResolver(racketFormSchema),
@@ -102,12 +81,7 @@ export default function RacketManagement() {
       material: "",
       balancePoint: "",
       cover: false,
-      // Add new default values
-      color: "",
-      photo: "",
-      racketTypeVariant: "",
-      quantity: "",
-      maxTension: "",
+      colors: [{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }],
     }
   })
 
@@ -127,15 +101,15 @@ export default function RacketManagement() {
         ...formData,
         price: Number(formData.price),
         balancePoint: Number(formData.balancePoint),
-        colors: [{
-          color: formData.color,
-          photo: formData.photo,
-          types: [{
-            type: formData.racketTypeVariant,
-            quantity: Number(formData.quantity),
-            maxTension: formData.maxTension
-          }]
-        }]
+        colors: formData.colors.map(color => ({
+          color: color.color,
+          photo: color.photo,
+          types: color.types.map(type => ({
+            type: type.type,
+            quantity: Number(type.quantity),
+            maxTension: type.maxTension
+          }))
+        }))
       }
 
       console.log("Sending data to API:", racketData)
@@ -152,6 +126,27 @@ export default function RacketManagement() {
       console.error("Error adding racket:", error)
       toast.error("Error adding racket")
     }
+  }
+
+  // Add functions to manage colors and types
+  const addColor = () => {
+    setColors([...colors, { color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }])
+  }
+
+  const addType = (colorIndex: number) => {
+    const newColors = [...colors]
+    newColors[colorIndex].types.push({ type: '', quantity: '', maxTension: '' })
+    setColors(newColors)
+  }
+
+  const removeColor = (index: number) => {
+    setColors(colors.filter((_, i) => i !== index))
+  }
+
+  const removeType = (colorIndex: number, typeIndex: number) => {
+    const newColors = [...colors]
+    newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex)
+    setColors(newColors)
   }
 
   return (
@@ -228,7 +223,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Series</FormLabel>
                     <FormControl>
-                      <Input placeholder="Astrox" {...field} />
+                      <Input placeholder="Racket series" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -300,7 +295,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Balance Point (mm)</FormLabel>
                     <FormControl>
-                      <Input placeholder="302" {...field} />
+                      <Input placeholder="xxx" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -332,93 +327,141 @@ export default function RacketManagement() {
             </div>
           </div>
 
-          {/* Add Color Section */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Color Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Color</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Color" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Color and Type Sections with borders */}
+          <div className="space-y-6">
+            {colors.map((color, colorIndex) => (
+              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">Color Information #{colorIndex + 1}</h2>
+                  {colorIndex > 0 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeColor(colorIndex)}
+                    >
+                      Remove Color
+                    </Button>
+                  )}
+                </div>
 
-              <FormField
-                control={form.control}
-                name="photo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Photo URL</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="https://example.com/photo.jpg" 
-                        {...field} 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name={`colors.${colorIndex}.color`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Color" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`colors.${colorIndex}.photo`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Photo URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://example.com/photo.jpg" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">Types</h3>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => addType(colorIndex)}
+                    >
+                      Add Type
+                    </Button>
+                  </div>
+
+                  {color.types.map((_type, typeIndex) => (
+                    <div key={typeIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <FormField
+                        control={form.control}
+                        name={`colors.${colorIndex}.types.${typeIndex}.type`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Type Variant</FormLabel>
+                            <FormControl>
+                              <Input placeholder="4ug5" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+
+                      <FormField
+                        control={form.control}
+                        name={`colors.${colorIndex}.types.${typeIndex}.quantity`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Quantity</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex items-end gap-2">
+                        <FormField
+                          control={form.control}
+                          name={`colors.${colorIndex}.types.${typeIndex}.maxTension`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel>Max Tension</FormLabel>
+                              <FormControl>
+                                <Input placeholder="LBS" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {typeIndex > 0 && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="mb-2"
+                            onClick={() => removeType(colorIndex, typeIndex)}
+                          >
+                            ×
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={addColor}
+            >
+              Add Another Color
+            </Button>
           </div>
 
-          {/* Add Type Section */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Type Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="racketTypeVariant"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type Variant</FormLabel>
-                    <FormControl>
-                      <Input placeholder="4ug5" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="maxTension"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Tension</FormLabel>
-                    <FormControl>
-                      <Input placeholder="LBS" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full bg-blue-500 text-white hover:bg-blue-600"
           >
             Add Racket
@@ -444,11 +487,15 @@ export default function RacketManagement() {
                   <p><span className="font-medium">Material:</span> {formData.material}</p>
                   <p><span className="font-medium">Balance Point:</span> {formData.balancePoint}mm</p>
                   <p><span className="font-medium">Includes Cover:</span> {formData.cover ? "Yes" : "No"}</p>
-                  <p><span className="font-medium">Color:</span> {formData.color}</p>
-                  <p><span className="font-medium">Photo URL:</span> {formData.photo}</p>
-                  <p><span className="font-medium">Type Variant:</span> {formData.racketTypeVariant}</p>
-                  <p><span className="font-medium">Quantity:</span> {formData.quantity}</p>
-                  <p><span className="font-medium">Max Tension:</span> {formData.maxTension}</p>
+                  {formData.colors.map((color, index) => (
+                    <div key={index}>
+                      <p><span className="font-medium">Color {index + 1}:</span> {color.color}</p>
+                      <p><span className="font-medium">Photo URL:</span> {color.photo}</p>
+                      {color.types.map((type, typeIndex) => (
+                        <p key={`${index}-${typeIndex}`}><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</p>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               )}
             </AlertDialogDescription>
@@ -464,4 +511,4 @@ export default function RacketManagement() {
 }
 
 
-export { default as AddRacketForm } from './AddRacketForm' 
+export { default as AddRacketForm } from './AddRacketForm'
