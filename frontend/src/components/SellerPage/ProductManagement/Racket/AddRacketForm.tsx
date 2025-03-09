@@ -26,6 +26,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 // Update the form schema to include colors and types
 const racketFormSchema = z.object({
@@ -162,11 +169,8 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Racket ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="ax2106" {...field} />
+                      <Input placeholder="ID of the racket" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      Unique identifier for the racket
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -179,7 +183,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Astrox 77" {...field} />
+                      <Input placeholder="Racket name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -193,7 +197,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <Input placeholder="195" {...field} />
+                      <Input placeholder="€" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -210,7 +214,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Brand</FormLabel>
                     <FormControl>
-                      <Input placeholder="Yonex" {...field} />
+                      <Input placeholder="Yonex, Victor" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -237,9 +241,18 @@ export default function RacketManagement() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Racket Type</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Head Heavy" {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select racket type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Head Heavy">Head Heavy</SelectItem>
+                        <SelectItem value="Even Balance">Even Balance</SelectItem>
+                        <SelectItem value="Head Light">Head Light</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -257,7 +270,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Flexibility</FormLabel>
                     <FormControl>
-                      <Input placeholder="Stiff" {...field} />
+                      <Input placeholder="Flexible to Extra Stiff" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -271,7 +284,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Material</FormLabel>
                     <FormControl>
-                      <Input placeholder="HM Graphite, Namd" {...field} />
+                      <Input placeholder="Racket material" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -330,7 +343,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Color</FormLabel>
                     <FormControl>
-                      <Input placeholder="Green" {...field} />
+                      <Input placeholder="Color" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -349,9 +362,6 @@ export default function RacketManagement() {
                         {...field} 
                       />
                     </FormControl>
-                    <FormDescription>
-                      Enter the URL for the racket photo
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -384,7 +394,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Quantity</FormLabel>
                     <FormControl>
-                      <Input placeholder="5" {...field} />
+                      <Input placeholder="Number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -398,7 +408,7 @@ export default function RacketManagement() {
                   <FormItem>
                     <FormLabel>Max Tension</FormLabel>
                     <FormControl>
-                      <Input placeholder="27 LBS" {...field} />
+                      <Input placeholder="LBS" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
