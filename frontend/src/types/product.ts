@@ -37,10 +37,26 @@ export interface Bag extends BaseProduct {
   size: string;
 }
 
-export interface Shoe extends BaseProduct {
+export interface ShoeSize {
+  size: string;
+  quantity: number;
+}
+
+export interface ShoeColor {
+  color: string;
+  photo: string;
+  types: ShoeSize[];
+}
+
+export interface Shoe extends Document {
+  id: string;
+  name: string;
+  price: number;
+  brand: string;
   series: string;
   midsole: string;
   outsole: string;
+  colors: ShoeColor[];
 }
 
 export interface Stringing extends BaseProduct {
@@ -66,4 +82,4 @@ export interface AllProducts {
   stringings: Stringing[];
   grips: Grip[];
   shuttlecocks: Shuttlecock[];
-} 
+}

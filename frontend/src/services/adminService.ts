@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
   Racket, Bag, Shoe, Stringing, Grip, Shuttlecock,
-  ApiResponse, ColorAddRequest, TypeAddRequest
+  ApiResponse, ColorAddRequest, TypeAddRequest, ShoeRequest
 } from '../types';
 
 const baseUrl = 'http://localhost:3000/products';
@@ -59,7 +59,7 @@ export async function updateBag(id: string, bagData: Partial<Bag>): Promise<ApiR
 }
 
 // Shoe operations
-export async function addShoe(shoeData: Shoe): Promise<ApiResponse<Shoe>> {
+export async function addShoe(shoeData: ShoeRequest): Promise<ApiResponse<Shoe>> {
   try {
     const response = await axios.post(`${baseUrl}/shoes`, shoeData, getConfig());
     return response.data;
@@ -284,7 +284,14 @@ export async function addBagColor(
 // Shoe color and size management
 export async function addShoeColor(
   productId: string,
-  colorData: ColorAddRequest & { types: Array<{ size: string; quantity: number }> }
+  colorData: {
+    color: string;
+    photo: string;
+    types: Array<{
+      size: string;
+      quantity: number;
+    }>;
+  }
 ): Promise<ApiResponse<Shoe>> {
   try {
     const response = await axios.post(

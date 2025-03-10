@@ -78,4 +78,22 @@ export interface GripColorAddRequest {
   color: string;
   photo: string;
   quantity: number;
+}
+
+export interface ShoeRequest {
+  id: string;
+  name: string;
+  price: number;
+  brand: string;
+  series: string;
+  midsole: string;
+  outsole: string;
+  colors: {
+    color: string;
+    photo: string;
+    types: {
+      size: string;
+      quantity: number;
+    }[];
+  }[];
 } 
