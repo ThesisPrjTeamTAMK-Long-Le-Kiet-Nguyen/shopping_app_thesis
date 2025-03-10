@@ -96,8 +96,7 @@ export default function ModifyShuttlecockForm() {
     setTypes(types.filter((_, i) => i !== index))
   }
 
-  async function onSubmit(data: ColorAddFormValues | TypeAddFormValues) {
-    console.log("Form submitted with data:", data)
+  async function onSubmit(_data: ColorAddFormValues | TypeAddFormValues) {
     setDialogOpen(true)
   }
 
@@ -136,7 +135,6 @@ export default function ModifyShuttlecockForm() {
         toast.error(`Failed to add ${modifyType}`)
       }
     } catch (error) {
-      console.error(`Error adding ${modifyType}:`, error)
       toast.error(`Error adding ${modifyType}`)
     }
   }

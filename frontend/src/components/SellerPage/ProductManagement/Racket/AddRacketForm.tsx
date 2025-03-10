@@ -85,9 +85,7 @@ export default function RacketManagement() {
     }
   })
 
-  // Add console.log to debug form submission
   async function onSubmit(data: RacketFormValues) {
-    console.log("Form submitted with data:", data)
     setFormData(data)
     setDialogOpen(true)
   }
@@ -112,8 +110,6 @@ export default function RacketManagement() {
         }))
       }
 
-      console.log("Sending data to API:", racketData)
-
       const response = await addRacket(racketData)
       if (response.success) {
         toast.success("Racket added successfully")
@@ -123,7 +119,6 @@ export default function RacketManagement() {
         toast.error("Failed to add racket")
       }
     } catch (error) {
-      console.error("Error adding racket:", error)
       toast.error("Error adding racket")
     }
   }

@@ -83,8 +83,7 @@ export default function ModifyRacketForm() {
     setTypes(types.filter((_, i) => i !== index))
   }
 
-  async function onSubmit(data: ColorAddFormValues | TypeAddFormValues) {
-    console.log("Form submitted with data:", data)
+  async function onSubmit(_data: ColorAddFormValues | TypeAddFormValues) {
     setDialogOpen(true)
   }
 
@@ -123,7 +122,6 @@ export default function ModifyRacketForm() {
         toast.error(`Failed to add ${modifyType}`)
       }
     } catch (error) {
-      console.error(`Error adding ${modifyType}:`, error)
       toast.error(`Error adding ${modifyType}`)
     }
   }
@@ -354,7 +352,7 @@ export default function ModifyRacketForm() {
             <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to add this new {modifyType}?
-              
+
               {modifyType === 'color' ? (
                 <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
                   <p><span className="font-medium">Racket ID:</span> {colorForm.getValues().racketId}</p>
@@ -387,4 +385,4 @@ export default function ModifyRacketForm() {
       </AlertDialog>
     </div>
   )
-} 
+}

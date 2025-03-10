@@ -75,7 +75,6 @@ export default function AddShoeForm() {
   })
 
   async function onSubmit(data: ShoeFormValues) {
-    console.log("Form submitted with data:", data)
     setFormData(data)
     setDialogOpen(true)
   }
@@ -97,8 +96,6 @@ export default function AddShoeForm() {
         }))
       }
 
-      console.log("Sending data to API:", shoeData)
-
       const response = await addShoe(shoeData)
       if (response.success) {
         toast.success("Shoe added successfully")
@@ -108,7 +105,6 @@ export default function AddShoeForm() {
         toast.error("Failed to add shoe")
       }
     } catch (error) {
-      console.error("Error adding shoe:", error)
       toast.error("Error adding shoe")
     }
   }

@@ -87,7 +87,6 @@ export default function DeleteShoeForm() {
         toast.error(`Failed to delete shoe ${deleteType}`)
       }
     } catch (error) {
-      console.error(`Error deleting shoe ${deleteType}:`, error)
       toast.error(`Error deleting shoe ${deleteType}`)
     }
   }
@@ -163,8 +162,8 @@ export default function DeleteShoeForm() {
             />
           )}
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             variant="destructive"
             className="w-full"
           >
@@ -178,10 +177,10 @@ export default function DeleteShoeForm() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this {deleteType === 'full' ? 'shoe' : 
+              Are you sure you want to delete this {deleteType === 'full' ? 'shoe' :
                 deleteType === 'color' ? 'color' : 'size'}?
               This action cannot be undone.
-              
+
               {formData && (
                 <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
                   <p><span className="font-medium">Shoe ID:</span> {formData.id}</p>
@@ -197,7 +196,7 @@ export default function DeleteShoeForm() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirm}
               className="bg-red-600 hover:bg-red-700"
             >
@@ -208,4 +207,4 @@ export default function DeleteShoeForm() {
       </AlertDialog>
     </div>
   )
-} 
+}

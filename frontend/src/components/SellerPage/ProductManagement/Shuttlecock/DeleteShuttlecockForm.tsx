@@ -87,7 +87,6 @@ export default function DeleteShuttlecockForm() {
         toast.error(`Failed to delete shuttlecock ${deleteType}`)
       }
     } catch (error) {
-      console.error(`Error deleting shuttlecock ${deleteType}:`, error)
       toast.error(`Error deleting shuttlecock ${deleteType}`)
     }
   }

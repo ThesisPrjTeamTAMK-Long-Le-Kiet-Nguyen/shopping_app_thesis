@@ -99,8 +99,7 @@ export default function AddShuttlecockForm() {
     setColors(newColors)
   }
 
-  function onSubmit(data: ShuttlecockFormValues) {
-    console.log("Form submitted with data:", data)
+  function onSubmit(_data: ShuttlecockFormValues) {
     setDialogOpen(true)
   }
 
@@ -130,7 +129,6 @@ export default function AddShuttlecockForm() {
         toast.error("Failed to add shuttlecock")
       }
     } catch (error) {
-      console.error("Error adding shuttlecock:", error)
       toast.error("Error adding shuttlecock")
     }
   }

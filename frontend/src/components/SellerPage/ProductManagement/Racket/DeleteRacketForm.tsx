@@ -88,7 +88,6 @@ export default function DeleteRacketForm() {
         toast.error(`Failed to delete racket ${deleteType}`)
       }
     } catch (error) {
-      console.error(`Error deleting racket ${deleteType}:`, error)
       toast.error(`Error deleting racket ${deleteType}`)
     }
   }

@@ -80,8 +80,7 @@ export default function ModifyShoeForm() {
     setSizes(sizes.filter((_, i) => i !== index))
   }
 
-  async function onSubmit(data: ColorAddFormValues | SizeAddFormValues) {
-    console.log("Form submitted with data:", data)
+  async function onSubmit(_data: ColorAddFormValues | SizeAddFormValues) {
     setDialogOpen(true)
   }
 
@@ -118,7 +117,6 @@ export default function ModifyShoeForm() {
         toast.error(`Failed to add ${modifyType}`)
       }
     } catch (error) {
-      console.error(`Error adding ${modifyType}:`, error)
       toast.error(`Error adding ${modifyType}`)
     }
   }
