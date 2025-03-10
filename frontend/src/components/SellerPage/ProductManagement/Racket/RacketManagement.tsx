@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddRacketForm } from "./AddRacketForm"
+import ModifyRacketForm from "./ModifyRacketForm"
 import DeleteRacketForm from "./DeleteRacketForm"
 
 export default function RacketManagement() {
@@ -10,11 +11,16 @@ export default function RacketManagement() {
       <Tabs defaultValue="add" className="space-y-4">
         <TabsList>
           <TabsTrigger value="add">Add Racket</TabsTrigger>
+          <TabsTrigger value="modify">Modify Racket</TabsTrigger>
           <TabsTrigger value="delete">Delete Racket</TabsTrigger>
         </TabsList>
 
         <TabsContent value="add">
           <AddRacketForm />
+        </TabsContent>
+
+        <TabsContent value="modify">
+          <ModifyRacketForm />
         </TabsContent>
 
         <TabsContent value="delete">
