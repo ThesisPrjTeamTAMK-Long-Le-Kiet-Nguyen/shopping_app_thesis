@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { addShoeColor, addShoeSize } from "@/services/adminService"
+import { addShuttlecockColor, addShuttlecockType } from "@/services/adminService"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -24,63 +24,79 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-// Schema for adding a new size to an existing color
-const sizeAddSchema = z.object({
-  shoeId: z.string().min(2, { message: "Shoe ID is required" }),
+// Schema for adding a new type to an existing color
+const typeAddSchema = z.object({
+  shuttlecockId: z.string().min(2, { message: "Shuttlecock ID is required" }),
   colorId: z.string().min(2, { message: "Color ID is required" }),
-  size: z.string().min(1, { message: "Size is required" }),
-  quantity: z.string().min(1, { message: "Quantity is required" })
+  type: z.string().min(1, { message: "Type is required" }),
+  quantity: z.string().min(1, { message: "Quantity is required" }),
+  speed: z.string().min(1, { message: "Speed is required" })
 })
 
-// Schema for adding a new color with sizes
+// Schema for adding a new color with types
 const colorAddSchema = z.object({
-  shoeId: z.string().min(2, { message: "Shoe ID is required" }),
+  shuttlecockId: z.string().min(2, { message: "Shuttlecock ID is required" }),
   color: z.string().min(1, { message: "Color is required" }),
   photo: z.string().url({ message: "Please enter a valid URL for the photo" }),
   types: z.array(z.object({
-    size: z.string().min(1, { message: "Size is required" }),
-    quantity: z.string().min(1, { message: "Quantity is required" })
-  })).min(1, { message: "At least one size is required" })
+    type: z.string().min(1, { message: "Type is required" }),
+    quantity: z.string().min(1, { message: "Quantity is required" }),
+    speed: z.string().min(1, { message: "Speed is required" })
+  })).min(1, { message: "At least one type is required" })
 })
 
-type SizeAddFormValues = z.infer<typeof sizeAddSchema>
+type TypeAddFormValues = z.infer<typeof typeAddSchema>
 type ColorAddFormValues = z.infer<typeof colorAddSchema>
 
-export default function ModifyShoeForm() {
+const SPEED_OPTIONS = [
+  { value: "76", label: "76" },
+  { value: "77", label: "77" },
+  { value: "78", label: "78" },
+]
+
+export default function ModifyShuttlecockForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [modifyType, setModifyType] = useState<'color' | 'size'>('color')
-  const [sizes, setSizes] = useState([{ size: '', quantity: '' }])
+  const [modifyType, setModifyType] = useState<'color' | 'type'>('color')
+  const [types, setTypes] = useState([{ type: '', quantity: '', speed: '' }])
 
   const colorForm = useForm<ColorAddFormValues>({
     resolver: zodResolver(colorAddSchema),
     defaultValues: {
-      shoeId: '',
+      shuttlecockId: '',
       color: '',
       photo: '',
-      types: [{ size: '', quantity: '' }]
+      types: [{ type: '', quantity: '', speed: '' }]
     }
   })
 
-  const sizeForm = useForm<SizeAddFormValues>({
-    resolver: zodResolver(sizeAddSchema),
+  const typeForm = useForm<TypeAddFormValues>({
+    resolver: zodResolver(typeAddSchema),
     defaultValues: {
-      shoeId: '',
+      shuttlecockId: '',
       colorId: '',
-      size: '',
-      quantity: ''
+      type: '',
+      quantity: '',
+      speed: ''
     }
   })
 
-  const addSize = () => {
-    setSizes([...sizes, { size: '', quantity: '' }])
+  const addType = () => {
+    setTypes([...types, { type: '', quantity: '', speed: '' }])
   }
 
-  const removeSize = (index: number) => {
-    setSizes(sizes.filter((_, i) => i !== index))
+  const removeType = (index: number) => {
+    setTypes(types.filter((_, i) => i !== index))
   }
 
-  async function onSubmit(data: ColorAddFormValues | SizeAddFormValues) {
+  async function onSubmit(data: ColorAddFormValues | TypeAddFormValues) {
     console.log("Form submitted with data:", data)
     setDialogOpen(true)
   }
@@ -90,30 +106,32 @@ export default function ModifyShoeForm() {
       let response;
       if (modifyType === 'color') {
         const colorData = colorForm.getValues()
-        response = await addShoeColor(colorData.shoeId, {
+        response = await addShuttlecockColor(colorData.shuttlecockId, {
           color: colorData.color,
           photo: colorData.photo,
           types: colorData.types.map(t => ({
-            size: t.size,
-            quantity: Number(t.quantity)
+            type: t.type,
+            quantity: Number(t.quantity),
+            speed: Number(t.speed)
           }))
         })
       } else {
-        const sizeData = sizeForm.getValues()
-        response = await addShoeSize(
-          sizeData.shoeId,
-          sizeData.colorId,
+        const typeData = typeForm.getValues()
+        response = await addShuttlecockType(
+          typeData.shuttlecockId,
+          typeData.colorId,
           {
-            size: sizeData.size,
-            quantity: Number(sizeData.quantity)
+            type: typeData.type,
+            quantity: Number(typeData.quantity),
+            speed: Number(typeData.speed)
           }
         )
       }
 
       if (response.success) {
-        toast.success(`Shoe ${modifyType} added successfully`)
+        toast.success(`Shuttlecock ${modifyType} added successfully`)
         setDialogOpen(false)
-        modifyType === 'color' ? colorForm.reset() : sizeForm.reset()
+        modifyType === 'color' ? colorForm.reset() : typeForm.reset()
       } else {
         toast.error(`Failed to add ${modifyType}`)
       }
@@ -133,10 +151,10 @@ export default function ModifyShoeForm() {
           Add New Color
         </Button>
         <Button
-          variant={modifyType === 'size' ? "default" : "outline"}
-          onClick={() => setModifyType('size')}
+          variant={modifyType === 'type' ? "default" : "outline"}
+          onClick={() => setModifyType('type')}
         >
-          Add New Size
+          Add New Type
         </Button>
       </div>
 
@@ -145,12 +163,12 @@ export default function ModifyShoeForm() {
           <form onSubmit={colorForm.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={colorForm.control}
-              name="shoeId"
+              name="shuttlecockId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shoe ID</FormLabel>
+                  <FormLabel>Shuttlecock ID</FormLabel>
                   <FormControl>
-                    <Input placeholder="ID of the shoe" {...field} />
+                    <Input placeholder="ID of the Shuttle" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -165,7 +183,7 @@ export default function ModifyShoeForm() {
                   <FormItem>
                     <FormLabel>Color</FormLabel>
                     <FormControl>
-                      <Input placeholder="Color name" {...field} />
+                      <Input placeholder="Color" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -188,27 +206,41 @@ export default function ModifyShoeForm() {
 
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Sizes</h3>
+                  <h3 className="text-lg font-medium">Types</h3>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={addSize}
+                    onClick={addType}
                   >
-                    Add Size
+                    Add Type
                   </Button>
                 </div>
 
-                {sizes.map((_, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {types.map((_, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <FormField
                       control={colorForm.control}
-                      name={`types.${index}.size`}
+                      name={`types.${index}.type`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Size</FormLabel>
+                          <FormLabel>Type</FormLabel>
                           <FormControl>
-                            <Input placeholder="Europe Size" {...field} />
+                            <Input placeholder="Shuttle Type" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={colorForm.control}
+                      name={`types.${index}.quantity`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Quantity</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Number" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -218,12 +250,25 @@ export default function ModifyShoeForm() {
                     <div className="flex items-end gap-2">
                       <FormField
                         control={colorForm.control}
-                        name={`types.${index}.quantity`}
+                        name={`types.${index}.speed`}
                         render={({ field }) => (
                           <FormItem className="flex-1">
-                            <FormLabel>Quantity</FormLabel>
+                            <FormLabel>Speed</FormLabel>
                             <FormControl>
-                              <Input placeholder="Number" {...field} />
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select speed" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {SPEED_OPTIONS.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -235,7 +280,7 @@ export default function ModifyShoeForm() {
                           variant="destructive"
                           size="icon"
                           className="mb-2"
-                          onClick={() => removeSize(index)}
+                          onClick={() => removeType(index)}
                         >
                           ×
                         </Button>
@@ -250,16 +295,16 @@ export default function ModifyShoeForm() {
           </form>
         </Form>
       ) : (
-        <Form {...sizeForm}>
-          <form onSubmit={sizeForm.handleSubmit(onSubmit)} className="space-y-4">
+        <Form {...typeForm}>
+          <form onSubmit={typeForm.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-              control={sizeForm.control}
-              name="shoeId"
+              control={typeForm.control}
+              name="shuttlecockId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shoe ID</FormLabel>
+                  <FormLabel>Shuttlecock ID</FormLabel>
                   <FormControl>
-                    <Input placeholder="ID of the shoe" {...field} />
+                    <Input placeholder="ID of the shuttle" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -267,13 +312,13 @@ export default function ModifyShoeForm() {
             />
 
             <FormField
-              control={sizeForm.control}
+              control={typeForm.control}
               name="colorId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Color ID</FormLabel>
                   <FormControl>
-                    <Input placeholder="ID of the color" {...field} />
+                    <Input placeholder="color-id" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -282,13 +327,13 @@ export default function ModifyShoeForm() {
 
             <div className="border rounded-lg p-6 space-y-4">
               <FormField
-                control={sizeForm.control}
-                name="size"
+                control={typeForm.control}
+                name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Size</FormLabel>
+                    <FormLabel>Type</FormLabel>
                     <FormControl>
-                      <Input placeholder="Europe Size" {...field} />
+                      <Input placeholder="Shuttle Type" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -296,7 +341,7 @@ export default function ModifyShoeForm() {
               />
 
               <FormField
-                control={sizeForm.control}
+                control={typeForm.control}
                 name="quantity"
                 render={({ field }) => (
                   <FormItem>
@@ -308,9 +353,34 @@ export default function ModifyShoeForm() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={typeForm.control}
+                name="speed"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Speed</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select speed" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {SPEED_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <Button type="submit" className="w-full">Add Size</Button>
+            <Button type="submit" className="w-full">Add Type</Button>
           </form>
         </Form>
       )}
@@ -324,22 +394,24 @@ export default function ModifyShoeForm() {
 
               {modifyType === 'color' ? (
                 <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Shoe ID:</span> {colorForm.getValues().shoeId}</p>
+                  <p><span className="font-medium">Shuttlecock ID:</span> {colorForm.getValues().shuttlecockId}</p>
                   <p><span className="font-medium">Color:</span> {colorForm.getValues().color}</p>
                   <p><span className="font-medium">Photo URL:</span> {colorForm.getValues().photo}</p>
                   {colorForm.getValues().types.map((type, index) => (
                     <div key={index}>
-                      <p><span className="font-medium">Size {index + 1}:</span> {type.size}</p>
+                      <p><span className="font-medium">Type {index + 1}:</span> {type.type}</p>
                       <p><span className="font-medium">Quantity:</span> {type.quantity}</p>
+                      <p><span className="font-medium">Speed:</span> {type.speed}</p>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Shoe ID:</span> {sizeForm.getValues().shoeId}</p>
-                  <p><span className="font-medium">Color ID:</span> {sizeForm.getValues().colorId}</p>
-                  <p><span className="font-medium">Size:</span> {sizeForm.getValues().size}</p>
-                  <p><span className="font-medium">Quantity:</span> {sizeForm.getValues().quantity}</p>
+                  <p><span className="font-medium">Shuttlecock ID:</span> {typeForm.getValues().shuttlecockId}</p>
+                  <p><span className="font-medium">Color ID:</span> {typeForm.getValues().colorId}</p>
+                  <p><span className="font-medium">Type:</span> {typeForm.getValues().type}</p>
+                  <p><span className="font-medium">Quantity:</span> {typeForm.getValues().quantity}</p>
+                  <p><span className="font-medium">Speed:</span> {typeForm.getValues().speed}</p>
                 </div>
               )}
             </AlertDialogDescription>

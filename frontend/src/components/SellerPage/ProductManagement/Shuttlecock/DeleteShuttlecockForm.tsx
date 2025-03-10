@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,7 +27,7 @@ import {
 
 const deleteFormSchema = z.object({
   id: z.string().min(2, {
-    message: "Racket ID is required.",
+    message: "Shuttlecock ID is required.",
   }),
   colorId: z.string().optional(),
   typeId: z.string().optional(),
@@ -36,7 +35,7 @@ const deleteFormSchema = z.object({
 
 type DeleteFormValues = z.infer<typeof deleteFormSchema>
 
-export default function DeleteRacketForm() {
+export default function DeleteShuttlecockForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<DeleteFormValues | null>(null)
   const [deleteType, setDeleteType] = useState<'full' | 'color' | 'type'>('full')
@@ -62,34 +61,34 @@ export default function DeleteRacketForm() {
       let response;
       switch (deleteType) {
         case 'full':
-          response = await deleteProduct('rackets', formData.id)
+          response = await deleteProduct('shuttlecocks', formData.id)
           break
         case 'color':
           if (!formData.colorId) {
             toast.error("Color ID is required for color deletion")
             return
           }
-          response = await deleteProductColor('rackets', formData.id, formData.colorId)
+          response = await deleteProductColor('shuttlecocks', formData.id, formData.colorId)
           break
         case 'type':
           if (!formData.colorId || !formData.typeId) {
             toast.error("Color ID and Type ID are required for type deletion")
             return
           }
-          response = await deleteProductType('rackets', formData.id, formData.colorId, formData.typeId)
+          response = await deleteProductType('shuttlecocks', formData.id, formData.colorId, formData.typeId)
           break
       }
 
       if (response.success) {
-        toast.success(`Racket ${deleteType} deleted successfully`)
+        toast.success(`Shuttlecock ${deleteType} deleted successfully`)
         setDialogOpen(false)
         form.reset()
       } else {
-        toast.error(`Failed to delete racket ${deleteType}`)
+        toast.error(`Failed to delete shuttlecock ${deleteType}`)
       }
     } catch (error) {
-      console.error(`Error deleting racket ${deleteType}:`, error)
-      toast.error(`Error deleting racket ${deleteType}`)
+      console.error(`Error deleting shuttlecock ${deleteType}:`, error)
+      toast.error(`Error deleting shuttlecock ${deleteType}`)
     }
   }
 
@@ -100,7 +99,7 @@ export default function DeleteRacketForm() {
           variant={deleteType === 'full' ? "default" : "outline"}
           onClick={() => setDeleteType('full')}
         >
-          Delete Racket
+          Delete Shuttlecock
         </Button>
         <Button
           variant={deleteType === 'color' ? "default" : "outline"}
@@ -123,13 +122,10 @@ export default function DeleteRacketForm() {
             name="id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Racket ID</FormLabel>
+                <FormLabel>Shuttlecock ID</FormLabel>
                 <FormControl>
-                  <Input placeholder="ID of the Racket" {...field} />
+                  <Input placeholder="ID of the Shuttle" {...field} />
                 </FormControl>
-                <FormDescription>
-                  Enter the ID of the racket to delete
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -182,13 +178,13 @@ export default function DeleteRacketForm() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this {deleteType === 'full' ? 'racket' :
+              Are you sure you want to delete this {deleteType === 'full' ? 'shuttlecock' :
                 deleteType === 'color' ? 'color' : 'type'}?
               This action cannot be undone.
 
               {formData && (
                 <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Racket ID:</span> {formData.id}</p>
+                  <p><span className="font-medium">Shuttlecock ID:</span> {formData.id}</p>
                   {formData.colorId && (
                     <p><span className="font-medium">Color ID:</span> {formData.colorId}</p>
                   )}

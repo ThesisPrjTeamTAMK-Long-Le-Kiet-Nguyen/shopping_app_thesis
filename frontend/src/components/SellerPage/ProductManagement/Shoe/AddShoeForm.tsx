@@ -54,10 +54,10 @@ type ShoeFormValues = z.infer<typeof shoeFormSchema>
 export default function AddShoeForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<ShoeFormValues | null>(null)
-  const [colors, setColors] = useState([{ 
-    color: '', 
-    photo: '', 
-    types: [{ size: '', quantity: '' }] 
+  const [colors, setColors] = useState([{
+    color: '',
+    photo: '',
+    types: [{ size: '', quantity: '' }]
   }])
 
   const form = useForm<ShoeFormValues>({
@@ -314,7 +314,7 @@ export default function AddShoeForm() {
                           <FormItem>
                             <FormLabel>Size</FormLabel>
                             <FormControl>
-                              <Input placeholder="40" {...field} />
+                              <Input placeholder="Europe Size" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -413,4 +413,4 @@ export default function AddShoeForm() {
   )
 }
 
-export { default as AddShoeForm } from './AddShoeForm' 
+export { default as AddShoeForm } from './AddShoeForm'

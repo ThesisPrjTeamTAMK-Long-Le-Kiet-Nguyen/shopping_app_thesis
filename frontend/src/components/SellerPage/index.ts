@@ -4,4 +4,4 @@ export { default as BagManagement } from './ProductManagement/BagManagement';
 export { default as ShoeManagement } from './ProductManagement/Shoe/ShoeManagement';
 export { default as StringingManagement } from './ProductManagement/StringingManagement';
 export { default as GripManagement } from './ProductManagement/GripManagement';
-export { default as ShuttlecockManagement } from './ProductManagement/ShuttlecockManagement';
+export { default as ShuttlecockManagement } from './ProductManagement/Shuttlecock/ShuttlecockManagement';
