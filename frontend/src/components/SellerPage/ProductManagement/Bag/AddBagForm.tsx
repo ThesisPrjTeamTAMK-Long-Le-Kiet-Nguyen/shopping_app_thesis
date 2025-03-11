@@ -38,7 +38,9 @@ const bagFormSchema = z.object({
   price: z.string().min(1, { message: "Price is required" }),
   brand: z.string().min(1, { message: "Brand is required" }),
   type: z.string().min(1, { message: "Bag type is required" }),
-  size: z.string().min(1, { message: "Size is required" }),
+  length: z.string().min(1, { message: "Length is required" }),
+  width: z.string().min(1, { message: "Width is required" }),
+  height: z.string().min(1, { message: "Height is required" }),
   colors: z.array(z.object({
     color: z.string().min(1, { message: "Color is required" }),
     photo: z.string().url({ message: "Please enter a valid URL for the photo" }),
@@ -67,7 +69,9 @@ export default function AddBagForm() {
       price: "",
       brand: "",
       type: "",
-      size: "",
+      length: "",
+      width: "",
+      height: "",
       colors: [{ color: '', photo: '', quantity: '' }]
     }
   })
@@ -90,6 +94,7 @@ export default function AddBagForm() {
       const response = await addBag({
         ...formData,
         price: Number(formData.price),
+        size: `${formData.length} x ${formData.width} x ${formData.height}`,
         colors: formData.colors.map(color => ({
           ...color,
           quantity: Number(color.quantity)
@@ -197,12 +202,40 @@ export default function AddBagForm() {
 
             <FormField
               control={form.control}
-              name="size"
+              name="length"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Size (L x W x H)</FormLabel>
+                  <FormLabel>Length</FormLabel>
                   <FormControl>
-                    <Input placeholder="L x W x H cm" {...field} />
+                    <Input placeholder="Length in cm" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="width"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Width</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Width in cm" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="height"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Height in cm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -294,24 +327,29 @@ export default function AddBagForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this bag?
-
-              <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                <p><span className="font-medium">ID:</span> {form.getValues().id}</p>
-                <p><span className="font-medium">Name:</span> {form.getValues().name}</p>
-                <p><span className="font-medium">Price:</span> {form.getValues().price}</p>
-                <p><span className="font-medium">Brand:</span> {form.getValues().brand}</p>
-                <p><span className="font-medium">Type:</span> {form.getValues().type}</p>
-                <p><span className="font-medium">Size:</span> {form.getValues().size}</p>
-                <p><span className="font-medium">Colors:</span></p>
-                {form.getValues().colors.map((color, index) => (
-                  <div key={index} className="ml-4">
-                    <p><span className="font-medium">Color {index + 1}:</span> {color.color}</p>
-                    <p><span className="font-medium">Photo:</span> {color.photo}</p>
-                    <p><span className="font-medium">Quantity:</span> {color.quantity}</p>
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this bag?</span>
+                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                  <div className="grid grid-cols-1 gap-2">
+                    <div><span className="font-medium">ID:</span> {form.getValues().id}</div>
+                    <div><span className="font-medium">Name:</span> {form.getValues().name}</div>
+                    <div><span className="font-medium">Price:</span> {form.getValues().price}</div>
+                    <div><span className="font-medium">Brand:</span> {form.getValues().brand}</div>
+                    <div><span className="font-medium">Type:</span> {form.getValues().type}</div>
+                    <div><span className="font-medium">Size:</span> {form.getValues().length} x {form.getValues().width} x {form.getValues().height} cm</div>
+                    <div>
+                      <span className="font-medium">Colors:</span>
+                      {form.getValues().colors.map((color, index) => (
+                        <div key={index} className="ml-4 mt-2">
+                          <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
+                          <div><span className="font-medium">Photo:</span> {color.photo}</div>
+                          <div><span className="font-medium">Quantity:</span> {color.quantity}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>

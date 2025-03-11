@@ -372,31 +372,35 @@ export default function AddShoeForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm New Shoe</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this shoe? Please verify the information:
-              {formData && (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">ID:</span> {formData.id}</p>
-                  <p><span className="font-medium">Name:</span> {formData.name}</p>
-                  <p><span className="font-medium">Price:</span> €{formData.price}</p>
-                  <p><span className="font-medium">Brand:</span> {formData.brand}</p>
-                  <p><span className="font-medium">Series:</span> {formData.series}</p>
-                  <p><span className="font-medium">Midsole:</span> {formData.midsole}</p>
-                  <p><span className="font-medium">Outsole:</span> {formData.outsole}</p>
-                  {formData.colors.map((color, index) => (
-                    <div key={index}>
-                      <p><span className="font-medium">Color {index + 1}:</span> {color.color}</p>
-                      <p><span className="font-medium">Photo URL:</span> {color.photo}</p>
-                      {color.types.map((type, typeIndex) => (
-                        <div key={`${index}-${typeIndex}`} className="ml-4">
-                          <p><span className="font-medium">Size:</span> {type.size}</p>
-                          <p><span className="font-medium">Quantity:</span> {type.quantity}</p>
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this shoe? Please verify the information:</span>
+                {formData && (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">ID:</span> {formData.id}</div>
+                      <div><span className="font-medium">Name:</span> {formData.name}</div>
+                      <div><span className="font-medium">Price:</span> €{formData.price}</div>
+                      <div><span className="font-medium">Brand:</span> {formData.brand}</div>
+                      <div><span className="font-medium">Series:</span> {formData.series}</div>
+                      <div><span className="font-medium">Midsole:</span> {formData.midsole}</div>
+                      <div><span className="font-medium">Outsole:</span> {formData.outsole}</div>
+                      {formData.colors.map((color, index) => (
+                        <div key={index} className="border-t pt-2 mt-2">
+                          <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
+                          <div><span className="font-medium">Photo URL:</span> {color.photo}</div>
+                          {color.types.map((type, typeIndex) => (
+                            <div key={`${index}-${typeIndex}`} className="ml-4">
+                              <div><span className="font-medium">Size:</span> {type.size}</div>
+                              <div><span className="font-medium">Quantity:</span> {type.quantity}</div>
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

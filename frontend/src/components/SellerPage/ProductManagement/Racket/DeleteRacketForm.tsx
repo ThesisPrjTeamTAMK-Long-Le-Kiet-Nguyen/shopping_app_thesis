@@ -180,22 +180,26 @@ export default function DeleteRacketForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this {deleteType === 'full' ? 'racket' :
-                deleteType === 'color' ? 'color' : 'type'}?
-              This action cannot be undone.
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to delete this {deleteType === 'full' ? 'racket' :
+                  deleteType === 'color' ? 'color' : 'type'}?
+                  This action cannot be undone.</span>
 
-              {formData && (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Racket ID:</span> {formData.id}</p>
-                  {formData.colorId && (
-                    <p><span className="font-medium">Color ID:</span> {formData.colorId}</p>
-                  )}
-                  {formData.typeId && (
-                    <p><span className="font-medium">Type ID:</span> {formData.typeId}</p>
-                  )}
-                </div>
-              )}
+                {formData && (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">Racket ID:</span> {formData.id}</div>
+                      {formData.colorId && (
+                        <div><span className="font-medium">Color ID:</span> {formData.colorId}</div>
+                      )}
+                      {formData.typeId && (
+                        <div><span className="font-medium">Type ID:</span> {formData.typeId}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

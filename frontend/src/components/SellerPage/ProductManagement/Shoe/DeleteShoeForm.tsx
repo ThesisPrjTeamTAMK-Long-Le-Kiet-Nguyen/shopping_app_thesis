@@ -176,22 +176,26 @@ export default function DeleteShoeForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this {deleteType === 'full' ? 'shoe' :
-                deleteType === 'color' ? 'color' : 'size'}?
-              This action cannot be undone.
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to delete this {deleteType === 'full' ? 'shoe' :
+                  deleteType === 'color' ? 'color' : 'size'}?
+                  This action cannot be undone.</span>
 
-              {formData && (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Shoe ID:</span> {formData.id}</p>
-                  {formData.colorId && (
-                    <p><span className="font-medium">Color ID:</span> {formData.colorId}</p>
-                  )}
-                  {formData.sizeId && (
-                    <p><span className="font-medium">Size ID:</span> {formData.sizeId}</p>
-                  )}
-                </div>
-              )}
+                {formData && (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">Shoe ID:</span> {formData.id}</div>
+                      {formData.colorId && (
+                        <div><span className="font-medium">Color ID:</span> {formData.colorId}</div>
+                      )}
+                      {formData.sizeId && (
+                        <div><span className="font-medium">Size ID:</span> {formData.sizeId}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

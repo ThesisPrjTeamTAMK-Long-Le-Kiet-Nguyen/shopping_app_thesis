@@ -142,14 +142,17 @@ export default function ModifyBagForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this color?
-
-              <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                <p><span className="font-medium">Bag ID:</span> {form.getValues().bagId}</p>
-                <p><span className="font-medium">Color:</span> {form.getValues().color}</p>
-                <p><span className="font-medium">Photo URL:</span> {form.getValues().photo}</p>
-                <p><span className="font-medium">Quantity:</span> {form.getValues().quantity}</p>
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this color?</span>
+                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                  <div className="grid grid-cols-1 gap-2">
+                    <div><span className="font-medium">Bag ID:</span> {form.getValues().bagId}</div>
+                    <div><span className="font-medium">Color:</span> {form.getValues().color}</div>
+                    <div><span className="font-medium">Photo URL:</span> {form.getValues().photo}</div>
+                    <div><span className="font-medium">Quantity:</span> {form.getValues().quantity}</div>
+                  </div>
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>

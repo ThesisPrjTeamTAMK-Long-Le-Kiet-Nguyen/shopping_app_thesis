@@ -377,31 +377,35 @@ export default function AddShuttlecockForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this shuttlecock?
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this shuttlecock?</span>
 
-              <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                <p><span className="font-medium">ID:</span> {form.getValues().id}</p>
-                <p><span className="font-medium">Name:</span> {form.getValues().name}</p>
-                <p><span className="font-medium">Price:</span> {form.getValues().price}</p>
-                <p><span className="font-medium">Brand:</span> {form.getValues().brand}</p>
-                <p><span className="font-medium">Feather Type:</span> {form.getValues().featherType}</p>
-                <p><span className="font-medium">Units per Tube:</span> {form.getValues().unitsPerTube}</p>
-                <p><span className="font-medium">Colors:</span></p>
-                {form.getValues().colors.map((color, index) => (
-                  <div key={index} className="ml-4">
-                    <p><span className="font-medium">Color {index + 1}:</span> {color.color}</p>
-                    <p><span className="font-medium">Photo:</span> {color.photo}</p>
-                    <p><span className="font-medium">Types:</span></p>
-                    {color.types.map((type, typeIndex) => (
-                      <div key={typeIndex} className="ml-4">
-                        <p><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</p>
-                        <p><span className="font-medium">Quantity:</span> {type.quantity}</p>
-                        <p><span className="font-medium">Speed:</span> {type.speed}</p>
+                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                  <div className="grid grid-cols-1 gap-2">
+                    <div><span className="font-medium">ID:</span> {form.getValues().id}</div>
+                    <div><span className="font-medium">Name:</span> {form.getValues().name}</div>
+                    <div><span className="font-medium">Price:</span> {form.getValues().price}</div>
+                    <div><span className="font-medium">Brand:</span> {form.getValues().brand}</div>
+                    <div><span className="font-medium">Feather Type:</span> {form.getValues().featherType}</div>
+                    <div><span className="font-medium">Units per Tube:</span> {form.getValues().unitsPerTube}</div>
+                    <div><span className="font-medium">Colors:</span></div>
+                    {form.getValues().colors.map((color, index) => (
+                      <div key={index} className="ml-4 border-t pt-2 mt-2">
+                        <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
+                        <div><span className="font-medium">Photo:</span> {color.photo}</div>
+                        <div><span className="font-medium">Types:</span></div>
+                        {color.types.map((type, typeIndex) => (
+                          <div key={typeIndex} className="ml-4">
+                            <div><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</div>
+                            <div><span className="font-medium">Quantity:</span> {type.quantity}</div>
+                            <div><span className="font-medium">Speed:</span> {type.speed}</div>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
-                ))}
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>

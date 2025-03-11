@@ -468,31 +468,35 @@ export default function RacketManagement() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm New Racket</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this racket? Please verify the information:
-              {formData && (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">ID:</span> {formData.id}</p>
-                  <p><span className="font-medium">Name:</span> {formData.name}</p>
-                  <p><span className="font-medium">Price:</span> ${formData.price}</p>
-                  <p><span className="font-medium">Brand:</span> {formData.brand}</p>
-                  <p><span className="font-medium">Series:</span> {formData.series}</p>
-                  <p><span className="font-medium">Type:</span> {formData.racketType}</p>
-                  <p><span className="font-medium">Flexibility:</span> {formData.flexibility}</p>
-                  <p><span className="font-medium">Material:</span> {formData.material}</p>
-                  <p><span className="font-medium">Balance Point:</span> {formData.balancePoint}mm</p>
-                  <p><span className="font-medium">Includes Cover:</span> {formData.cover ? "Yes" : "No"}</p>
-                  {formData.colors.map((color, index) => (
-                    <div key={index}>
-                      <p><span className="font-medium">Color {index + 1}:</span> {color.color}</p>
-                      <p><span className="font-medium">Photo URL:</span> {color.photo}</p>
-                      {color.types.map((type, typeIndex) => (
-                        <p key={`${index}-${typeIndex}`}><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</p>
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this racket? Please verify the information:</span>
+                {formData && (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">ID:</span> {formData.id}</div>
+                      <div><span className="font-medium">Name:</span> {formData.name}</div>
+                      <div><span className="font-medium">Price:</span> ${formData.price}</div>
+                      <div><span className="font-medium">Brand:</span> {formData.brand}</div>
+                      <div><span className="font-medium">Series:</span> {formData.series}</div>
+                      <div><span className="font-medium">Type:</span> {formData.racketType}</div>
+                      <div><span className="font-medium">Flexibility:</span> {formData.flexibility}</div>
+                      <div><span className="font-medium">Material:</span> {formData.material}</div>
+                      <div><span className="font-medium">Balance Point:</span> {formData.balancePoint}mm</div>
+                      <div><span className="font-medium">Includes Cover:</span> {formData.cover ? "Yes" : "No"}</div>
+                      {formData.colors.map((color, index) => (
+                        <div key={index} className="border-t pt-2 mt-2">
+                          <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
+                          <div><span className="font-medium">Photo URL:</span> {color.photo}</div>
+                          {color.types.map((type, typeIndex) => (
+                            <div key={`${index}-${typeIndex}`}><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</div>
+                          ))}
+                        </div>
                       ))}
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

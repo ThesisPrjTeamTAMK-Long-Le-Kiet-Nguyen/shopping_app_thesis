@@ -317,29 +317,35 @@ export default function ModifyShoeForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this new {modifyType}?
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this new {modifyType}?</span>
 
-              {modifyType === 'color' ? (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Shoe ID:</span> {colorForm.getValues().shoeId}</p>
-                  <p><span className="font-medium">Color:</span> {colorForm.getValues().color}</p>
-                  <p><span className="font-medium">Photo URL:</span> {colorForm.getValues().photo}</p>
-                  {colorForm.getValues().types.map((type, index) => (
-                    <div key={index}>
-                      <p><span className="font-medium">Size {index + 1}:</span> {type.size}</p>
-                      <p><span className="font-medium">Quantity:</span> {type.quantity}</p>
+                {modifyType === 'color' ? (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">Shoe ID:</span> {colorForm.getValues().shoeId}</div>
+                      <div><span className="font-medium">Color:</span> {colorForm.getValues().color}</div>
+                      <div><span className="font-medium">Photo URL:</span> {colorForm.getValues().photo}</div>
+                      {colorForm.getValues().types.map((type, index) => (
+                        <div key={index} className="border-t pt-2 mt-2">
+                          <div><span className="font-medium">Size {index + 1}:</span> {type.size}</div>
+                          <div><span className="font-medium">Quantity:</span> {type.quantity}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Shoe ID:</span> {sizeForm.getValues().shoeId}</p>
-                  <p><span className="font-medium">Color ID:</span> {sizeForm.getValues().colorId}</p>
-                  <p><span className="font-medium">Size:</span> {sizeForm.getValues().size}</p>
-                  <p><span className="font-medium">Quantity:</span> {sizeForm.getValues().quantity}</p>
-                </div>
-              )}
+                  </div>
+                ) : (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">Shoe ID:</span> {sizeForm.getValues().shoeId}</div>
+                      <div><span className="font-medium">Color ID:</span> {sizeForm.getValues().colorId}</div>
+                      <div><span className="font-medium">Size:</span> {sizeForm.getValues().size}</div>
+                      <div><span className="font-medium">Quantity:</span> {sizeForm.getValues().quantity}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -350,31 +350,37 @@ export default function ModifyRacketForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to add this new {modifyType}?
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to add this new {modifyType}?</span>
 
-              {modifyType === 'color' ? (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Racket ID:</span> {colorForm.getValues().racketId}</p>
-                  <p><span className="font-medium">Color:</span> {colorForm.getValues().color}</p>
-                  <p><span className="font-medium">Photo URL:</span> {colorForm.getValues().photo}</p>
-                  {colorForm.getValues().types.map((type, index) => (
-                    <div key={index}>
-                      <p><span className="font-medium">Type {index + 1}:</span> {type.type}</p>
-                      <p><span className="font-medium">Quantity:</span> {type.quantity}</p>
-                      <p><span className="font-medium">Max Tension:</span> {type.maxTension}</p>
+                {modifyType === 'color' ? (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">Racket ID:</span> {colorForm.getValues().racketId}</div>
+                      <div><span className="font-medium">Color:</span> {colorForm.getValues().color}</div>
+                      <div><span className="font-medium">Photo URL:</span> {colorForm.getValues().photo}</div>
+                      {colorForm.getValues().types.map((type, index) => (
+                        <div key={index} className="border-t pt-2 mt-2">
+                          <div><span className="font-medium">Type {index + 1}:</span> {type.type}</div>
+                          <div><span className="font-medium">Quantity:</span> {type.quantity}</div>
+                          <div><span className="font-medium">Max Tension:</span> {type.maxTension}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <p><span className="font-medium">Racket ID:</span> {typeForm.getValues().racketId}</p>
-                  <p><span className="font-medium">Color ID:</span> {typeForm.getValues().colorId}</p>
-                  <p><span className="font-medium">Type:</span> {typeForm.getValues().type}</p>
-                  <p><span className="font-medium">Quantity:</span> {typeForm.getValues().quantity}</p>
-                  <p><span className="font-medium">Max Tension:</span> {typeForm.getValues().maxTension}</p>
-                </div>
-              )}
+                  </div>
+                ) : (
+                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                    <div className="grid grid-cols-1 gap-2">
+                      <div><span className="font-medium">Racket ID:</span> {typeForm.getValues().racketId}</div>
+                      <div><span className="font-medium">Color ID:</span> {typeForm.getValues().colorId}</div>
+                      <div><span className="font-medium">Type:</span> {typeForm.getValues().type}</div>
+                      <div><span className="font-medium">Quantity:</span> {typeForm.getValues().quantity}</div>
+                      <div><span className="font-medium">Max Tension:</span> {typeForm.getValues().maxTension}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -134,15 +134,18 @@ export default function DeleteBagForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this {deleteType === 'full' ? 'bag' : 'color'}?
-              This action cannot be undone.
-
-              <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                <p><span className="font-medium">Bag ID:</span> {form.getValues().bagId}</p>
-                {deleteType === 'color' && (
-                  <p><span className="font-medium">Color ID:</span> {form.getValues().colorId}</p>
-                )}
+            <AlertDialogDescription asChild>
+              <div>
+                <span>Are you sure you want to delete this {deleteType === 'full' ? 'bag' : 'color'}?
+                This action cannot be undone.</span>
+                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
+                  <div className="grid grid-cols-1 gap-2">
+                    <div><span className="font-medium">Bag ID:</span> {form.getValues().bagId}</div>
+                    {deleteType === 'color' && (
+                      <div><span className="font-medium">Color ID:</span> {form.getValues().colorId}</div>
+                    )}
+                  </div>
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
