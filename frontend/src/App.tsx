@@ -4,10 +4,18 @@ import Navbar from './components/Header/Navbar'
 import Login from './components/Login/Login'
 import SignUp from './components/Login/SignUp'
 import ShoppingCart from './components/ShoppingCart/ShoppingCart'
-import SellerPage from './components/SellerPage/SellerPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
+import {
+  SellerPage,
+  RacketManagement,
+  BagManagement,
+  ShoeManagement,
+  StringingManagement,
+  GripManagement,
+  ShuttlecockManagement
+} from './components/SellerPage'
 
 const App = () => {
   return (
@@ -20,7 +28,30 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/cart" element={<ShoppingCart />} />
-            <Route path="/seller" element={<ProtectedRoute element={<SellerPage />} allowedRoles={['admin']} />} />
+            
+            {/* Protected Admin Routes */}
+            <Route path="/seller" element={
+              <ProtectedRoute element={<SellerPage />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/rackets" element={
+              <ProtectedRoute element={<RacketManagement />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/bags" element={
+              <ProtectedRoute element={<BagManagement />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/shoes" element={
+              <ProtectedRoute element={<ShoeManagement />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/stringings" element={
+              <ProtectedRoute element={<StringingManagement />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/grips" element={
+              <ProtectedRoute element={<GripManagement />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/shuttlecocks" element={
+              <ProtectedRoute element={<ShuttlecockManagement />} allowedRoles={['admin']} />
+            } />
+
             <Route path="/*" element={<ProductList />} />
           </Routes>
         </div>

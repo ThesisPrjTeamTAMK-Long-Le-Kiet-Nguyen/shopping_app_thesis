@@ -107,7 +107,14 @@ const shoeSchema = new Schema<Shoe>({
         type: String,
         required: true,
     },
-    colors: [colorSchema],
+    colors: [{
+        color: { type: String, required: true },
+        photo: { type: String, required: true },
+        types: [{
+            size: { type: String, required: true },
+            quantity: { type: Number, required: true }
+        }]
+    }],
 }, { collection: 'shoes' });
 
 // Stringing Schema

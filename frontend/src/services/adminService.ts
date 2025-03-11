@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
   Racket, Bag, Shoe, Stringing, Grip, Shuttlecock,
-  ApiResponse
+  ApiResponse, ColorAddRequest, TypeAddRequest, ShoeRequest
 } from '../types';
 
 const baseUrl = 'http://localhost:3000/products';
@@ -59,7 +59,7 @@ export async function updateBag(id: string, bagData: Partial<Bag>): Promise<ApiR
 }
 
 // Shoe operations
-export async function addShoe(shoeData: Shoe): Promise<ApiResponse<Shoe>> {
+export async function addShoe(shoeData: ShoeRequest): Promise<ApiResponse<Shoe>> {
   try {
     const response = await axios.post(`${baseUrl}/shoes`, shoeData, getConfig());
     return response.data;
@@ -142,6 +142,80 @@ export async function updateShuttlecock(id: string, shuttlecockData: Partial<Shu
   }
 }
 
+// Add new functions for racket color and type management
+export async function addRacketColor(
+  productId: string,
+  colorData: ColorAddRequest
+): Promise<ApiResponse<Racket>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/rackets/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add racket color:', error);
+    throw error;
+  }
+}
+
+export async function addRacketType(
+  productId: string,
+  colorId: string,
+  typeData: TypeAddRequest
+): Promise<ApiResponse<Racket>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/rackets/${productId}/colors/${colorId}/types`,
+      typeData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add racket type:', error);
+    throw error;
+  }
+}
+
+// Generic functions for color and type management
+export async function addProductColor<T extends Racket | Bag | Shoe | Stringing | Grip | Shuttlecock>(
+  productType: string,
+  productId: string,
+  colorData: ColorAddRequest
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/${productType}/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to add ${productType} color:`, error);
+    throw error;
+  }
+}
+
+export async function addProductType<T extends Racket | Bag | Shoe | Stringing | Grip | Shuttlecock>(
+  productType: string,
+  productId: string,
+  colorId: string,
+  typeData: TypeAddRequest
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/${productType}/${productId}/colors/${colorId}/types`,
+      typeData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to add ${productType} type:`, error);
+    throw error;
+  }
+}
+
 // Generic delete operation for any product type
 export async function deleteProduct(productType: string, id: string): Promise<ApiResponse<void>> {
   try {
@@ -149,6 +223,175 @@ export async function deleteProduct(productType: string, id: string): Promise<Ap
     return response.data;
   } catch (error) {
     console.error(`Failed to delete ${productType}:`, error);
+    throw error;
+  }
+}
+
+// Add these new delete functions
+export async function deleteProductType(
+  productType: string,
+  productId: string,
+  colorId: string,
+  typeId: string
+): Promise<ApiResponse<void>> {
+  try {
+    const response = await axios.delete(
+      `${baseUrl}/${productType}/${productId}/colors/${colorId}/types/${typeId}`,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete ${productType} type:`, error);
+    throw error;
+  }
+}
+
+export async function deleteProductColor(
+  productType: string,
+  productId: string,
+  colorId: string
+): Promise<ApiResponse<void>> {
+  try {
+    const response = await axios.delete(
+      `${baseUrl}/${productType}/${productId}/colors/${colorId}`,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete ${productType} color:`, error);
+    throw error;
+  }
+}
+
+// Bag color management
+export async function addBagColor(
+  productId: string,
+  colorData: Omit<ColorAddRequest, 'types'> & { quantity: number }
+): Promise<ApiResponse<Bag>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/bags/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add bag color:', error);
+    throw error;
+  }
+}
+
+// Shoe color and size management
+export async function addShoeColor(
+  productId: string,
+  colorData: {
+    color: string;
+    photo: string;
+    types: Array<{
+      size: string;
+      quantity: number;
+    }>;
+  }
+): Promise<ApiResponse<Shoe>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/shoes/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add shoe color:', error);
+    throw error;
+  }
+}
+
+export async function addShoeSize(
+  productId: string,
+  colorId: string,
+  sizeData: { size: string; quantity: number }
+): Promise<ApiResponse<Shoe>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/shoes/${productId}/colors/${colorId}/types`,
+      sizeData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add shoe size:', error);
+    throw error;
+  }
+}
+
+// Shuttlecock color and type management
+export async function addShuttlecockColor(
+  productId: string,
+  colorData: ColorAddRequest & { types: Array<{ type: string; quantity: number; speed: number }> }
+): Promise<ApiResponse<Shuttlecock>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/shuttlecocks/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add shuttlecock color:', error);
+    throw error;
+  }
+}
+
+export async function addShuttlecockType(
+  productId: string,
+  colorId: string,
+  typeData: TypeAddRequest & { speed: number }
+): Promise<ApiResponse<Shuttlecock>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/shuttlecocks/${productId}/colors/${colorId}/types`,
+      typeData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add shuttlecock type:', error);
+    throw error;
+  }
+}
+
+// Stringing color management
+export async function addStringingColor(
+  productId: string,
+  colorData: Omit<ColorAddRequest, 'types'> & { quantity: number }
+): Promise<ApiResponse<Stringing>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/stringings/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add stringing color:', error);
+    throw error;
+  }
+}
+
+// Grip color management
+export async function addGripColor(
+  productId: string,
+  colorData: Omit<ColorAddRequest, 'types'> & { quantity: number }
+): Promise<ApiResponse<Grip>> {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/grips/${productId}/colors`,
+      colorData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add grip color:', error);
     throw error;
   }
 }
@@ -166,5 +409,18 @@ export default {
   updateGrip,
   addShuttlecock,
   updateShuttlecock,
-  deleteProduct
+  deleteProduct,
+  deleteProductType,
+  deleteProductColor,
+  addRacketColor,
+  addRacketType,
+  addProductColor,
+  addProductType,
+  addBagColor,
+  addShoeColor,
+  addShoeSize,
+  addShuttlecockColor,
+  addShuttlecockType,
+  addStringingColor,
+  addGripColor
 };
