@@ -1,6 +1,6 @@
 export { default as SellerPage } from './SellerPage';
 export { default as RacketManagement } from './ProductManagement/Racket/RacketManagement';
-export { default as BagManagement } from './ProductManagement/BagManagement';
+export { default as BagManagement } from './ProductManagement/Bag/BagManagement';
 export { default as ShoeManagement } from './ProductManagement/Shoe/ShoeManagement';
 export { default as StringingManagement } from './ProductManagement/StringingManagement';
 export { default as GripManagement } from './ProductManagement/GripManagement';

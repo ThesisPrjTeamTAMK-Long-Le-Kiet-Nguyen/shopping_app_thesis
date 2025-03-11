@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AddShuttlecockForm from "./AddShuttlecockForm"
-import DeleteShuttlecockForm from "./DeleteShuttlecockForm"
 import ModifyShuttlecockForm from "./ModifyShuttlecockForm"
+import DeleteShuttlecockForm from "./DeleteShuttlecockForm"
 
 const ShuttlecockManagement = () => {
   return (
