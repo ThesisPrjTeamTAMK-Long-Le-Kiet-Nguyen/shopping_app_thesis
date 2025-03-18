@@ -184,7 +184,7 @@ const GripDetails = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <p className="text-muted-foreground">Length</p>
-                  <p>{grip.length} m</p>
+                  <p>{grip.length} mm</p>
                 </div>
               </div>
             </div>

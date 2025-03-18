@@ -4,14 +4,12 @@ import { UserModel } from '../models/user';
 import { User, ApiResponse } from '../types';
 
 interface RegisterUserRequest {
-    username: string;
     email: string;
     password: string;
     confirmPassword: string;
 }
 
 interface UpdateUserRequest {
-    username?: string;
     email?: string;
 }
 
@@ -24,17 +22,19 @@ interface AuthRequest extends Request {
 }
 
 export const registerUser = async (
-    req: Request<{}, {}, RegisterUserRequest>,
+    req: Request<Record<string, never>, unknown, RegisterUserRequest>,
     res: Response<ApiResponse<User>>
 ) => {
-    const { username, email, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
+    
     try {
-        if (!username || !email || !password || !confirmPassword) {
+        if (!email || !password || !confirmPassword) {
             return res.status(400).json({
                 success: false,
                 error: 'All fields are required'
             });
         }
+        
         if (password !== confirmPassword) {
             return res.status(400).json({
                 success: false,
@@ -42,10 +42,18 @@ export const registerUser = async (
             });
         }
 
+        // Check if user already exists
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email already registered'
+            });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new UserModel({
-            username,
             email,
             password: hashedPassword,
             role: 'customer'
@@ -60,7 +68,7 @@ export const registerUser = async (
     } catch (error) {
         res.status(500).json({
             success: false,
-            error: 'Failed to register user'
+            error: error instanceof Error ? error.message : 'Failed to register user'
         });
     }
 };
@@ -93,11 +101,11 @@ export const updateUserProfile = async (
     req: AuthRequest,
     res: Response<ApiResponse<User>>
 ) => {
-    const { username, email } = req.body as UpdateUserRequest;
+    const { email } = req.body as UpdateUserRequest;
     try {
         const user = await UserModel.findByIdAndUpdate(
             req.user?.id,
-            { username, email },
+            { email },
             { new: true }
         );
         

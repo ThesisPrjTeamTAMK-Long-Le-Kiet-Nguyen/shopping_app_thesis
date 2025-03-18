@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import cartService from '../../services/cartService';
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface ExtendedCartItem extends CartItem {
 }
 
 const ShoppingCart = () => {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<ExtendedCartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +55,11 @@ const ShoppingCart = () => {
 
   const calculateTotal = (): number => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  // Add handleCheckout function
+  const handleCheckout = () => {
+    navigate('/checkout');
   };
 
   if (loading) {
@@ -120,7 +127,11 @@ const ShoppingCart = () => {
               </div>
 
               <div className="flex justify-end pt-6">
-                <Button className="w-full sm:w-auto">
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={handleCheckout}
+                  disabled={cartItems.length === 0}
+                >
                   Proceed to Checkout
                 </Button>
               </div>

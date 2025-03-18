@@ -183,7 +183,7 @@ const BagDetails = () => {
                   <p>{bag.type}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <p className="text-muted-foreground">Size</p>
+                  <p className="text-muted-foreground">Size (cm)</p>
                   <p>{bag.size}</p>
                 </div>
               </div>
