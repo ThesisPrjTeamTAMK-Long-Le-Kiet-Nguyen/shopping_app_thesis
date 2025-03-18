@@ -16,6 +16,8 @@ import {
   GripManagement,
   ShuttlecockManagement
 } from './components/SellerPage'
+import CheckoutPage from './components/Checkout/CheckoutPage'
+import Completion from './components/Checkout/Completion'
 
 const App = () => {
   return (
@@ -28,6 +30,8 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/cart" element={<ShoppingCart />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/completion" element={<Completion />} />
             
             {/* Protected Admin Routes */}
             <Route path="/seller" element={
