@@ -8,13 +8,13 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
-import { Shoe, Color, Type, CartItem } from '../../../types'
+import { Shoe, ShoeColor, ShoeSize } from '../../../types'
 
 const ShoeDetails = () => {
   const { id } = useParams<{ id: string }>()
   const [shoe, setShoe] = useState<Shoe | null>(null)
-  const [selectedColor, setSelectedColor] = useState<Color | null>(null)
-  const [selectedSize, setSelectedSize] = useState<Type | null>(null)
+  const [selectedColor, setSelectedColor] = useState<ShoeColor | null>(null)
+  const [selectedSize, setSelectedSize] = useState<ShoeSize | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
 
   useEffect(() => {
@@ -42,23 +42,23 @@ const ShoeDetails = () => {
     fetchData()
   }, [id])
 
-  const handleColorChange = (color: Color) => {
+  const handleColorChange = (color: ShoeColor) => {
     setSelectedColor(color)
     if (color.types && color.types.length > 0) {
       setSelectedSize(color.types[0])
     }
   }
 
-  const handleSizeChange = (type: Type) => {
-    setSelectedSize(type)
+  const handleSizeChange = (size: ShoeSize) => {
+    setSelectedSize(size)
   }
 
-  const hasTypes = (color: Color): color is Color & { types: Type[] } => {
+  const hasTypes = (color: ShoeColor): boolean => {
     return Array.isArray(color.types) && color.types.length > 0
   }
 
-  const hasStock = (type: Type): boolean => {
-    return typeof type.quantity === 'number' && type.quantity > 0
+  const hasStock = (size: ShoeSize): boolean => {
+    return typeof size.quantity === 'number' && size.quantity > 0
   }
 
   const handleAddToCart = async () => {
@@ -68,26 +68,26 @@ const ShoeDetails = () => {
       `Are you sure you want to add this item to your cart?\n\n` +
       `${shoe.name}\n` +
       `Color: ${selectedColor.color}\n` +
-      `Size: ${selectedSize.type}\n` +
+      `Size: ${selectedSize.size}\n` +
       `Price: $${shoe.price}`
     )
 
     if (confirmAdd) {
       try {
         setIsAddingToCart(true)
-        const itemToAdd: CartItem = {
+        const itemToAdd = {
           id: shoe.id,
           name: shoe.name,
           price: shoe.price,
           color: selectedColor.color,
-          type: selectedSize.type,
+          type: selectedSize.size,
           quantity: 1
         }
 
         const response = await cartService.addToCart(itemToAdd)
         if (response.success) {
           toast.success('Added to shopping cart', {
-            description: `${shoe.name} - ${selectedColor.color} (Size ${selectedSize.type})`,
+            description: `${shoe.name} - ${selectedColor.color} (Size ${selectedSize.size})`,
             duration: 3000,
           })
         }
@@ -165,20 +165,20 @@ const ShoeDetails = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Select Size</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedColor.types.map((typeInfo, index) => (
+                    {selectedColor.types.map((sizeInfo, index) => (
                       <Button
                         key={index}
-                        variant={selectedSize === typeInfo ? "default" : "outline"}
-                        onClick={() => handleSizeChange(typeInfo)}
-                        disabled={!hasStock(typeInfo)}
+                        variant={selectedSize === sizeInfo ? "default" : "outline"}
+                        onClick={() => handleSizeChange(sizeInfo)}
+                        disabled={!hasStock(sizeInfo)}
                         className={`
                           relative px-4 py-2 min-w-[80px]
-                          ${selectedSize === typeInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                          ${!hasStock(typeInfo) ? 'opacity-50' : ''}
+                          ${selectedSize === sizeInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+                          ${!hasStock(sizeInfo) ? 'opacity-50' : ''}
                         `}
                       >
-                        {typeInfo.type}
-                        {!hasStock(typeInfo) && (
+                        {sizeInfo.size}
+                        {!hasStock(sizeInfo) && (
                           <Badge variant="outline" className="absolute -top-2 -right-2">
                             Sold out
                           </Badge>
