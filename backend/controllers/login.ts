@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Router } from 'express';
 import { UserModel } from '../models/user';
-import { User, ApiResponse } from '../types';
+import { ApiResponse } from '../types';
 import config from '../utils/config';
 
 const loginRouter = Router();
@@ -15,12 +15,12 @@ interface LoginRequest {
 
 interface LoginResponse {
     token: string;
-    username: string;
     role: string;
+    email: string;
 }
 
 loginRouter.post('/', async (
-    req: Request<{}, {}, LoginRequest>,
+    req: Request<Record<string, never>, unknown, LoginRequest>,
     res: Response<ApiResponse<LoginResponse>>
 ) => {
     const { email, password } = req.body;
@@ -53,8 +53,8 @@ loginRouter.post('/', async (
             success: true,
             data: {
                 token,
-                username: user.username,
-                role: user.role
+                role: user.role,
+                email: user.email
             }
         });
     } catch (error) {

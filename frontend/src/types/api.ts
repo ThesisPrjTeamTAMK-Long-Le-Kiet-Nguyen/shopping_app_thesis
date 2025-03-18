@@ -1,7 +1,4 @@
 export interface ApiResponse<T> {
-  role: string;
-  username: string;
-  token: string;
   success: boolean;
   data?: T;
   error?: string;

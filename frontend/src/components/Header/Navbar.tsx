@@ -26,7 +26,7 @@ const productItems = [
 
 const Navbar = () => {
   const location = useLocation();
-  const { token, username, role, updateAuth } = useAuth();
+  const { token, email, role, updateAuth } = useAuth();
   const [activePath, setActivePath] = useState(location.pathname);
 
   // Update active path immediately when location changes
@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem('email');
     localStorage.removeItem('role');
     updateAuth(null, null, null);
   };
@@ -150,10 +150,10 @@ const Navbar = () => {
             <div className="user-menu">
               <Button variant="ghost" className="user-button">
                 <User className="h-5 w-5" />
-                <span className="ml-2 hidden sm:inline">{username}</span>
+                <span className="ml-2 hidden sm:inline">{email}</span>
               </Button>
               <div className="dropdown-menu">
-                <span className="user-name">{username}</span>
+                <span className="user-name">{email}</span>
                 <button onClick={handleLogout} className="logout-button">
                   Sign Out
                 </button>

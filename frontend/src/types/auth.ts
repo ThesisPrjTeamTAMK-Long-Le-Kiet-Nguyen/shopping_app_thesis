@@ -2,7 +2,6 @@ export type UserRole = 'admin' | 'customer';
 
 export interface User {
   id: string;
-  username: string;
   email: string;
   role: UserRole;
   createdAt: Date;
@@ -10,8 +9,8 @@ export interface User {
 
 export interface LoginResponse {
   token: string;
-  username: string;
   role: string;
+  email: string;
 }
 
 export interface Credentials {
@@ -20,6 +19,5 @@ export interface Credentials {
 }
 
 export interface UserData extends Credentials {
-  username: string;
   confirmPassword?: string;
 } 

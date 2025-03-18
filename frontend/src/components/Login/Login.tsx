@@ -42,11 +42,11 @@ const Login = () => {
 
       if (response.success && response.data) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('username', response.data.username);
+        localStorage.setItem('email', response.data.email);
         localStorage.setItem('role', response.data.role);
 
         // Update auth context
-        updateAuth(response.data.token, response.data.username, response.data.role);
+        updateAuth(response.data.token, response.data.email, response.data.role);
 
         if (response.data.role === 'admin') {
           navigate('/seller');
