@@ -8,9 +8,12 @@ export interface User {
 }
 
 export interface LoginResponse {
-  token: string;
-  role: string;
-  email: string;
+  success: boolean;
+  data: {
+    email: string;
+    token: string;
+    role: string;
+  };
 }
 
 export interface Credentials {
@@ -20,4 +23,4 @@ export interface Credentials {
 
 export interface UserData extends Credentials {
   confirmPassword?: string;
-} 
+}
