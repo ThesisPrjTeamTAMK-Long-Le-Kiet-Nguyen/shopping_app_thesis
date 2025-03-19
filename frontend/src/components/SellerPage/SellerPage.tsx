@@ -8,37 +8,31 @@ const SellerPage = () => {
   const productSections = [
     {
       title: 'Racket Management',
-      description: 'Manage racket inventory, add new rackets, update stock',
       path: '/seller/rackets',
       icon: '🏸' // We can replace these with proper icons later
     },
     {
       title: 'Bag Management',
-      description: 'Manage bag inventory, add new bags, update stock',
       path: '/seller/bags',
       icon: '👜'
     },
     {
       title: 'Shoe Management',
-      description: 'Manage shoe inventory, add new shoes, update stock',
       path: '/seller/shoes',
       icon: '👟'
     },
     {
       title: 'Stringing Management',
-      description: 'Manage stringing inventory, add new strings, update stock',
       path: '/seller/stringings',
       icon: '🎯'
     },
     {
       title: 'Grip Management',
-      description: 'Manage grip inventory, add new grips, update stock',
       path: '/seller/grips',
       icon: '🎾'
     },
     {
       title: 'Shuttlecock Management',
-      description: 'Manage shuttlecock inventory, add new shuttlecocks, update stock',
       path: '/seller/shuttlecocks',
       icon: '🏸'
     }
@@ -61,10 +55,9 @@ const SellerPage = () => {
                 <span>{section.icon}</span>
                 {section.title}
               </CardTitle>
-              <CardDescription>{section.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
+              <Button
                 className="w-full"
                 onClick={() => navigate(section.path)}
               >

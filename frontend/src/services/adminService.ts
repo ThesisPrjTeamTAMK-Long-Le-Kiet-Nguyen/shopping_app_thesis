@@ -396,6 +396,32 @@ export async function addGripColor(
   }
 }
 
+// Add this interface for the quantity update request
+interface QuantityUpdateRequest {
+  colorId: string;
+  typeId?: string;  // Optional for products without types
+  quantity: number;
+}
+
+// Add this new function for updating product quantities
+export async function updateProductQuantity(
+  productType: string,
+  productId: string,
+  updateData: QuantityUpdateRequest
+): Promise<ApiResponse<any>> {
+  try {
+    const response = await axios.put(
+      `${baseUrl}/${productType}/${productId}/quantity`,
+      updateData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to update ${productType} quantity:`, error);
+    throw error;
+  }
+}
+
 export default {
   addRacket,
   updateRacket,
@@ -422,5 +448,6 @@ export default {
   addShuttlecockColor,
   addShuttlecockType,
   addStringingColor,
-  addGripColor
+  addGripColor,
+  updateProductQuantity
 };

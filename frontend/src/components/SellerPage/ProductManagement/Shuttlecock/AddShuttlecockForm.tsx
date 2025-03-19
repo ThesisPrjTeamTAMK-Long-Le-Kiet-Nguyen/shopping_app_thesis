@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -58,8 +58,12 @@ const SPEED_OPTIONS = [
   { value: "78", label: "78" },
 ]
 
+const DEFAULT_TYPE = { type: '', quantity: '', speed: '' }
+const DEFAULT_COLOR = { color: '', photo: '', types: [DEFAULT_TYPE] }
+
 export default function AddShuttlecockForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
+  const [colors, setColors] = useState([DEFAULT_COLOR])
 
   const form = useForm<ShuttlecockFormValues>({
     resolver: zodResolver(shuttlecockFormSchema),
@@ -70,41 +74,9 @@ export default function AddShuttlecockForm() {
       brand: "",
       featherType: "",
       unitsPerTube: "",
-      colors: [{
-        color: "",
-        photo: "",
-        types: [{ type: '', quantity: '', speed: '' }]
-      }]
+      colors: [DEFAULT_COLOR]
     }
   })
-
-  const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
-    control: form.control,
-    name: "colors"
-  })
-
-  const getTypesFieldArray = (colorIndex: number) => {
-    return useFieldArray({
-      control: form.control,
-      name: `colors.${colorIndex}.types`
-    })
-  }
-
-  const addColor = () => {
-    appendColor({ color: '', photo: '', types: [{ type: '', quantity: '', speed: '' }] })
-  }
-
-  const addType = (colorIndex: number) => {
-    const { append } = getTypesFieldArray(colorIndex)
-    append({ type: '', quantity: '', speed: '' })
-  }
-
-  const removeType = (colorIndex: number, typeIndex: number) => {
-    const { remove, fields } = getTypesFieldArray(colorIndex)
-    if (fields.length > 1) {
-      remove(typeIndex)
-    }
-  }
 
   function onSubmit(_data: ShuttlecockFormValues) {
     setDialogOpen(true)
@@ -112,33 +84,95 @@ export default function AddShuttlecockForm() {
 
   const handleConfirm = async () => {
     try {
-      const formData = form.getValues()
-      const response = await addShuttlecock({
+      const formData = form.getValues();
+      
+      // Transform the data to ensure types array is properly handled
+      const transformedData = {
         ...formData,
         price: Number(formData.price),
         unitsPerTube: Number(formData.unitsPerTube),
         colors: formData.colors.map(color => ({
-          ...color,
+          color: color.color,
+          photo: color.photo,
           types: color.types.map(type => ({
-            ...type,
+            type: type.type,
             quantity: Number(type.quantity),
             speed: Number(type.speed)
           }))
         }))
-      })
+      };
+
+      // Validate numbers
+      if (isNaN(transformedData.price) || isNaN(transformedData.unitsPerTube)) {
+        toast.error("Invalid number format for price or units per tube");
+        return;
+      }
+
+      // Validate colors and types
+      for (const [colorIndex, color] of transformedData.colors.entries()) {
+        if (!color.color || !color.photo) {
+          toast.error(`Color ${colorIndex + 1} is missing required fields`);
+          return;
+        }
+
+        for (const [typeIndex, type] of color.types.entries()) {
+          if (!type.type || isNaN(type.quantity) || isNaN(type.speed)) {
+            toast.error(`Invalid data in color ${colorIndex + 1}, type ${typeIndex + 1}`);
+            return;
+          }
+        }
+      }
+
+      const response = await addShuttlecock(transformedData);
 
       if (response.success) {
-        toast.success("Shuttlecock added successfully")
-        setDialogOpen(false)
-        form.reset()
-        appendColor({ color: '', photo: '', types: [{ type: '', quantity: '', speed: '' }] })
+        toast.success("Shuttlecock added successfully");
+        setDialogOpen(false);
+        form.reset({
+          id: "",
+          name: "",
+          price: "",
+          brand: "",
+          featherType: "",
+          unitsPerTube: "",
+          colors: [DEFAULT_COLOR]
+        });
+        setColors([DEFAULT_COLOR]);
       } else {
-        toast.error("Failed to add shuttlecock")
+        toast.error(response.error || "Failed to add shuttlecock");
       }
     } catch (error) {
-      toast.error("Error adding shuttlecock")
+      toast.error(error instanceof Error ? error.message : "An unexpected error occurred");
     }
-  }
+  };
+
+  const addColor = () => {
+    setColors([...colors, DEFAULT_COLOR]);
+    const currentColors = form.getValues().colors;
+    form.setValue('colors', [...currentColors, DEFAULT_COLOR]);
+  };
+
+  const removeColor = (colorIndex: number) => {
+    const newColors = colors.filter((_, i) => i !== colorIndex);
+    setColors(newColors);
+    form.setValue('colors', newColors);
+  };
+
+  const addType = (colorIndex: number) => {
+    const newColors = [...colors];
+    newColors[colorIndex].types.push(DEFAULT_TYPE);
+    setColors(newColors);
+    form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+  };
+
+  const removeType = (colorIndex: number, typeIndex: number) => {
+    const newColors = [...colors];
+    if (newColors[colorIndex].types.length > 1) {
+      newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex);
+      setColors(newColors);
+      form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -243,8 +277,8 @@ export default function AddShuttlecockForm() {
               </Button>
             </div>
 
-            {colorFields.map((colorField, colorIndex) => (
-              <div key={colorField.id} className="border rounded-lg p-6 space-y-4">
+            {colors.map((color, colorIndex) => (
+              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <h4 className="text-md font-medium">Color {colorIndex + 1}</h4>
                   {colorIndex > 0 && (
@@ -302,8 +336,8 @@ export default function AddShuttlecockForm() {
                     </Button>
                   </div>
 
-                  {getTypesFieldArray(colorIndex).fields.map((typeField, typeIndex) => (
-                    <div key={typeField.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {color.types.map((_, typeIndex) => (
+                    <div key={`${colorIndex}-${typeIndex}`} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${typeIndex}.type`}
@@ -339,7 +373,11 @@ export default function AddShuttlecockForm() {
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel>Speed</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                value={field.value || ''}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select speed" />

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -54,6 +54,11 @@ type ShoeFormValues = z.infer<typeof shoeFormSchema>
 export default function AddShoeForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<ShoeFormValues | null>(null)
+  const [colors, setColors] = useState([{
+    color: '',
+    photo: '',
+    types: [{ size: '', quantity: '' }]
+  }])
 
   const form = useForm<ShoeFormValues>({
     resolver: zodResolver(shoeFormSchema),
@@ -68,18 +73,6 @@ export default function AddShoeForm() {
       colors: [{ color: '', photo: '', types: [{ size: '', quantity: '' }] }],
     }
   })
-
-  const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
-    control: form.control,
-    name: "colors"
-  })
-
-  const getTypesFieldArray = (colorIndex: number) => {
-    return useFieldArray({
-      control: form.control,
-      name: `colors.${colorIndex}.types`
-    })
-  }
 
   async function onSubmit(data: ShoeFormValues) {
     setFormData(data)
@@ -117,19 +110,23 @@ export default function AddShoeForm() {
   }
 
   const addColor = () => {
-    appendColor({ color: '', photo: '', types: [{ size: '', quantity: '' }] })
+    setColors([...colors, { color: '', photo: '', types: [{ size: '', quantity: '' }] }])
   }
 
   const addSize = (colorIndex: number) => {
-    const { append } = getTypesFieldArray(colorIndex)
-    append({ size: '', quantity: '' })
+    const newColors = [...colors]
+    newColors[colorIndex].types.push({ size: '', quantity: '' })
+    setColors(newColors)
+  }
+
+  const removeColor = (index: number) => {
+    setColors(colors.filter((_, i) => i !== index))
   }
 
   const removeSize = (colorIndex: number, sizeIndex: number) => {
-    const { remove, fields } = getTypesFieldArray(colorIndex)
-    if (fields.length > 1) {
-      remove(sizeIndex)
-    }
+    const newColors = [...colors]
+    newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== sizeIndex)
+    setColors(newColors)
   }
 
   return (
@@ -245,8 +242,8 @@ export default function AddShoeForm() {
 
           {/* Color and Size Sections */}
           <div className="space-y-6">
-            {colorFields.map((colorField, colorIndex) => (
-              <div key={colorField.id} className="border rounded-lg p-6 space-y-4">
+            {colors.map((color, colorIndex) => (
+              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Color Information #{colorIndex + 1}</h2>
                   {colorIndex > 0 && (
@@ -304,8 +301,8 @@ export default function AddShoeForm() {
                     </Button>
                   </div>
 
-                  {getTypesFieldArray(colorIndex).fields.map((typeField, sizeIndex) => (
-                    <div key={typeField.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {color.types.map((_, sizeIndex) => (
+                    <div key={sizeIndex} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${sizeIndex}.size`}

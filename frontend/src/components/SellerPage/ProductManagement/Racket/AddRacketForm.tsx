@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -63,9 +63,13 @@ const racketFormSchema = z.object({
 
 type RacketFormValues = z.infer<typeof racketFormSchema>
 
+const DEFAULT_TYPE = { type: '', quantity: '', maxTension: '' }
+const DEFAULT_COLOR = { color: '', photo: '', types: [DEFAULT_TYPE] }
+
 export default function RacketManagement() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<RacketFormValues | null>(null)
+  const [colors, setColors] = useState([DEFAULT_COLOR])
 
   const form = useForm<RacketFormValues>({
     resolver: zodResolver(racketFormSchema),
@@ -80,13 +84,8 @@ export default function RacketManagement() {
       material: "",
       balancePoint: "",
       cover: false,
-      colors: [{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }],
+      colors: [DEFAULT_COLOR]
     }
-  })
-
-  const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
-    control: form.control,
-    name: "colors"
   })
 
   async function onSubmit(data: RacketFormValues) {
@@ -118,9 +117,22 @@ export default function RacketManagement() {
       if (response.success) {
         toast.success("Racket added successfully")
         setDialogOpen(false)
-        form.reset()
+        form.reset({
+          id: "",
+          name: "",
+          price: "",
+          brand: "",
+          series: "",
+          racketType: "",
+          flexibility: "",
+          material: "",
+          balancePoint: "",
+          cover: false,
+          colors: [DEFAULT_COLOR]
+        })
+        setColors([DEFAULT_COLOR])
       } else {
-        toast.error("Failed to add racket")
+        toast.error(response.error || "Failed to add racket")
       }
     } catch (error) {
       toast.error("Error adding racket")
@@ -128,27 +140,32 @@ export default function RacketManagement() {
   }
 
   const addColor = () => {
-    appendColor({ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] })
-  }
+    setColors([...colors, DEFAULT_COLOR]);
+    const currentColors = form.getValues().colors;
+    form.setValue('colors', [...currentColors, DEFAULT_COLOR]);
+  };
 
-  const getTypesFieldArray = (colorIndex: number) => {
-    return useFieldArray({
-      control: form.control,
-      name: `colors.${colorIndex}.types`
-    })
-  }
+  const removeColor = (colorIndex: number) => {
+    const newColors = colors.filter((_, i) => i !== colorIndex);
+    setColors(newColors);
+    form.setValue('colors', newColors);
+  };
 
   const addType = (colorIndex: number) => {
-    const { append } = getTypesFieldArray(colorIndex)
-    append({ type: '', quantity: '', maxTension: '' })
-  }
+    const newColors = [...colors];
+    newColors[colorIndex].types.push(DEFAULT_TYPE);
+    setColors(newColors);
+    form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+  };
 
   const removeType = (colorIndex: number, typeIndex: number) => {
-    const { remove, fields } = getTypesFieldArray(colorIndex)
-    if (fields.length > 1) {
-      remove(typeIndex)
+    const newColors = [...colors];
+    if (newColors[colorIndex].types.length > 1) {
+      newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex);
+      setColors(newColors);
+      form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
     }
-  }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -330,8 +347,8 @@ export default function RacketManagement() {
 
           {/* Color and Type Sections with borders */}
           <div className="space-y-6">
-            {colorFields.map((colorField, colorIndex) => (
-              <div key={colorField.id} className="border rounded-lg p-6 space-y-4">
+            {colors.map((color, colorIndex) => (
+              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Color Information #{colorIndex + 1}</h2>
                   {colorIndex > 0 && (
@@ -389,8 +406,8 @@ export default function RacketManagement() {
                     </Button>
                   </div>
 
-                  {getTypesFieldArray(colorIndex).fields.map((typeField, typeIndex) => (
-                    <div key={typeField.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {color.types.map((_, typeIndex) => (
+                    <div key={`${colorIndex}-${typeIndex}`} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${typeIndex}.type`}

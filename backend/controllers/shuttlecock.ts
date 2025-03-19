@@ -62,12 +62,25 @@ export const addShuttlecock = async (
     req: Request<object, object, ShuttlecockRequest>,
     res: Response<ApiResponse<Shuttlecock>>
 ) => {
-    const { id, name, price, brand, featherType, unitsPerTube, colors } = req.body;
     try {
+        const { id, name, price, brand, featherType, unitsPerTube, colors } = req.body;
+
         if (!id || !name || !price || !brand || !featherType || !unitsPerTube || !colors) {
+            const missingFields = {
+                id: !id,
+                name: !name,
+                price: !price,
+                brand: !brand,
+                featherType: !featherType,
+                unitsPerTube: !unitsPerTube,
+                colors: !colors
+            };
             return res.status(400).json({
                 success: false,
-                error: 'All fields are required'
+                error: `Missing required fields: ${Object.entries(missingFields)
+                    .filter(([_, missing]) => missing)
+                    .map(([field]) => field)
+                    .join(', ')}`
             });
         }
 
@@ -76,6 +89,33 @@ export const addShuttlecock = async (
                 success: false,
                 error: 'Colors must be a non-empty array'
             });
+        }
+
+        // Validate types array for each color
+        for (const [colorIndex, color] of colors.entries()) {
+            if (!color.color || !color.photo) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Color ${colorIndex + 1} missing required fields`
+                });
+            }
+
+            if (!Array.isArray(color.types) || color.types.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Color ${colorIndex + 1} must have at least one type`
+                });
+            }
+
+            // Validate each type
+            for (const [typeIndex, type] of color.types.entries()) {
+                if (!type.type || type.quantity === undefined || type.speed === undefined) {
+                    return res.status(400).json({
+                        success: false,
+                        error: `Type ${typeIndex + 1} in color ${colorIndex + 1} has missing required fields`
+                    });
+                }
+            }
         }
 
         const newShuttlecock = new ShuttlecockModel({
@@ -89,6 +129,7 @@ export const addShuttlecock = async (
         });
 
         const savedShuttlecock = await newShuttlecock.save();
+        
         res.status(201).json({
             success: true,
             data: savedShuttlecock,
@@ -97,7 +138,7 @@ export const addShuttlecock = async (
     } catch (error) {
         res.status(500).json({
             success: false,
-            error: 'Failed to add shuttlecock'
+            error: `Failed to add shuttlecock: ${error instanceof Error ? error.message : 'Unknown error'}`
         });
     }
 };
@@ -177,7 +218,6 @@ export const updateShuttlecock = async (
             message: 'Shuttlecock updated successfully'
         });
     } catch (error) {
-        console.error('Error updating shuttlecock:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to update shuttlecock'
@@ -264,7 +304,6 @@ export const addShuttlecockColor = async (
             message: 'Color added successfully'
         });
     } catch (error) {
-        console.error('Error adding color:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to add color'
@@ -329,7 +368,6 @@ export const addShuttlecockType = async (
             message: 'Type added successfully'
         });
     } catch (error) {
-        console.error('Error adding type:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to add type'
