@@ -4,7 +4,8 @@ import {
     getAllProducts,
     deleteProduct,
     deleteProductType,
-    deleteProductColor
+    deleteProductColor,
+    updateProductQuantity
 } from '../controllers/product';
 import {
     getAllRackets,
@@ -111,5 +112,8 @@ router.post('/shuttlecocks/:id/colors/:colorId/types', authenticateUser, isAdmin
 
 router.delete('/:productType/:id/colors/:colorId/types/:typeId', deleteProductType);
 router.delete('/:productType/:id/colors/:colorId', deleteProductColor);
+
+// Add the new route for updating product quantity
+router.put('/:productType/:id/quantity', authenticateUser, isAdmin, updateProductQuantity);
 
 export default router;
