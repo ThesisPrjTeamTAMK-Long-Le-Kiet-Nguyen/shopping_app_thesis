@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useFieldArray } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -66,7 +66,6 @@ type RacketFormValues = z.infer<typeof racketFormSchema>
 export default function RacketManagement() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<RacketFormValues | null>(null)
-  const [colors, setColors] = useState([{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }])
 
   const form = useForm<RacketFormValues>({
     resolver: zodResolver(racketFormSchema),
@@ -83,6 +82,11 @@ export default function RacketManagement() {
       cover: false,
       colors: [{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }],
     }
+  })
+
+  const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
+    control: form.control,
+    name: "colors"
   })
 
   async function onSubmit(data: RacketFormValues) {
@@ -123,25 +127,27 @@ export default function RacketManagement() {
     }
   }
 
-  // Add functions to manage colors and types
   const addColor = () => {
-    setColors([...colors, { color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }])
+    appendColor({ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] })
+  }
+
+  const getTypesFieldArray = (colorIndex: number) => {
+    return useFieldArray({
+      control: form.control,
+      name: `colors.${colorIndex}.types`
+    })
   }
 
   const addType = (colorIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types.push({ type: '', quantity: '', maxTension: '' })
-    setColors(newColors)
-  }
-
-  const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
+    const { append } = getTypesFieldArray(colorIndex)
+    append({ type: '', quantity: '', maxTension: '' })
   }
 
   const removeType = (colorIndex: number, typeIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex)
-    setColors(newColors)
+    const { remove, fields } = getTypesFieldArray(colorIndex)
+    if (fields.length > 1) {
+      remove(typeIndex)
+    }
   }
 
   return (
@@ -324,8 +330,8 @@ export default function RacketManagement() {
 
           {/* Color and Type Sections with borders */}
           <div className="space-y-6">
-            {colors.map((color, colorIndex) => (
-              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
+            {colorFields.map((colorField, colorIndex) => (
+              <div key={colorField.id} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Color Information #{colorIndex + 1}</h2>
                   {colorIndex > 0 && (
@@ -383,8 +389,8 @@ export default function RacketManagement() {
                     </Button>
                   </div>
 
-                  {color.types.map((_type, typeIndex) => (
-                    <div key={typeIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {getTypesFieldArray(colorIndex).fields.map((typeField, typeIndex) => (
+                    <div key={typeField.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${typeIndex}.type`}

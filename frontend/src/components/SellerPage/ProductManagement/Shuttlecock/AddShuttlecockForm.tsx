@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useFieldArray } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -60,7 +60,6 @@ const SPEED_OPTIONS = [
 
 export default function AddShuttlecockForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [colors, setColors] = useState([{ types: [{ type: '', quantity: '', speed: '' }] }])
 
   const form = useForm<ShuttlecockFormValues>({
     resolver: zodResolver(shuttlecockFormSchema),
@@ -79,24 +78,32 @@ export default function AddShuttlecockForm() {
     }
   })
 
-  const addColor = () => {
-    setColors([...colors, { types: [{ type: '', quantity: '', speed: '' }] }])
+  const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
+    control: form.control,
+    name: "colors"
+  })
+
+  const getTypesFieldArray = (colorIndex: number) => {
+    return useFieldArray({
+      control: form.control,
+      name: `colors.${colorIndex}.types`
+    })
   }
 
-  const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
+  const addColor = () => {
+    appendColor({ color: '', photo: '', types: [{ type: '', quantity: '', speed: '' }] })
   }
 
   const addType = (colorIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types.push({ type: '', quantity: '', speed: '' })
-    setColors(newColors)
+    const { append } = getTypesFieldArray(colorIndex)
+    append({ type: '', quantity: '', speed: '' })
   }
 
   const removeType = (colorIndex: number, typeIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex)
-    setColors(newColors)
+    const { remove, fields } = getTypesFieldArray(colorIndex)
+    if (fields.length > 1) {
+      remove(typeIndex)
+    }
   }
 
   function onSubmit(_data: ShuttlecockFormValues) {
@@ -124,7 +131,7 @@ export default function AddShuttlecockForm() {
         toast.success("Shuttlecock added successfully")
         setDialogOpen(false)
         form.reset()
-        setColors([{ types: [{ type: '', quantity: '', speed: '' }] }])
+        appendColor({ color: '', photo: '', types: [{ type: '', quantity: '', speed: '' }] })
       } else {
         toast.error("Failed to add shuttlecock")
       }
@@ -236,8 +243,8 @@ export default function AddShuttlecockForm() {
               </Button>
             </div>
 
-            {colors.map((_, colorIndex) => (
-              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
+            {colorFields.map((colorField, colorIndex) => (
+              <div key={colorField.id} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <h4 className="text-md font-medium">Color {colorIndex + 1}</h4>
                   {colorIndex > 0 && (
@@ -295,8 +302,8 @@ export default function AddShuttlecockForm() {
                     </Button>
                   </div>
 
-                  {colors[colorIndex].types.map((_, typeIndex) => (
-                    <div key={typeIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {getTypesFieldArray(colorIndex).fields.map((typeField, typeIndex) => (
+                    <div key={typeField.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${typeIndex}.type`}

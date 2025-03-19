@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useFieldArray } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -47,9 +47,11 @@ const stringingFormSchema = z.object({
   series: z.string().min(1, { message: "Series is required" }),
   gauge: z.string().min(1, { message: "Gauge is required" }),
   type: z.string().min(1, { message: "Type is required" }),
-  color: z.string().min(1, { message: "Color is required" }),
-  photo: z.string().url({ message: "Please enter a valid URL for the photo" }),
-  quantity: z.string().min(1, { message: "Quantity is required" })
+  colors: z.array(z.object({
+    color: z.string().min(1, { message: "Color is required" }),
+    photo: z.string().url({ message: "Please enter a valid URL for the photo" }),
+    quantity: z.string().min(1, { message: "Quantity is required" })
+  })).min(1, { message: "At least one color is required" })
 })
 
 type StringingFormValues = z.infer<typeof stringingFormSchema>
@@ -67,13 +69,26 @@ export default function AddStringingForm() {
       series: "",
       gauge: "",
       type: "",
-      color: "",
-      photo: "",
-      quantity: ""
+      colors: [{ color: '', photo: '', quantity: '' }]
     }
   })
 
-  async function onSubmit(_data: StringingFormValues) {
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "colors"
+  })
+
+  const addColor = () => {
+    append({ color: '', photo: '', quantity: '' })
+  }
+
+  const removeColor = (index: number) => {
+    if (fields.length > 1) {
+      remove(index)
+    }
+  }
+
+  function onSubmit(_data: StringingFormValues) {
     setDialogOpen(true)
   }
 
@@ -88,11 +103,12 @@ export default function AddStringingForm() {
         series: formData.series,
         gauge: Number(formData.gauge),
         type: formData.type,
-        colors: [{
-          color: formData.color,
-          photo: formData.photo,
-          quantity: Number(formData.quantity)
-        }]
+        colors: formData.colors.map(color => ({
+          color: color.color,
+          photo: color.photo,
+          quantity: Number(color.quantity),
+          types: [] // Ensure types array is included but empty
+        }))
       })
 
       if (response.success) {
@@ -222,51 +238,80 @@ export default function AddStringingForm() {
             />
           </div>
 
-          <div className="border rounded-lg p-6 space-y-4">
-            <h2 className="text-lg font-semibold mb-4">Color Information</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Color</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Color" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="photo"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Photo URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://example.com/photo.jpg" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Colors</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addColor}
+              >
+                Add Color
+              </Button>
             </div>
+
+            {fields.map((field, index) => (
+              <div key={field.id} className="border rounded-lg p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-md font-medium">Color {index + 1}</h4>
+                  {index > 0 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeColor(index)}
+                    >
+                      Remove Color
+                    </Button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`colors.${index}.color`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Color" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`colors.${index}.quantity`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="Number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`colors.${index}.photo`}
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Photo URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://example.com/photo.jpg" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
           <Button type="submit" className="w-full">Add Stringing</Button>
@@ -290,9 +335,9 @@ export default function AddStringingForm() {
                     <div><span className="font-medium">Series:</span> {form.getValues().series}</div>
                     <div><span className="font-medium">Gauge:</span> {form.getValues().gauge}</div>
                     <div><span className="font-medium">Type:</span> {form.getValues().type}</div>
-                    <div><span className="font-medium">Color:</span> {form.getValues().color}</div>
-                    <div><span className="font-medium">Quantity:</span> {form.getValues().quantity}</div>
-                    <div><span className="font-medium">Photo URL:</span> {form.getValues().photo}</div>
+                    <div><span className="font-medium">Color:</span> {form.getValues().colors[0].color}</div>
+                    <div><span className="font-medium">Quantity:</span> {form.getValues().colors[0].quantity}</div>
+                    <div><span className="font-medium">Photo URL:</span> {form.getValues().colors[0].photo}</div>
                   </div>
                 </div>
               </div>

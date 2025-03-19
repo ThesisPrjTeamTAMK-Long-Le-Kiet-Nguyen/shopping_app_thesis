@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useFieldArray } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,7 +43,6 @@ type GripFormValues = z.infer<typeof gripFormSchema>
 
 export default function AddGripForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [colors, setColors] = useState([{ color: '', photo: '', quantity: '' }])
 
   const form = useForm<GripFormValues>({
     resolver: zodResolver(gripFormSchema),
@@ -58,12 +57,19 @@ export default function AddGripForm() {
     }
   })
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "colors"
+  })
+
   const addColor = () => {
-    setColors([...colors, { color: '', photo: '', quantity: '' }])
+    append({ color: '', photo: '', quantity: '' })
   }
 
   const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
+    if (fields.length > 1) {
+      remove(index)
+    }
   }
 
   function onSubmit(_data: GripFormValues) {
@@ -80,7 +86,8 @@ export default function AddGripForm() {
         length: Number(formData.length),
         colors: formData.colors.map(color => ({
           ...color,
-          quantity: Number(color.quantity)
+          quantity: Number(color.quantity),
+          types: [] // Ensure types array is included but empty
         }))
       })
 
@@ -88,7 +95,6 @@ export default function AddGripForm() {
         toast.success("Grip added successfully")
         setDialogOpen(false)
         form.reset()
-        setColors([{ color: '', photo: '', quantity: '' }])
       } else {
         toast.error("Failed to add grip")
       }
@@ -200,16 +206,16 @@ export default function AddGripForm() {
               </Button>
             </div>
 
-            {colors.map((_, colorIndex) => (
-              <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
+            {fields.map((field, index) => (
+              <div key={field.id} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-md font-medium">Color {colorIndex + 1}</h4>
-                  {colorIndex > 0 && (
+                  <h4 className="text-md font-medium">Color {index + 1}</h4>
+                  {index > 0 && (
                     <Button
                       type="button"
                       variant="destructive"
                       size="sm"
-                      onClick={() => removeColor(colorIndex)}
+                      onClick={() => removeColor(index)}
                     >
                       Remove Color
                     </Button>
@@ -219,7 +225,7 @@ export default function AddGripForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name={`colors.${colorIndex}.color`}
+                    name={`colors.${index}.color`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color Name</FormLabel>
@@ -233,7 +239,7 @@ export default function AddGripForm() {
 
                   <FormField
                     control={form.control}
-                    name={`colors.${colorIndex}.photo`}
+                    name={`colors.${index}.photo`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Photo URL</FormLabel>
@@ -247,12 +253,12 @@ export default function AddGripForm() {
 
                   <FormField
                     control={form.control}
-                    name={`colors.${colorIndex}.quantity`}
+                    name={`colors.${index}.quantity`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Quantity</FormLabel>
                         <FormControl>
-                          <Input placeholder="Number" {...field} />
+                          <Input type="number" placeholder="Number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
