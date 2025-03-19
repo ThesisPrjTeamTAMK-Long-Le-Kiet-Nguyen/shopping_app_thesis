@@ -1,7 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const orderController = require('../controllers/order');
-const { authenticateUser } = require('../utils/authenticate');
+import { Router } from 'express';
+const router = Router();
+import orderController from '../controllers/order';
+import { authenticateUser } from'../utils/authenticate';
 
 // Create a new order
 router.post('/', authenticateUser, orderController.createOrder);
@@ -10,9 +10,9 @@ router.post('/', authenticateUser, orderController.createOrder);
 router.get('/', authenticateUser, orderController.getUserOrders);
 
 // Update an order
-router.put('/:id', authenticateUser, orderController.updateOrder);
+// router.put('/:id', authenticateUser, orderController.updateOrder);
 
-// Delete an order
-router.delete('/:id', authenticateUser, orderController.deleteOrder);
+// // Delete an order
+// router.delete('/:id', authenticateUser, orderController.deleteOrder);
 
 module.exports = router;
