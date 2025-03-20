@@ -38,6 +38,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Animation Variables */
+  --slide-duration: 750ms;
+  --fade-duration: 500ms;
+  --scale-duration: 300ms;
+  --slide-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
@@ -121,4 +127,107 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Slider Animations */
+@keyframes slide-left {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-right {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-left {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-right {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Animation Classes */
+.slide-enter-left {
+  position: absolute;
+  animation: slide-left var(--slide-duration) var(--slide-timing) forwards;
+}
+
+.slide-enter-right {
+  position: absolute;
+  animation: slide-right var(--slide-duration) var(--slide-timing) forwards;
+}
+
+.slide-exit-left {
+  position: absolute;
+  animation: slide-out-left var(--slide-duration) var(--slide-timing) forwards;
+}
+
+.slide-exit-right {
+  position: absolute;
+  animation: slide-out-right var(--slide-duration) var(--slide-timing) forwards;
+}
+
+/* Transition Classes */
+.transition-slide {
+  transition: transform var(--slide-duration) var(--slide-timing),
+              opacity var(--slide-duration) var(--slide-timing);
+}
+
+.transition-fade {
+  transition: opacity var(--fade-duration) ease-in-out;
+}
+
+.transition-scale {
+  transition: transform var(--scale-duration) ease-out;
+}
+
+/* Interactive States */
+.hover-scale {
+  transition: transform var(--scale-duration) ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Loading States */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

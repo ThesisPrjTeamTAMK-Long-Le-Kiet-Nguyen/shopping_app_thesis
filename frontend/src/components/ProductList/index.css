@@ -8,36 +8,36 @@
 
 .product-details-container {
   display: flex;
-  align-items: flex-start; /* Align items to the top */
+  align-items: flex-start;
 }
 
 .product-image-column {
-  flex: 1; /* First column for the image */
+  flex: 1;
   display: flex;
-  justify-content: center; /* Center the image horizontally */
+  justify-content: center;
 }
 
 .product-image {
-  width: 300px; /* Make the image bigger */
-  height: auto; /* Maintain aspect ratio */
+  width: 300px;
+  height: auto;
   border: 1px solid #ccc;
   border-radius: 8px;
 }
 
 .product-info-column {
-  flex: 1; /* Second column for name, price, color selection, and add to bag */
-  padding: 0 20px; /* Add some padding */
+  flex: 1;
+  padding: 0 20px;
 }
 
 .product-properties-column {
-  flex: 1; /* Third column for additional properties */
-  padding: 0 20px; /* Add some padding */
+  flex: 1;
+  padding: 0 20px;
 }
 
 .price-tag {
-  font-size: 24px; /* Make the price tag larger */
-  color: #d9534f; /* Change the color of the price tag */
-  margin: 10px 0; /* Add some margin for spacing */
+  font-size: 24px;
+  color: #d9534f;
+  margin: 10px 0;
 }
 
 .color-button,
@@ -86,17 +86,161 @@
 .product-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; /* Space between product items */
+  gap: 20px;
 }
 
 .product-item {
-  flex: 1 1 200px; /* Responsive item size */
+  flex: 1 1 200px;
   text-align: center;
 }
 
 .product-image {
-  width: 100%; /* Make the image responsive */
-  height: auto; /* Maintain aspect ratio */
+  width: 100%;
+  height: auto;
+}
+
+/* Slider Animations */
+@keyframes slide-left {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-right {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scale-up {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Animation Classes */
+.animate-slide-left {
+  animation: slide-left 0.75s ease-in-out forwards;
+}
+
+.animate-slide-right {
+  animation: slide-right 0.75s ease-in-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-in-out forwards;
+}
+
+.animate-fade-out {
+  animation: fade-out 0.5s ease-in-out forwards;
+}
+
+.animate-scale-up {
+  animation: scale-up 0.3s ease-out forwards;
+}
+
+/* Transition Classes */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Hover Effects */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-brightness {
+  transition: filter 0.3s ease;
+}
+
+.hover-brightness:hover {
+  filter: brightness(1.1);
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Smooth Page Transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s, transform 0.3s;
 }
 
 

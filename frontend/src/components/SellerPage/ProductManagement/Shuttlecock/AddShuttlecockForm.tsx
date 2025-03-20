@@ -58,9 +58,12 @@ const SPEED_OPTIONS = [
   { value: "78", label: "78" },
 ]
 
+const DEFAULT_TYPE = { type: '', quantity: '', speed: '' }
+const DEFAULT_COLOR = { color: '', photo: '', types: [DEFAULT_TYPE] }
+
 export default function AddShuttlecockForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [colors, setColors] = useState([{ types: [{ type: '', quantity: '', speed: '' }] }])
+  const [colors, setColors] = useState([DEFAULT_COLOR])
 
   const form = useForm<ShuttlecockFormValues>({
     resolver: zodResolver(shuttlecockFormSchema),
@@ -71,33 +74,9 @@ export default function AddShuttlecockForm() {
       brand: "",
       featherType: "",
       unitsPerTube: "",
-      colors: [{
-        color: "",
-        photo: "",
-        types: [{ type: '', quantity: '', speed: '' }]
-      }]
+      colors: [DEFAULT_COLOR]
     }
   })
-
-  const addColor = () => {
-    setColors([...colors, { types: [{ type: '', quantity: '', speed: '' }] }])
-  }
-
-  const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
-  }
-
-  const addType = (colorIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types.push({ type: '', quantity: '', speed: '' })
-    setColors(newColors)
-  }
-
-  const removeType = (colorIndex: number, typeIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex)
-    setColors(newColors)
-  }
 
   function onSubmit(_data: ShuttlecockFormValues) {
     setDialogOpen(true)
@@ -105,33 +84,95 @@ export default function AddShuttlecockForm() {
 
   const handleConfirm = async () => {
     try {
-      const formData = form.getValues()
-      const response = await addShuttlecock({
+      const formData = form.getValues();
+      
+      // Transform the data to ensure types array is properly handled
+      const transformedData = {
         ...formData,
         price: Number(formData.price),
         unitsPerTube: Number(formData.unitsPerTube),
         colors: formData.colors.map(color => ({
-          ...color,
+          color: color.color,
+          photo: color.photo,
           types: color.types.map(type => ({
-            ...type,
+            type: type.type,
             quantity: Number(type.quantity),
             speed: Number(type.speed)
           }))
         }))
-      })
+      };
+
+      // Validate numbers
+      if (isNaN(transformedData.price) || isNaN(transformedData.unitsPerTube)) {
+        toast.error("Invalid number format for price or units per tube");
+        return;
+      }
+
+      // Validate colors and types
+      for (const [colorIndex, color] of transformedData.colors.entries()) {
+        if (!color.color || !color.photo) {
+          toast.error(`Color ${colorIndex + 1} is missing required fields`);
+          return;
+        }
+
+        for (const [typeIndex, type] of color.types.entries()) {
+          if (!type.type || isNaN(type.quantity) || isNaN(type.speed)) {
+            toast.error(`Invalid data in color ${colorIndex + 1}, type ${typeIndex + 1}`);
+            return;
+          }
+        }
+      }
+
+      const response = await addShuttlecock(transformedData);
 
       if (response.success) {
-        toast.success("Shuttlecock added successfully")
-        setDialogOpen(false)
-        form.reset()
-        setColors([{ types: [{ type: '', quantity: '', speed: '' }] }])
+        toast.success("Shuttlecock added successfully");
+        setDialogOpen(false);
+        form.reset({
+          id: "",
+          name: "",
+          price: "",
+          brand: "",
+          featherType: "",
+          unitsPerTube: "",
+          colors: [DEFAULT_COLOR]
+        });
+        setColors([DEFAULT_COLOR]);
       } else {
-        toast.error("Failed to add shuttlecock")
+        toast.error(response.error || "Failed to add shuttlecock");
       }
     } catch (error) {
-      toast.error("Error adding shuttlecock")
+      toast.error(error instanceof Error ? error.message : "An unexpected error occurred");
     }
-  }
+  };
+
+  const addColor = () => {
+    setColors([...colors, DEFAULT_COLOR]);
+    const currentColors = form.getValues().colors;
+    form.setValue('colors', [...currentColors, DEFAULT_COLOR]);
+  };
+
+  const removeColor = (colorIndex: number) => {
+    const newColors = colors.filter((_, i) => i !== colorIndex);
+    setColors(newColors);
+    form.setValue('colors', newColors);
+  };
+
+  const addType = (colorIndex: number) => {
+    const newColors = [...colors];
+    newColors[colorIndex].types.push(DEFAULT_TYPE);
+    setColors(newColors);
+    form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+  };
+
+  const removeType = (colorIndex: number, typeIndex: number) => {
+    const newColors = [...colors];
+    if (newColors[colorIndex].types.length > 1) {
+      newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex);
+      setColors(newColors);
+      form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -236,7 +277,7 @@ export default function AddShuttlecockForm() {
               </Button>
             </div>
 
-            {colors.map((_, colorIndex) => (
+            {colors.map((color, colorIndex) => (
               <div key={colorIndex} className="border rounded-lg p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <h4 className="text-md font-medium">Color {colorIndex + 1}</h4>
@@ -295,8 +336,8 @@ export default function AddShuttlecockForm() {
                     </Button>
                   </div>
 
-                  {colors[colorIndex].types.map((_, typeIndex) => (
-                    <div key={typeIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {color.types.map((_, typeIndex) => (
+                    <div key={`${colorIndex}-${typeIndex}`} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${typeIndex}.type`}
@@ -332,7 +373,11 @@ export default function AddShuttlecockForm() {
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel>Speed</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                value={field.value || ''}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select speed" />
@@ -374,44 +419,21 @@ export default function AddShuttlecockForm() {
       </Form>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <span>Are you sure you want to add this shuttlecock?</span>
-
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <div className="grid grid-cols-1 gap-2">
-                    <div><span className="font-medium">ID:</span> {form.getValues().id}</div>
-                    <div><span className="font-medium">Name:</span> {form.getValues().name}</div>
-                    <div><span className="font-medium">Price:</span> {form.getValues().price}</div>
-                    <div><span className="font-medium">Brand:</span> {form.getValues().brand}</div>
-                    <div><span className="font-medium">Feather Type:</span> {form.getValues().featherType}</div>
-                    <div><span className="font-medium">Units per Tube:</span> {form.getValues().unitsPerTube}</div>
-                    <div><span className="font-medium">Colors:</span></div>
-                    {form.getValues().colors.map((color, index) => (
-                      <div key={index} className="ml-4 border-t pt-2 mt-2">
-                        <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
-                        <div><span className="font-medium">Photo:</span> {color.photo}</div>
-                        <div><span className="font-medium">Types:</span></div>
-                        {color.types.map((type, typeIndex) => (
-                          <div key={typeIndex} className="ml-4">
-                            <div><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</div>
-                            <div><span className="font-medium">Quantity:</span> {type.quantity}</div>
-                            <div><span className="font-medium">Speed:</span> {type.speed}</div>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <AlertDialogTitle>Confirm Adding New Shuttlecock</AlertDialogTitle>
+            <AlertDialogDescription>
+              {form.getValues().name && `Do you want to add "${form.getValues().name}"?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>Add Shuttlecock</AlertDialogAction>
+            <AlertDialogCancel className="bg-gray-100">Re-check Details</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirm}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Confirm Add
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

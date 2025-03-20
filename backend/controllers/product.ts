@@ -268,3 +268,104 @@ export const deleteProductColor = async (
         });
     }
 };
+
+// Helper function to determine if a product has types
+const hasProductTypes = (product: any): boolean => {
+    return product.colors[0]?.types?.length > 0;
+};
+
+// Update product quantity
+export const updateProductQuantity = async (
+    req: Request,
+    res: Response
+) => {
+    const { id } = req.params;
+    const { colorId, typeId, quantity } = req.body;
+    const productType = req.path.split('/')[1];
+
+    try {
+        // Validate required fields
+        if (!id || !colorId || quantity === undefined) {
+            return res.status(400).json({
+                success: false,
+                error: 'Product ID, Color ID, and quantity are required'
+            });
+        }
+
+        // Get the appropriate model
+        const Model = getModelByCategory(productType);
+        const product = await Model.findOne({ id });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                error: 'Product not found'
+            });
+        }
+
+        // Find the color
+        const colorIndex = product.colors.findIndex(
+            (color: any) => color._id.toString() === colorId
+        );
+
+        if (colorIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Color not found'
+            });
+        }
+
+        // Check if product has types
+        const hasTypes = hasProductTypes(product);
+
+        if (hasTypes) {
+            // Handle products with types (Rackets, Shoes, Shuttlecocks)
+            if (!typeId) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Type ID is required for this product'
+                });
+            }
+
+            const typeIndex = product.colors[colorIndex].types.findIndex(
+                (type: any) => type._id.toString() === typeId
+            );
+
+            if (typeIndex === -1) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Type not found'
+                });
+            }
+
+            // Update quantity for the specific type
+            product.colors[colorIndex].types[typeIndex].quantity = quantity;
+        } else {
+            // Handle products without types (Bags, Stringings, Grips)
+            if (typeId) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Type ID should not be provided for this product'
+                });
+            }
+
+            // Update quantity directly in the color
+            product.colors[colorIndex].quantity = quantity;
+        }
+
+        const updatedProduct = await product.save();
+
+        res.json({
+            success: true,
+            message: 'Product quantity updated successfully',
+            data: updatedProduct
+        });
+    } catch (error) {
+        console.error('Update quantity error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update product quantity',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};

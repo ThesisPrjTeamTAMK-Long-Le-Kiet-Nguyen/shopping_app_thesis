@@ -148,7 +148,25 @@ const stringingSchema = new Schema<Stringing>({
         type: String,
         required: true,
     },
-    colors: [colorSchema],
+    colors: [{
+        color: {
+            type: String,
+            required: true,
+        },
+        photo: {
+            type: String,
+            required: true,
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+        types: {
+            type: [typeSchema],
+            default: [],
+        }
+    }],
 }, { collection: 'stringings' });
 
 // Bag Schema
@@ -178,7 +196,25 @@ const bagSchema = new Schema<Bag>({
         type: String,
         required: true,
     },
-    colors: [colorSchema],
+    colors: [{
+        color: {
+            type: String,
+            required: true,
+        },
+        photo: {
+            type: String,
+            required: true,
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+        types: {
+            type: [typeSchema],
+            default: [],
+        }
+    }],
 }, { collection: 'bags' });
 
 // Grip Schema
@@ -208,7 +244,25 @@ const gripSchema = new Schema<Grip>({
         type: Number,
         required: true,
     },
-    colors: [colorSchema],
+    colors: [{
+        color: {
+            type: String,
+            required: true,
+        },
+        photo: {
+            type: String,
+            required: true,
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+        types: {
+            type: [typeSchema],
+            default: [],
+        }
+    }],
 }, { collection: 'grips' });
 
 // Shuttlecock Schema

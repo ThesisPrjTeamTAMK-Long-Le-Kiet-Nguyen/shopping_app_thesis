@@ -63,10 +63,13 @@ const racketFormSchema = z.object({
 
 type RacketFormValues = z.infer<typeof racketFormSchema>
 
+const DEFAULT_TYPE = { type: '', quantity: '', maxTension: '' }
+const DEFAULT_COLOR = { color: '', photo: '', types: [DEFAULT_TYPE] }
+
 export default function RacketManagement() {
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<RacketFormValues | null>(null)
-  const [colors, setColors] = useState([{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }])
+  const [colors, setColors] = useState([DEFAULT_COLOR])
 
   const form = useForm<RacketFormValues>({
     resolver: zodResolver(racketFormSchema),
@@ -81,7 +84,7 @@ export default function RacketManagement() {
       material: "",
       balancePoint: "",
       cover: false,
-      colors: [{ color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }],
+      colors: [DEFAULT_COLOR]
     }
   })
 
@@ -114,35 +117,55 @@ export default function RacketManagement() {
       if (response.success) {
         toast.success("Racket added successfully")
         setDialogOpen(false)
-        form.reset()
+        form.reset({
+          id: "",
+          name: "",
+          price: "",
+          brand: "",
+          series: "",
+          racketType: "",
+          flexibility: "",
+          material: "",
+          balancePoint: "",
+          cover: false,
+          colors: [DEFAULT_COLOR]
+        })
+        setColors([DEFAULT_COLOR])
       } else {
-        toast.error("Failed to add racket")
+        toast.error(response.error || "Failed to add racket")
       }
     } catch (error) {
       toast.error("Error adding racket")
     }
   }
 
-  // Add functions to manage colors and types
   const addColor = () => {
-    setColors([...colors, { color: '', photo: '', types: [{ type: '', quantity: '', maxTension: '' }] }])
-  }
+    setColors([...colors, DEFAULT_COLOR]);
+    const currentColors = form.getValues().colors;
+    form.setValue('colors', [...currentColors, DEFAULT_COLOR]);
+  };
+
+  const removeColor = (colorIndex: number) => {
+    const newColors = colors.filter((_, i) => i !== colorIndex);
+    setColors(newColors);
+    form.setValue('colors', newColors);
+  };
 
   const addType = (colorIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types.push({ type: '', quantity: '', maxTension: '' })
-    setColors(newColors)
-  }
-
-  const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
-  }
+    const newColors = [...colors];
+    newColors[colorIndex].types.push(DEFAULT_TYPE);
+    setColors(newColors);
+    form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+  };
 
   const removeType = (colorIndex: number, typeIndex: number) => {
-    const newColors = [...colors]
-    newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex)
-    setColors(newColors)
-  }
+    const newColors = [...colors];
+    if (newColors[colorIndex].types.length > 1) {
+      newColors[colorIndex].types = newColors[colorIndex].types.filter((_, i) => i !== typeIndex);
+      setColors(newColors);
+      form.setValue(`colors.${colorIndex}.types`, newColors[colorIndex].types);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -383,8 +406,8 @@ export default function RacketManagement() {
                     </Button>
                   </div>
 
-                  {color.types.map((_type, typeIndex) => (
-                    <div key={typeIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {color.types.map((_, typeIndex) => (
+                    <div key={`${colorIndex}-${typeIndex}`} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <FormField
                         control={form.control}
                         name={`colors.${colorIndex}.types.${typeIndex}.type`}
@@ -465,43 +488,21 @@ export default function RacketManagement() {
       </Form>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm New Racket</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <span>Are you sure you want to add this racket? Please verify the information:</span>
-                {formData && (
-                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                    <div className="grid grid-cols-1 gap-2">
-                      <div><span className="font-medium">ID:</span> {formData.id}</div>
-                      <div><span className="font-medium">Name:</span> {formData.name}</div>
-                      <div><span className="font-medium">Price:</span> ${formData.price}</div>
-                      <div><span className="font-medium">Brand:</span> {formData.brand}</div>
-                      <div><span className="font-medium">Series:</span> {formData.series}</div>
-                      <div><span className="font-medium">Type:</span> {formData.racketType}</div>
-                      <div><span className="font-medium">Flexibility:</span> {formData.flexibility}</div>
-                      <div><span className="font-medium">Material:</span> {formData.material}</div>
-                      <div><span className="font-medium">Balance Point:</span> {formData.balancePoint}mm</div>
-                      <div><span className="font-medium">Includes Cover:</span> {formData.cover ? "Yes" : "No"}</div>
-                      {formData.colors.map((color, index) => (
-                        <div key={index} className="border-t pt-2 mt-2">
-                          <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
-                          <div><span className="font-medium">Photo URL:</span> {color.photo}</div>
-                          {color.types.map((type, typeIndex) => (
-                            <div key={`${index}-${typeIndex}`}><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            <AlertDialogTitle>Confirm Adding New Racket</AlertDialogTitle>
+            <AlertDialogDescription>
+              {formData && `Do you want to add "${formData.name}"?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>Add Racket</AlertDialogAction>
+            <AlertDialogCancel className="bg-gray-100">Re-check Details</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirm}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Confirm Add
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
