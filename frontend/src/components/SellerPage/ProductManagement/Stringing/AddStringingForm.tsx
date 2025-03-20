@@ -319,33 +319,21 @@ export default function AddStringingForm() {
       </Form>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <span>Are you sure you want to add this stringing?</span>
-
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <div className="grid grid-cols-1 gap-2">
-                    <div><span className="font-medium">ID:</span> {form.getValues().id}</div>
-                    <div><span className="font-medium">Name:</span> {form.getValues().name}</div>
-                    <div><span className="font-medium">Price:</span> ${form.getValues().price}</div>
-                    <div><span className="font-medium">Brand:</span> {form.getValues().brand}</div>
-                    <div><span className="font-medium">Series:</span> {form.getValues().series}</div>
-                    <div><span className="font-medium">Gauge:</span> {form.getValues().gauge}</div>
-                    <div><span className="font-medium">Type:</span> {form.getValues().type}</div>
-                    <div><span className="font-medium">Color:</span> {form.getValues().colors[0].color}</div>
-                    <div><span className="font-medium">Quantity:</span> {form.getValues().colors[0].quantity}</div>
-                    <div><span className="font-medium">Photo URL:</span> {form.getValues().colors[0].photo}</div>
-                  </div>
-                </div>
-              </div>
+            <AlertDialogTitle>Confirm Adding New Stringing</AlertDialogTitle>
+            <AlertDialogDescription>
+              {form.getValues().name && `Do you want to add "${form.getValues().name}"?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>Add Stringing</AlertDialogAction>
+            <AlertDialogCancel className="bg-gray-100">Re-check Details</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirm}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Confirm Add
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

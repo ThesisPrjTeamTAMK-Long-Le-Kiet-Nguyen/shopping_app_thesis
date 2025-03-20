@@ -399,7 +399,8 @@ export async function addGripColor(
 // Add this interface for the quantity update request
 interface QuantityUpdateRequest {
   colorId: string;
-  typeId?: string;  // Optional for products without types
+  typeId?: string;  // For products with types
+  sizeId?: string;  // For shoes specifically
   quantity: number;
 }
 

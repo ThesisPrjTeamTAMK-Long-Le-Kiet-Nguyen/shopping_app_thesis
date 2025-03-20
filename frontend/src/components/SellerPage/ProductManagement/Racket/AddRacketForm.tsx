@@ -488,43 +488,21 @@ export default function RacketManagement() {
       </Form>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm New Racket</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <span>Are you sure you want to add this racket? Please verify the information:</span>
-                {formData && (
-                  <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                    <div className="grid grid-cols-1 gap-2">
-                      <div><span className="font-medium">ID:</span> {formData.id}</div>
-                      <div><span className="font-medium">Name:</span> {formData.name}</div>
-                      <div><span className="font-medium">Price:</span> ${formData.price}</div>
-                      <div><span className="font-medium">Brand:</span> {formData.brand}</div>
-                      <div><span className="font-medium">Series:</span> {formData.series}</div>
-                      <div><span className="font-medium">Type:</span> {formData.racketType}</div>
-                      <div><span className="font-medium">Flexibility:</span> {formData.flexibility}</div>
-                      <div><span className="font-medium">Material:</span> {formData.material}</div>
-                      <div><span className="font-medium">Balance Point:</span> {formData.balancePoint}mm</div>
-                      <div><span className="font-medium">Includes Cover:</span> {formData.cover ? "Yes" : "No"}</div>
-                      {formData.colors.map((color, index) => (
-                        <div key={index} className="border-t pt-2 mt-2">
-                          <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
-                          <div><span className="font-medium">Photo URL:</span> {color.photo}</div>
-                          {color.types.map((type, typeIndex) => (
-                            <div key={`${index}-${typeIndex}`}><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            <AlertDialogTitle>Confirm Adding New Racket</AlertDialogTitle>
+            <AlertDialogDescription>
+              {formData && `Do you want to add "${formData.name}"?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>Add Racket</AlertDialogAction>
+            <AlertDialogCancel className="bg-gray-100">Re-check Details</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirm}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Confirm Add
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

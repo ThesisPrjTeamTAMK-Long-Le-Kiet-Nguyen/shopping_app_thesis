@@ -49,7 +49,6 @@ type QuantityUpdateFormValues = z.infer<typeof quantityUpdateSchema>
 
 export default function ModifyStringingForm() {
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState("add-color")
   const [dialogContent, setDialogContent] = useState<{ title: string; type: "add" | "update" }>({
     title: "Add Color",
     type: "add"
@@ -126,7 +125,15 @@ export default function ModifyStringingForm() {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="add-color" className="w-full" onValueChange={setActiveTab}>
+      <Tabs defaultValue="add-color" className="w-full" onValueChange={(value) => {
+        if (value === "add-color") {
+          setDialogContent({ title: "Add Color", type: "add" });
+          addColorForm.reset();
+        } else {
+          setDialogContent({ title: "Update Quantity", type: "update" });
+          updateQuantityForm.reset();
+        }
+      }}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="add-color">Add Color</TabsTrigger>
           <TabsTrigger value="update-quantity">Update Quantity</TabsTrigger>

@@ -419,44 +419,21 @@ export default function AddShuttlecockForm() {
       </Form>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <span>Are you sure you want to add this shuttlecock?</span>
-
-                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-md">
-                  <div className="grid grid-cols-1 gap-2">
-                    <div><span className="font-medium">ID:</span> {form.getValues().id}</div>
-                    <div><span className="font-medium">Name:</span> {form.getValues().name}</div>
-                    <div><span className="font-medium">Price:</span> {form.getValues().price}</div>
-                    <div><span className="font-medium">Brand:</span> {form.getValues().brand}</div>
-                    <div><span className="font-medium">Feather Type:</span> {form.getValues().featherType}</div>
-                    <div><span className="font-medium">Units per Tube:</span> {form.getValues().unitsPerTube}</div>
-                    <div><span className="font-medium">Colors:</span></div>
-                    {form.getValues().colors.map((color, index) => (
-                      <div key={index} className="ml-4 border-t pt-2 mt-2">
-                        <div><span className="font-medium">Color {index + 1}:</span> {color.color}</div>
-                        <div><span className="font-medium">Photo:</span> {color.photo}</div>
-                        <div><span className="font-medium">Types:</span></div>
-                        {color.types.map((type, typeIndex) => (
-                          <div key={typeIndex} className="ml-4">
-                            <div><span className="font-medium">Type {typeIndex + 1}:</span> {type.type}</div>
-                            <div><span className="font-medium">Quantity:</span> {type.quantity}</div>
-                            <div><span className="font-medium">Speed:</span> {type.speed}</div>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <AlertDialogTitle>Confirm Adding New Shuttlecock</AlertDialogTitle>
+            <AlertDialogDescription>
+              {form.getValues().name && `Do you want to add "${form.getValues().name}"?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>Add Shuttlecock</AlertDialogAction>
+            <AlertDialogCancel className="bg-gray-100">Re-check Details</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirm}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Confirm Add
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
