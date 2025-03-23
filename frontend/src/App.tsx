@@ -14,7 +14,8 @@ import {
   ShoeManagement,
   StringingManagement,
   GripManagement,
-  ShuttlecockManagement
+  ShuttlecockManagement,
+  OrderAdmin
 } from './components/SellerPage'
 import CheckoutPage from './components/Checkout/CheckoutPage'
 import Completion from './components/Checkout/Completion'
@@ -33,13 +34,14 @@ const App = () => {
             <Route path="/cart" element={<ShoppingCart />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/completion" element={<Completion />} />
-            
-            {/* Protected User Routes */}
             <Route path="/orders" element={<UserOrders />} />
-            
+                        
             {/* Protected Admin Routes */}
             <Route path="/seller" element={
               <ProtectedRoute element={<SellerPage />} allowedRoles={['admin']} />
+            } />
+            <Route path="/seller/orders" element={
+              <ProtectedRoute element={<OrderAdmin />} allowedRoles={['admin']} />
             } />
             <Route path="/seller/rackets" element={
               <ProtectedRoute element={<RacketManagement />} allowedRoles={['admin']} />

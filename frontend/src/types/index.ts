@@ -10,13 +10,16 @@ export interface OrderItem {
     price: number;
     quantity: number;
     color: string;
-    type?: string;
+    type: string;
 }
 
 export interface Order {
     _id: string;
     orderNumber: string;
-    userId: string;
+    userId: {
+        _id: string;
+        email: string;
+    };
     receiverName: string;
     phoneNumber: string;
     address: string;

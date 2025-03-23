@@ -5,3 +5,4 @@ export { default as ShoeManagement } from './ProductManagement/Shoe/ShoeManageme
 export { default as StringingManagement } from './ProductManagement/Stringing/StringingManagement';
 export { default as GripManagement } from './ProductManagement/Grip/GripManagement';
 export { default as ShuttlecockManagement } from './ProductManagement/Shuttlecock/ShuttlecockManagement';
+export { default as OrderAdmin } from './OrderAdmin';
