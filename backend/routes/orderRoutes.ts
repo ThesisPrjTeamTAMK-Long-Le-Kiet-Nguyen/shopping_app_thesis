@@ -1,18 +1,28 @@
 import { Router } from 'express';
+import { 
+    createOrder, 
+    getAllOrders, 
+    getUserOrders, 
+    getOrderById, 
+    updateOrderStatus, 
+    updatePaymentStatus, 
+    cancelOrder,
+    deleteOrder 
+} from '../controllers/order';
+import { authenticateUser, isAdmin } from '../utils/authenticate';
+
 const router = Router();
-import orderController from '../controllers/order';
-import { authenticateUser } from'../utils/authenticate';
 
-// Create a new order
-router.post('/', authenticateUser, orderController.createOrder);
+// User routes
+router.post('/', authenticateUser, createOrder);
+router.get('/user', authenticateUser, getUserOrders);
+router.get('/:id', authenticateUser, getOrderById);
+router.post('/:id/cancel', authenticateUser, cancelOrder);
 
-// Get all orders for a user
-router.get('/', authenticateUser, orderController.getUserOrders);
+// Admin routes
+router.get('/admin/all', authenticateUser, isAdmin, getAllOrders);
+router.put('/admin/:id/status', authenticateUser, isAdmin, updateOrderStatus);
+router.put('/admin/:id/payment', authenticateUser, isAdmin, updatePaymentStatus);
+router.delete('/admin/:id', authenticateUser, isAdmin, deleteOrder);
 
-// Update an order
-// router.put('/:id', authenticateUser, orderController.updateOrder);
-
-// // Delete an order
-// router.delete('/:id', authenticateUser, orderController.deleteOrder);
-
-module.exports = router;
+export default router;

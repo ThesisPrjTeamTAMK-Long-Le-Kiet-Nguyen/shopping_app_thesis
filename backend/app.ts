@@ -9,7 +9,7 @@ import productRoutes from './routes/productRoutes';
 import cartRoutes from './routes/cartRoutes';
 import loginRouter from './controllers/login';
 import logger from './utils/logger';
-
+import orderRoutes from './routes/orderRoutes';
 dotenv.config();
 
 const app: Express = express();
@@ -34,7 +34,7 @@ app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
 app.use('/api/login', loginRouter);
-
+app.use('/orders', orderRoutes);
 // Error handling
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

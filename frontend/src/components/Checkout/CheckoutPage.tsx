@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner';
 import { CartItem } from '@/types';
 import cartService from '@/services/cartService';
+import orderService from '@/services/orderService';
 
 interface ExtendedCartItem extends CartItem {
   _id: string;
@@ -27,6 +28,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<ExtendedCartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState<CheckoutFormData>({
     receiverName: '',
     phoneNumber: '',
@@ -84,13 +86,34 @@ const CheckoutPage = () => {
     }
 
     try {
-      // Here you would typically send the order to your backend
-      toast.success('Order placed successfully!');
-      // Navigate to completion page
-      navigate('/completion');
+      setSubmitting(true);
+      
+      // Create order
+      const orderData = {
+        receiverName: formData.receiverName,
+        phoneNumber: formData.phoneNumber,
+        address: formData.address,
+        note: formData.note,
+        paymentMethod: formData.paymentMethod
+      };
+
+      const response = await orderService.createOrder(orderData);
+      
+      if (response.success && response.data) {
+        // Clear the cart after successful order creation
+        await cartService.clearCart();
+        toast.success('Order placed successfully!');
+        navigate('/completion', { 
+          state: { 
+            orderNumber: response.data.orderNumber 
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to place order:', error);
       toast.error('Failed to place order. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -210,9 +233,9 @@ const CheckoutPage = () => {
                   type="submit"
                   className="w-full mt-6"
                   size="lg"
-                  disabled={formData.paymentMethod === 'online'} // Disable if online payment is selected (not implemented yet)
+                  disabled={submitting || formData.paymentMethod === 'online'}
                 >
-                  Place Order
+                  {submitting ? 'Placing Order...' : 'Place Order'}
                 </Button>
               </div>
             </CardContent>

@@ -25,6 +25,7 @@ const orderItemSchema = new Schema<OrderItem>({
     },
     type: {
         type: String,
+        required: false
     },
 });
 

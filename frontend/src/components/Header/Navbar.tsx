@@ -113,6 +113,18 @@ const Navbar = () => {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
+              {token && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to="/orders" 
+                      className={getNavStyles('/orders')}
+                    >
+                      My Orders
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
             </div>
 
             {/* Admin Dashboard - always visible if admin */}
