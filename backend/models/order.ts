@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import { Order, OrderItem } from '../types';
 
 const orderItemSchema = new Schema<OrderItem>({
@@ -71,6 +71,9 @@ const orderSchema = new Schema<Order>({
         enum: ['pending', 'paid', 'failed'],
         default: 'pending',
     },
+    paymentIntentId: {
+        type: String,
+    },
     orderStatus: {
         type: String,
         required: true,
@@ -83,7 +86,7 @@ const orderSchema = new Schema<Order>({
 });
 
 // Auto-generate order number
-orderSchema.pre('save', async function(next) {
+orderSchema.pre('save', async function(this: Order & Document, next) {
     if (!this.orderNumber) {
         const lastOrder = await (this.constructor as any).findOne().sort({ orderNumber: -1 });
         const lastNumber = lastOrder ? parseInt(lastOrder.orderNumber.split('-')[1]) : 0;

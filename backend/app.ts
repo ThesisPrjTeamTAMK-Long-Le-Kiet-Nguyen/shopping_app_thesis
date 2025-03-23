@@ -10,6 +10,8 @@ import cartRoutes from './routes/cartRoutes';
 import loginRouter from './controllers/login';
 import logger from './utils/logger';
 import orderRoutes from './routes/orderRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+
 dotenv.config();
 
 const app: Express = express();
@@ -35,6 +37,8 @@ app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
 app.use('/api/login', loginRouter);
 app.use('/orders', orderRoutes);
+app.use('/payments', paymentRoutes);
+
 // Error handling
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

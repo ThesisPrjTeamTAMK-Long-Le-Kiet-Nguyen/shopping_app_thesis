@@ -21,6 +21,7 @@ export interface Order extends Document {
     totalAmount: number;
     paymentMethod: 'cod' | 'online';
     paymentStatus: 'pending' | 'paid' | 'failed';
+    paymentIntentId?: string;
     orderStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
     createdAt?: Date;
     updatedAt?: Date;

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { CartItem } from '@/types';
 import cartService from '@/services/cartService';
 import orderService from '@/services/orderService';
+import StripePaymentForm from './StripePaymentForm';
 
 interface ExtendedCartItem extends CartItem {
   _id: string;
@@ -27,8 +28,9 @@ interface CheckoutFormData {
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<ExtendedCartItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CheckoutFormData>({
     receiverName: '',
     phoneNumber: '',
@@ -100,14 +102,19 @@ const CheckoutPage = () => {
       const response = await orderService.createOrder(orderData);
       
       if (response.success && response.data) {
-        // Clear the cart after successful order creation
-        await cartService.clearCart();
-        toast.success('Order placed successfully!');
-        navigate('/completion', { 
-          state: { 
-            orderNumber: response.data.orderNumber 
-          }
-        });
+        if (formData.paymentMethod === 'cod') {
+          // Clear the cart after successful order creation
+          await cartService.clearCart();
+          toast.success('Order placed successfully!');
+          navigate('/completion', { 
+            state: { 
+              orderNumber: response.data.orderNumber 
+            }
+          });
+        } else {
+          // For online payment, store the order ID and show payment form
+          setOrderId(response.data._id);
+        }
       }
     } catch (error) {
       console.error('Failed to place order:', error);
@@ -117,10 +124,34 @@ const CheckoutPage = () => {
     }
   };
 
+  const handleCancelPayment = () => {
+    setOrderId(null);
+    setFormData(prev => ({
+      ...prev,
+      paymentMethod: 'cod'
+    }));
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <p className="text-lg text-muted-foreground">Loading checkout details...</p>
+      </div>
+    );
+  }
+
+  if (orderId && formData.paymentMethod === 'online') {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Payment</h1>
+        <Card>
+          <CardContent className="p-6">
+            <StripePaymentForm
+              orderId={orderId}
+              onCancel={handleCancelPayment}
+            />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -224,7 +255,7 @@ const CheckoutPage = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="online" id="online" />
-                      <Label htmlFor="online">Online Payment (Coming Soon)</Label>
+                      <Label htmlFor="online">Online Payment</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -233,9 +264,9 @@ const CheckoutPage = () => {
                   type="submit"
                   className="w-full mt-6"
                   size="lg"
-                  disabled={submitting || formData.paymentMethod === 'online'}
+                  disabled={submitting}
                 >
-                  {submitting ? 'Placing Order...' : 'Place Order'}
+                  {submitting ? 'Processing...' : 'Place Order'}
                 </Button>
               </div>
             </CardContent>
