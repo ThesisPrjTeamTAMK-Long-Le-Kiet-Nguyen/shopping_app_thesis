@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { Button } from "@/components/ui/button";
@@ -14,10 +13,9 @@ interface StripePaymentFormProps {
 
 const stripePromise = loadStripe(config.STRIPE_PUBLISHABLE_KEY);
 
-const PaymentForm = ({ orderId, onCancel }: StripePaymentFormProps) => {
+const PaymentForm = ({ onCancel }: Omit<StripePaymentFormProps, 'orderId'>) => {
     const stripe = useStripe();
     const elements = useElements();
-    const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -121,7 +119,7 @@ const StripePaymentForm = ({ orderId, onCancel }: StripePaymentFormProps) => {
                 },
             }}
         >
-            <PaymentForm orderId={orderId} onCancel={onCancel} />
+            <PaymentForm onCancel={onCancel} />
         </Elements>
     );
 };
