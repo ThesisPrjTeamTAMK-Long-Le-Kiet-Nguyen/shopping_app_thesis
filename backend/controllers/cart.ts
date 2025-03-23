@@ -19,6 +19,10 @@ interface AddToCartRequest {
     price: number;
 }
 
+interface UpdateQuantityRequest {
+    quantity: number;
+}
+
 export const addToCart = async (
     req: AuthRequest,
     res: Response<ApiResponse<Cart>>
@@ -166,8 +170,118 @@ export const removeFromCart = async (
     }
 };
 
+export const updateCartItemQuantity = async (
+    req: AuthRequest,
+    res: Response<ApiResponse<Cart>>
+) => {
+    const { id } = req.params;
+    const { quantity } = req.body as UpdateQuantityRequest;
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            error: 'User not authenticated'
+        });
+    }
+
+    if (quantity < 0) {
+        return res.status(400).json({
+            success: false,
+            error: 'Quantity cannot be negative'
+        });
+    }
+
+    try {
+        const cart = await CartModel.findOne({ userId });
+        
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                error: 'Cart not found'
+            });
+        }
+
+        const itemIndex = cart.items.findIndex((item: CartItem) => item.id === id);
+        
+        if (itemIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Item not found in cart'
+            });
+        }
+
+        if (quantity === 0) {
+            // Remove the item if quantity is 0
+            cart.items.splice(itemIndex, 1);
+        } else {
+            // Update the quantity if greater than 0
+            cart.items[itemIndex].quantity = quantity;
+        }
+
+        // Save the updated cart
+        const updatedCart = await cart.save();
+
+        res.json({
+            success: true,
+            data: updatedCart,
+            message: quantity === 0 
+                ? 'Item removed from cart successfully'
+                : 'Cart item quantity updated successfully'
+        });
+    } catch (error) {
+        console.error('Failed to update cart item quantity:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update cart item quantity'
+        });
+    }
+};
+
+export const clearCart = async (
+    req: AuthRequest,
+    res: Response<ApiResponse<void>>
+) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            error: 'User not authenticated'
+        });
+    }
+
+    try {
+        const cart = await CartModel.findOne({ userId });
+        
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                error: 'Cart not found'
+            });
+        }
+
+        // Clear all items from the cart
+        cart.items = [];
+        await cart.save();
+
+        res.json({
+            success: true,
+            message: 'Cart cleared successfully'
+        });
+    } catch (error) {
+        console.error('Failed to clear cart:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to clear cart'
+        });
+    }
+};
+
 export default {
     addToCart,
     getCart,
-    removeFromCart
+    removeFromCart,
+    updateCartItemQuantity,
+    clearCart
 };

@@ -34,6 +34,24 @@ export async function getCart(): Promise<ApiResponse<Cart>> {
   }
 }
 
+// Update cart item quantity
+export async function updateCartItemQuantity(
+  itemId: string,
+  quantity: number
+): Promise<ApiResponse<Cart>> {
+  try {
+    const response = await axios.put(
+      `${baseUrl}/${itemId}`,
+      { quantity },
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update cart item quantity:', error);
+    throw error;
+  }
+}
+
 // Remove an item from the cart
 export async function removeFromCart(itemId: string): Promise<ApiResponse<void>> {
   try {
@@ -45,4 +63,20 @@ export async function removeFromCart(itemId: string): Promise<ApiResponse<void>>
   }
 }
 
-export default { addToCart, getCart, removeFromCart }; 
+export async function clearCart(): Promise<ApiResponse<void>> {
+  try {
+    const response = await axios.delete(baseUrl, getConfig());
+    return response.data;
+  } catch (error) {
+    console.error('Failed to clear cart:', error);
+    throw error;
+  }
+}
+
+export default { 
+  addToCart, 
+  getCart, 
+  removeFromCart,
+  updateCartItemQuantity,
+  clearCart 
+}; 

@@ -5,8 +5,9 @@ import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2 } from 'lucide-react';
+import { Trash2, Minus, Plus } from 'lucide-react';
 import { CartItem, Cart, ApiResponse } from '@/types';
+import { Input } from "@/components/ui/input";
 import './ShoppingCart.css';
 
 // Extend the CartItem interface from types to include _id
@@ -19,13 +20,13 @@ const ShoppingCart = () => {
   const [cartItems, setCartItems] = useState<ExtendedCartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
         const response = await cartService.getCart() as ApiResponse<Cart>;
         if (response.success && response.data) {
-          // Type assertion to ensure the items match our ExtendedCartItem interface
           setCartItems(response.data.items as ExtendedCartItem[]);
         }
       } catch (err) {
@@ -53,11 +54,54 @@ const ShoppingCart = () => {
     }
   };
 
+  const handleQuantityChange = async (itemId: string, newQuantity: number) => {
+    if (newQuantity < 0) return;
+    
+    try {
+      setUpdatingItems(prev => new Set(prev).add(itemId));
+      const response = await cartService.updateCartItemQuantity(itemId, newQuantity) as ApiResponse<Cart>;
+      
+      if (response.success && response.data) {
+        setCartItems(response.data.items as ExtendedCartItem[]);
+        if (newQuantity === 0) {
+          toast.success('Item removed from cart');
+        } else {
+          toast.success('Cart updated');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update quantity:', error);
+      toast.error('Failed to update quantity');
+    } finally {
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleIncrement = (itemId: string, currentQuantity: number) => {
+    handleQuantityChange(itemId, currentQuantity + 1);
+  };
+
+  const handleDecrement = (itemId: string, currentQuantity: number) => {
+    if (currentQuantity > 1) {
+      handleQuantityChange(itemId, currentQuantity - 1);
+    }
+  };
+
+  const handleQuantityInput = (itemId: string, value: string) => {
+    const newQuantity = parseInt(value);
+    if (!isNaN(newQuantity)) {
+      handleQuantityChange(itemId, newQuantity);
+    }
+  };
+
   const calculateTotal = (): number => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  // Add handleCheckout function
   const handleCheckout = () => {
     navigate('/checkout');
   };
@@ -100,7 +144,6 @@ const ShoppingCart = () => {
                       <div className="text-sm text-muted-foreground">
                         <p>Color: {item.color}</p>
                         {item.type && <p>Type: {item.type}</p>}
-                        <p>Quantity: {item.quantity}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -117,6 +160,36 @@ const ShoppingCart = () => {
                       </Button>
                     </div>
                   </div>
+
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleDecrement(item.id, item.quantity)}
+                      disabled={item.quantity <= 1 || updatingItems.has(item.id)}
+                      className="h-8 w-8"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={item.quantity}
+                      onChange={(e) => handleQuantityInput(item.id, e.target.value)}
+                      className="w-16 text-center"
+                      disabled={updatingItems.has(item.id)}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleIncrement(item.id, item.quantity)}
+                      disabled={updatingItems.has(item.id)}
+                      className="h-8 w-8"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
                   <Separator className="my-4" />
                 </div>
               ))}

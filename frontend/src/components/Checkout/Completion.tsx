@@ -1,20 +1,31 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import cartService from '@/services/cartService';
+
+interface LocationState {
+  orderNumber: string;
+}
 
 const Completion = () => {
   const navigate = useNavigate();
-  const [orderDetails, setOrderDetails] = useState({
-    orderNumber: Math.floor(Math.random() * 1000000).toString().padStart(6, '0'),
-    estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()
-  });
+  const location = useLocation();
+  const orderNumber = (location.state as LocationState)?.orderNumber || 'N/A';
 
   useEffect(() => {
     // Clear cart after successful order
-    localStorage.removeItem('cart');
+    const clearCart = async () => {
+      try {
+        await cartService.clearCart();
+      } catch (error) {
+        console.error('Failed to clear cart:', error);
+        toast.error('Failed to clear cart');
+      }
+    };
+    clearCart();
   }, []);
 
   const handleContinueShopping = () => {
@@ -35,14 +46,10 @@ const Completion = () => {
               Your order has been successfully placed
             </p>
 
-            <div className="bg-muted p-6 rounded-lg space-y-4">
+            <div className="bg-muted p-6 rounded-lg">
               <div className="flex justify-between">
                 <span className="font-medium">Order Number:</span>
-                <span className="font-semibold">#{orderDetails.orderNumber}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Estimated Delivery:</span>
-                <span className="font-semibold">{orderDetails.estimatedDelivery}</span>
+                <span className="font-semibold">#{orderNumber}</span>
               </div>
             </div>
 

@@ -1,40 +1,53 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Package } from 'lucide-react';
 
 const SellerPage = () => {
   const navigate = useNavigate();
 
   const productSections = [
     {
+      title: 'Order Management',
+      path: '/seller/orders',
+      icon: <Package className="h-6 w-6" />,
+      description: 'Manage customer orders and track their status'
+    },
+    {
       title: 'Racket Management',
       path: '/seller/rackets',
-      icon: '🏸' // We can replace these with proper icons later
+      icon: '🏸',
+      description: 'Manage racket inventory and details'
     },
     {
       title: 'Bag Management',
       path: '/seller/bags',
-      icon: '👜'
+      icon: '👜',
+      description: 'Manage bag inventory and details'
     },
     {
       title: 'Shoe Management',
       path: '/seller/shoes',
-      icon: '👟'
+      icon: '👟',
+      description: 'Manage shoe inventory and details'
     },
     {
       title: 'Stringing Management',
       path: '/seller/stringings',
-      icon: '🎯'
+      icon: '🎯',
+      description: 'Manage stringing inventory and details'
     },
     {
       title: 'Grip Management',
       path: '/seller/grips',
-      icon: '🎾'
+      icon: '🎾',
+      description: 'Manage grip inventory and details'
     },
     {
       title: 'Shuttlecock Management',
       path: '/seller/shuttlecocks',
-      icon: '🏸'
+      icon: '🏸',
+      description: 'Manage shuttlecock inventory and details'
     }
   ];
 
@@ -52,16 +65,17 @@ const SellerPage = () => {
           <Card key={index} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span>{section.icon}</span>
+                {section.icon}
                 {section.title}
               </CardTitle>
             </CardHeader>
             <CardContent>
+              <p className="text-sm text-gray-500 mb-4">{section.description}</p>
               <Button
                 className="w-full"
                 onClick={() => navigate(section.path)}
               >
-                Manage {section.title.split(' ')[0]}s
+                Manage {section.title.split(' ')[0]}
               </Button>
             </CardContent>
           </Card>
