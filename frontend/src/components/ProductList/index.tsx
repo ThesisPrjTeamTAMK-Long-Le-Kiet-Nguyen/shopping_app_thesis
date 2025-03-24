@@ -19,6 +19,7 @@ import GripList from './Grip/GripList'
 import GripDetails from './Grip/GripDetails'
 import BagList from './Bag/BagList'
 import BagDetails from './Bag/BagDetails'
+import LoaderUI from '@/components/LoaderUI'
 
 const MARKETING_IMAGES = [
   {
@@ -52,16 +53,25 @@ const HomePage = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
   const [featuredProducts, setFeaturedProducts] = useState<FeaturedProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchFeaturedProducts = async () => {
       try {
+        setIsLoading(true);
+        setError(null);
+
         const [racketsRes, shoesRes, stringsRes, shuttlesRes] = await Promise.all([
           fetchRackets(),
           fetchShoes(),
           fetchStringings(),
           fetchShuttlecocks()
         ]);
+
+        if (!isMounted) return;
 
         const featured: FeaturedProduct[] = [];
 
@@ -109,15 +119,33 @@ const HomePage = () => {
           })));
         }
 
+        if (!isMounted) return;
+
+        if (featured.length === 0) {
+          setError('No featured products available');
+          return;
+        }
+
         const shuffled = [...featured].sort(() => Math.random() - 0.5);
         setFeaturedProducts(shuffled);
       } catch (error) {
         console.error('Error fetching featured products:', error);
         toast.error('Failed to load featured products');
+        if (isMounted) {
+          setError('Failed to load featured products. Please try again later.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchFeaturedProducts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const navigate = useCallback((newDirection: 'prev' | 'next') => {
@@ -244,7 +272,14 @@ const HomePage = () => {
         </div>
 
         {/* Featured Products */}
-        {featuredProducts.length > 0 && (
+        {isLoading ? (
+          <LoaderUI />
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-500 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
+          </div>
+        ) : featuredProducts.length > 0 ? (
           <div className="mt-16">
             <h2 className="text-3xl font-bold mb-8 text-center">Featured Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -275,7 +310,7 @@ const HomePage = () => {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -53,9 +53,14 @@ const Completion = () => {
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              We will send you an email confirmation with your order details shortly.
-            </p>
+            <div className="space-y-4">
+              <p className="text-base text-muted-foreground">
+                Your order will be processing, check "your order" to see the order status.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Contact us through email or phone if needed.
+              </p>
+            </div>
 
             <Button 
               onClick={handleContinueShopping}

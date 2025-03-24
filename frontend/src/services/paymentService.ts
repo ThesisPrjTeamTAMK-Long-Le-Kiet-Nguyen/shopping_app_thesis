@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { getConfig } from '@/config';
 
-const baseUrl = 'http://localhost:3000/payments';
+const baseUrl = 'http://localhost:3000/api/payments';
 
 const paymentService = {
     createPaymentIntent: async (orderId: string) => {

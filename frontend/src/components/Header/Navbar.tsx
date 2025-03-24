@@ -18,7 +18,7 @@ import './Navbar.css'
 const productItems = [
   { path: '/racket', label: 'Rackets' },
   { path: '/shoes', label: 'Shoes' },
-  { path: '/stringings', label: 'Stringings' },
+  { path: '/stringings', label: 'Strings' },
   { path: '/shuttlecocks', label: 'Shuttlecocks' },
   { path: '/grips', label: 'Grips' },
   { path: '/bags', label: 'Bags' },

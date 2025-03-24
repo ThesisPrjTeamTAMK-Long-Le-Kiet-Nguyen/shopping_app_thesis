@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
 import { Shuttlecock, Color, Type, CartItem } from '../../../types'
+import LoaderUI from '@/components/LoaderUI'
 
 const ShuttlecockDetails = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,12 +17,25 @@ const ShuttlecockDetails = () => {
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
   const [selectedType, setSelectedType] = useState<Type | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
     const fetchData = async () => {
       try {
-        if (!id) return
+        setIsLoading(true)
+        setError(null)
+
+        if (!id) {
+          setError('Invalid shuttlecock ID')
+          return
+        }
+
         const response = await fetchProductById('shuttlecocks', id)
+        if (!isMounted) return
+
         if (response.success && response.data) {
           const shuttlecockData = response.data as Shuttlecock
           setShuttlecock(shuttlecockData)
@@ -32,14 +46,28 @@ const ShuttlecockDetails = () => {
               setSelectedType(defaultColor.types[0])
             }
           }
+        } else {
+          setError('Failed to load shuttlecock details')
+          toast.error('Failed to load shuttlecock details')
         }
       } catch (error) {
         console.error('Error fetching shuttlecock details:', error)
-        toast.error('Failed to load shuttlecock details')
+        if (isMounted) {
+          setError('Failed to load shuttlecock details. Please try again later.')
+          toast.error('Failed to load shuttlecock details')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchData()
+
+    return () => {
+      isMounted = false
+    }
   }, [id])
 
   const handleColorChange = (color: Color) => {
@@ -90,6 +118,10 @@ const ShuttlecockDetails = () => {
             description: `${shuttlecock.name} - ${selectedColor.color} (${selectedType.type})`,
             duration: 3000,
           })
+        } else {
+          toast.error('Failed to add item to cart', {
+            description: 'Please try again later',
+          })
         }
       } catch (error) {
         console.error('Failed to add item to cart:', error)
@@ -102,10 +134,27 @@ const ShuttlecockDetails = () => {
     }
   }
 
+  if (isLoading) {
+    return <LoaderUI />
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center space-y-4">
+          <p className="text-red-500">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    )
+  }
+
   if (!shuttlecock) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-muted-foreground">Loading shuttlecock details...</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Shuttlecock not found</p>
+        </div>
       </div>
     )
   }

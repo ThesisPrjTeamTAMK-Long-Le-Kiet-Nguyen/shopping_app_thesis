@@ -9,87 +9,136 @@ import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
 import { Grip, Color, CartItem } from '../../../types'
+import LoaderUI from '@/components/LoaderUI'
 
 const GripDetails = () => {
   const { id } = useParams<{ id: string }>()
   const [grip, setGrip] = useState<Grip | null>(null)
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
-        if (!id) return
-        const response = await fetchProductById('grips', id)
+        setIsLoading(true);
+        setError(null);
+
+        if (!id) {
+          setError('Invalid grip ID');
+          return;
+        }
+
+        const response = await fetchProductById('grips', id);
+        if (!isMounted) return;
+
         if (response.success && response.data) {
-          const gripData = response.data as Grip
-          setGrip(gripData)
+          const gripData = response.data as Grip;
+          setGrip(gripData);
           if (gripData.colors.length > 0) {
-            setSelectedColor(gripData.colors[0])
+            setSelectedColor(gripData.colors[0]);
           }
+        } else {
+          setError('Failed to load grip details');
+          toast.error('Failed to load grip details');
         }
       } catch (error) {
-        console.error('Error fetching grip details:', error)
-        toast.error('Failed to load grip details')
+        console.error('Error fetching grip details:', error);
+        if (isMounted) {
+          setError('Failed to load grip details. Please try again later.');
+          toast.error('Failed to load grip details');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    }
+    };
 
-    fetchData()
-  }, [id])
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   const handleColorChange = (color: Color) => {
-    setSelectedColor(color)
-  }
+    setSelectedColor(color);
+  };
 
   const hasStock = (color: Color): boolean => {
-    return typeof color.quantity === 'number' && color.quantity > 0
-  }
+    return typeof color.quantity === 'number' && color.quantity > 0;
+  };
 
   const handleAddToCart = async () => {
-    if (!grip || !selectedColor || !hasStock(selectedColor)) return
+    if (!grip || !selectedColor || !hasStock(selectedColor)) return;
 
     const confirmAdd = window.confirm(
       `Are you sure you want to add this item to your cart?\n\n` +
       `${grip.name}\n` +
       `Color: ${selectedColor.color}\n` +
       `Price: $${grip.price}`
-    )
+    );
 
     if (confirmAdd) {
       try {
-        setIsAddingToCart(true)
+        setIsAddingToCart(true);
         const itemToAdd: CartItem = {
           id: grip.id,
           name: grip.name,
           price: grip.price,
           color: selectedColor.color,
           quantity: 1
-        }
+        };
 
-        const response = await cartService.addToCart(itemToAdd)
+        const response = await cartService.addToCart(itemToAdd);
         if (response.success) {
           toast.success('Added to shopping cart', {
             description: `${grip.name} - ${selectedColor.color}`,
             duration: 3000,
-          })
+          });
+        } else {
+          toast.error('Failed to add item to cart', {
+            description: 'Please try again later',
+          });
         }
       } catch (error) {
-        console.error('Failed to add item to cart:', error)
+        console.error('Failed to add item to cart:', error);
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
-        })
+        });
       } finally {
-        setIsAddingToCart(false)
+        setIsAddingToCart(false);
       }
     }
+  };
+
+  if (isLoading) {
+    return <LoaderUI />;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center space-y-4">
+          <p className="text-red-500">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
   }
 
   if (!grip) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-muted-foreground">Loading grip details...</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Grip not found</p>
+        </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -192,7 +241,7 @@ const GripDetails = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default GripDetails
+export default GripDetails;

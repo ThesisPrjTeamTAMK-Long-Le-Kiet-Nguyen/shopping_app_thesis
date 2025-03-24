@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
 import { Shoe, ShoeColor, ShoeSize } from '../../../types'
+import LoaderUI from '@/components/LoaderUI'
 
 const ShoeDetails = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,12 +17,25 @@ const ShoeDetails = () => {
   const [selectedColor, setSelectedColor] = useState<ShoeColor | null>(null)
   const [selectedSize, setSelectedSize] = useState<ShoeSize | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
     const fetchData = async () => {
       try {
-        if (!id) return
+        setIsLoading(true)
+        setError(null)
+
+        if (!id) {
+          setError('Invalid shoe ID')
+          return
+        }
+
         const response = await fetchProductById('shoes', id)
+        if (!isMounted) return
+
         if (response.success && response.data) {
           const shoeData = response.data as Shoe
           setShoe(shoeData)
@@ -32,14 +46,28 @@ const ShoeDetails = () => {
               setSelectedSize(defaultColor.types[0])
             }
           }
+        } else {
+          setError('Failed to load shoe details')
+          toast.error('Failed to load shoe details')
         }
       } catch (error) {
         console.error('Error fetching shoe details:', error)
-        toast.error('Failed to load shoe details')
+        if (isMounted) {
+          setError('Failed to load shoe details. Please try again later.')
+          toast.error('Failed to load shoe details')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchData()
+
+    return () => {
+      isMounted = false
+    }
   }, [id])
 
   const handleColorChange = (color: ShoeColor) => {
@@ -90,6 +118,10 @@ const ShoeDetails = () => {
             description: `${shoe.name} - ${selectedColor.color} (Size ${selectedSize.size})`,
             duration: 3000,
           })
+        } else {
+          toast.error('Failed to add item to cart', {
+            description: 'Please try again later',
+          })
         }
       } catch (error) {
         console.error('Failed to add item to cart:', error)
@@ -102,10 +134,27 @@ const ShoeDetails = () => {
     }
   }
 
+  if (isLoading) {
+    return <LoaderUI />
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center space-y-4">
+          <p className="text-red-500">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    )
+  }
+
   if (!shoe) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-muted-foreground">Loading shoe details...</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Shoe not found</p>
+        </div>
       </div>
     )
   }
