@@ -11,7 +11,8 @@ const SellerPage = () => {
       title: 'Order Management',
       path: '/seller/orders',
       icon: <Package className="h-6 w-6" />,
-      description: 'Manage customer orders and track their status'
+      description: 'Manage customer orders and track their status',
+      isLarge: true
     },
     {
       title: 'Racket Management',
@@ -60,26 +61,48 @@ const SellerPage = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {productSections.map((section, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {section.icon}
-                {section.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500 mb-4">{section.description}</p>
-              <Button
-                className="w-full"
-                onClick={() => navigate(section.path)}
-              >
-                Manage {section.title.split(' ')[0]}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 gap-6">
+        {/* Order Management Card - Full Width */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {productSections[0].icon}
+              {productSections[0].title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-500 mb-4">{productSections[0].description}</p>
+            <Button
+              className="w-full"
+              onClick={() => navigate(productSections[0].path)}
+            >
+              Manage {productSections[0].title.split(' ')[0]}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Product Management Cards - 3/3 Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+          {productSections.slice(1).map((section, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {section.icon}
+                  {section.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-500 mb-4">{section.description}</p>
+                <Button
+                  className="w-full"
+                  onClick={() => navigate(section.path)}
+                >
+                  Manage {section.title.split(' ')[0]}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

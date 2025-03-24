@@ -1,5 +1,6 @@
 // Base product types
 export interface ProductColor {
+  _id?: string;
   color: string;
   photo: string;
   quantity?: number;
@@ -7,6 +8,7 @@ export interface ProductColor {
 }
 
 export interface ProductType {
+  _id?: string;
   type: string;
   quantity: number;
   maxTension?: string;
@@ -15,6 +17,7 @@ export interface ProductType {
 }
 
 export interface BaseProduct {
+  _id?: string;
   id: string;
   name: string;
   price: number;
@@ -38,17 +41,20 @@ export interface Bag extends BaseProduct {
 }
 
 export interface ShoeSize {
+  _id?: string;
   size: string;
   quantity: number;
 }
 
 export interface ShoeColor {
+  _id?: string;
   color: string;
   photo: string;
   types: ShoeSize[];
 }
 
-export interface Shoe extends Document {
+export interface Shoe {
+  _id?: string;
   id: string;
   name: string;
   price: number;

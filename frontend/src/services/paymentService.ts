@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getConfig } from '@/config';
 
 const baseUrl = 'http://localhost:3000/payments';
 
