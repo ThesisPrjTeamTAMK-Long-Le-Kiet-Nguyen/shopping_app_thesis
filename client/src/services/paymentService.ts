@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = 'http://localhost:3000/api/payments';
+const baseUrl = '/api/payments';
 
 const paymentService = {
     createPaymentIntent: async (orderId: string) => {
@@ -27,4 +27,4 @@ const paymentService = {
     }
 };
 
-export default paymentService; 
+export default paymentService;

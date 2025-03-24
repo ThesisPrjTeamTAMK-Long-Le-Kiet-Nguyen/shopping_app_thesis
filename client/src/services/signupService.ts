@@ -2,7 +2,7 @@ import axios from 'axios';
 import { UserData, ApiResponse } from '../types';
 
 // Update the base URL to match our new backend structure
-const baseUrl = 'http://localhost:3000/api/users';
+const baseUrl = '/api/users';
 
 interface SignupResponse {
   id: string;

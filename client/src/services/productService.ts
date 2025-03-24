@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { 
+import {
   Racket, Bag, Shoe, Stringing, Grip, Shuttlecock,
   ApiResponse, AllProducts
 } from '../types';
 
-const baseUrl = 'http://localhost:3000/api/products';
+const baseUrl = '/api/products';
 
 // Fetch all products
 export async function fetchData(): Promise<ApiResponse<AllProducts>> {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { CartItem, ApiResponse, Cart } from '../types';
 
-const baseUrl = 'http://localhost:3000/api/carts';
+const baseUrl = '/api/carts';
 
 // Function to get the token from localStorage
 const getToken = (): string | null => {
@@ -73,10 +73,10 @@ export async function clearCart(): Promise<ApiResponse<void>> {
   }
 }
 
-export default { 
-  addToCart, 
-  getCart, 
+export default {
+  addToCart,
+  getCart,
   removeFromCart,
   updateCartItemQuantity,
-  clearCart 
-}; 
+  clearCart
+};

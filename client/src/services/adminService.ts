@@ -4,7 +4,7 @@ import {
   ApiResponse, ColorAddRequest, TypeAddRequest, ShoeRequest
 } from '../types';
 
-const baseUrl = 'http://localhost:3000/api/products';
+const baseUrl = '/api/products';
 
 // Function to get the token from localStorage
 const getToken = (): string | null => {
