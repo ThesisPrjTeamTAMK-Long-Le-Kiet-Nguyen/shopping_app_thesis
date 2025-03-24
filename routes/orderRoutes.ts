@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { 
-    createOrder, 
-    getAllOrders, 
-    getUserOrders, 
-    getOrderById, 
-    updateOrderStatus, 
-    updatePaymentStatus, 
+import {
+    createOrder,
+    getAllOrders,
+    getUserOrders,
+    getOrderById,
+    updateOrderStatus,
+    updatePaymentStatus,
     cancelOrder,
-    deleteOrder 
+    deleteOrder
 } from '../controllers/order';
 import { authenticateUser, isAdmin } from '../utils/authenticate';
 

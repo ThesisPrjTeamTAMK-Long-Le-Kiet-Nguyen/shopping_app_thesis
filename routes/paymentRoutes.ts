@@ -10,4 +10,4 @@ router.post('/create-payment-intent', authenticateUser, createPaymentIntent);
 // Webhook endpoint (no authentication needed, Stripe handles security)
 router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
-export default router; 
+export default router;

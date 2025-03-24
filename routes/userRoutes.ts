@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { 
-    registerUser, 
-    getUserProfile, 
-    updateUserProfile, 
-    deleteUserAccount 
+import {
+    registerUser,
+    getUserProfile,
+    updateUserProfile,
+    deleteUserAccount
 } from '../controllers/user';
 import { authenticateUser } from '../utils/authenticate';
 

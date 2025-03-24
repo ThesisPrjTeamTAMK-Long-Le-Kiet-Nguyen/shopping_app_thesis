@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { 
-    addToCart, 
-    getCart, 
+import {
+    addToCart,
+    getCart,
     removeFromCart,
     updateCartItemQuantity,
-    clearCart 
+    clearCart
 } from '../controllers/cart';
 import { authenticateUser } from '../utils/authenticate';
 

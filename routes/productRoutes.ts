@@ -1,6 +1,6 @@
 // backend/src/routes/productRoutes.js
 import { Router } from 'express';
-import { 
+import {
     getAllProducts,
     deleteProduct,
     deleteProductType,

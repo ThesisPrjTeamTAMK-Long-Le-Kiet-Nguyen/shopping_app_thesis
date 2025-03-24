@@ -16,9 +16,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Install main dependencies
+      - name: Install server dependencies
         run: npm install
-      - name: Install frontend dependencies
+      - name: Install client dependencies
         run: |
-          cd frontend
+          cd client
           npm install
