@@ -4,7 +4,7 @@ import {
   ApiResponse, AllProducts
 } from '../types';
 
-const baseUrl = 'http://localhost:3000/products';
+const baseUrl = 'http://localhost:3000/api/products';
 
 // Fetch all products
 export async function fetchData(): Promise<ApiResponse<AllProducts>> {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { CartItem, ApiResponse, Cart } from '../types';
 
-const baseUrl = 'http://localhost:3000/carts';
+const baseUrl = 'http://localhost:3000/api/carts';
 
 // Function to get the token from localStorage
 const getToken = (): string | null => {
