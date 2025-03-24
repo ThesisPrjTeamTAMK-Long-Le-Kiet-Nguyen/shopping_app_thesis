@@ -9,87 +9,136 @@ import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
 import { Bag, Color, CartItem } from '../../../types'
+import LoaderUI from '@/components/LoaderUI'
 
 const BagDetails = () => {
   const { id } = useParams<{ id: string }>()
   const [bag, setBag] = useState<Bag | null>(null)
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
-        if (!id) return
-        const response = await fetchProductById('bags', id)
+        setIsLoading(true);
+        setError(null);
+
+        if (!id) {
+          setError('Invalid bag ID');
+          return;
+        }
+
+        const response = await fetchProductById('bags', id);
+        if (!isMounted) return;
+
         if (response.success && response.data) {
-          const bagData = response.data as Bag
-          setBag(bagData)
+          const bagData = response.data as Bag;
+          setBag(bagData);
           if (bagData.colors.length > 0) {
-            setSelectedColor(bagData.colors[0])
+            setSelectedColor(bagData.colors[0]);
           }
+        } else {
+          setError('Failed to load bag details');
+          toast.error('Failed to load bag details');
         }
       } catch (error) {
-        console.error('Error fetching bag details:', error)
-        toast.error('Failed to load bag details')
+        console.error('Error fetching bag details:', error);
+        if (isMounted) {
+          setError('Failed to load bag details. Please try again later.');
+          toast.error('Failed to load bag details');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    }
+    };
 
-    fetchData()
-  }, [id])
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   const handleColorChange = (color: Color) => {
-    setSelectedColor(color)
-  }
+    setSelectedColor(color);
+  };
 
   const handleAddToCart = async () => {
     const hasStock = (color: Color): boolean => {
-      return typeof color.quantity === 'number' && color.quantity > 0
-    }
+      return typeof color.quantity === 'number' && color.quantity > 0;
+    };
 
-    if (!bag || !selectedColor || !hasStock(selectedColor)) return
+    if (!bag || !selectedColor || !hasStock(selectedColor)) return;
 
     const confirmAdd = window.confirm(
       `Are you sure you want to add this item to your cart?\n\n` +
       `${bag.name}\n` +
       `Color: ${selectedColor.color}\n` +
       `Price: $${bag.price}`
-    )
+    );
 
     if (confirmAdd) {
       try {
-        setIsAddingToCart(true)
+        setIsAddingToCart(true);
         const itemToAdd: CartItem = {
           id: bag.id,
           name: bag.name,
           price: bag.price,
           color: selectedColor.color,
           quantity: 1
-        }
+        };
 
-        const response = await cartService.addToCart(itemToAdd)
+        const response = await cartService.addToCart(itemToAdd);
         if (response.success) {
           toast.success('Added to shopping cart', {
             description: `${bag.name} - ${selectedColor.color}`,
             duration: 3000,
-          })
+          });
+        } else {
+          toast.error('Failed to add item to cart', {
+            description: 'Please try again later',
+          });
         }
       } catch (error) {
-        console.error('Failed to add item to cart:', error)
+        console.error('Failed to add item to cart:', error);
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
-        })
+        });
       } finally {
-        setIsAddingToCart(false)
+        setIsAddingToCart(false);
       }
     }
+  };
+
+  if (isLoading) {
+    return <LoaderUI />;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center space-y-4">
+          <p className="text-red-500">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
   }
 
   if (!bag) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-muted-foreground">Loading bag details...</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Bag not found</p>
+        </div>
       </div>
-    )
+    );
   }
 
   return (

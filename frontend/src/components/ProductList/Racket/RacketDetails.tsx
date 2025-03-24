@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner'
 import { ShoppingCart } from 'lucide-react'
 import { Racket, Color, Type, CartItem } from '../../../types'
+import LoaderUI from '@/components/LoaderUI'
 
 const RacketDetails = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,43 +17,70 @@ const RacketDetails = () => {
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
   const [selectedType, setSelectedType] = useState<Type | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
-        if (!id) return
-        const response = await fetchProductById('rackets', id)
+        setIsLoading(true);
+        setError(null);
+
+        if (!id) {
+          setError('Invalid racket ID');
+          return;
+        }
+
+        const response = await fetchProductById('rackets', id);
+        if (!isMounted) return;
+
         if (response.success && response.data) {
-          const racketData = response.data as Racket
-          setRacket(racketData)
+          const racketData = response.data as Racket;
+          setRacket(racketData);
           if (racketData.colors.length > 0) {
-            const defaultColor = racketData.colors[0]
-            setSelectedColor(defaultColor)
-            const defaultType = defaultColor.types?.find(type => type.type === "4ug5") || defaultColor.types?.[0]
-            setSelectedType(defaultType || null)
+            const defaultColor = racketData.colors[0];
+            setSelectedColor(defaultColor);
+            const defaultType = defaultColor.types?.find(type => type.type === "4ug5") || defaultColor.types?.[0];
+            setSelectedType(defaultType || null);
           }
+        } else {
+          setError('Failed to load racket details');
+          toast.error('Failed to load racket details');
         }
       } catch (error) {
-        console.error('Error fetching racket details:', error)
-        toast.error('Failed to load racket details')
+        console.error('Error fetching racket details:', error);
+        if (isMounted) {
+          setError('Failed to load racket details. Please try again later.');
+          toast.error('Failed to load racket details');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    }
+    };
 
-    fetchData()
-  }, [id])
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   const handleColorChange = (color: Color) => {
-    setSelectedColor(color)
-    const defaultType = color.types?.find(type => type.type === "4ug5") || color.types?.[0]
-    setSelectedType(defaultType || null)
-  }
+    setSelectedColor(color);
+    const defaultType = color.types?.find(type => type.type === "4ug5") || color.types?.[0];
+    setSelectedType(defaultType || null);
+  };
 
   const handleTypeChange = (type: Type) => {
-    setSelectedType(type)
-  }
+    setSelectedType(type);
+  };
 
   const handleAddToCart = async () => {
-    if (!racket || !selectedColor || !selectedType || selectedType.quantity <= 0) return
+    if (!racket || !selectedColor || !selectedType || selectedType.quantity <= 0) return;
 
     const confirmAdd = window.confirm(
       `Are you sure you want to add this item to your cart?\n\n` +
@@ -60,11 +88,11 @@ const RacketDetails = () => {
       `Color: ${selectedColor.color}\n` +
       `Type: ${selectedType.type}\n` +
       `Price: $${racket.price}`
-    )
+    );
 
     if (confirmAdd) {
       try {
-        setIsAddingToCart(true)
+        setIsAddingToCart(true);
         const itemToAdd: CartItem = {
           id: racket.id,
           name: racket.name,
@@ -72,37 +100,58 @@ const RacketDetails = () => {
           color: selectedColor.color,
           type: selectedType.type,
           quantity: 1
-        }
+        };
 
-        const response = await cartService.addToCart(itemToAdd)
+        const response = await cartService.addToCart(itemToAdd);
         if (response.success) {
           toast.success('Added to shopping cart', {
             description: `${racket.name} - ${selectedColor.color} (${selectedType.type})`,
             duration: 3000,
-          })
+          });
+        } else {
+          toast.error('Failed to add item to cart', {
+            description: 'Please try again later',
+          });
         }
       } catch (error) {
-        console.error('Failed to add item to cart:', error)
+        console.error('Failed to add item to cart:', error);
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
-        })
+        });
       } finally {
-        setIsAddingToCart(false)
+        setIsAddingToCart(false);
       }
     }
-  }
+  };
 
   // Add type guard function
   const hasTypes = (color: Color): color is Color & { types: Type[] } => {
-    return Array.isArray(color.types) && color.types.length > 0
+    return Array.isArray(color.types) && color.types.length > 0;
+  };
+
+  if (isLoading) {
+    return <LoaderUI />;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center space-y-4">
+          <p className="text-red-500">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
   }
 
   if (!racket) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-muted-foreground">Loading racket details...</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Racket not found</p>
+        </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -245,7 +294,7 @@ const RacketDetails = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default RacketDetails
+export default RacketDetails;
