@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { fetchBags } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,12 +8,7 @@ import { toast } from 'sonner'
 import { Button } from "@/components/ui/button"
 import LoaderUI from '@/components/LoaderUI'
 
-type BagType = 'Backpack' | 'Rectangular Racket Bag' | '6-Piece Racket Bag' | '9-Piece Racket Bag';
-
-interface GroupedBags {
-  [type: string]: Bag[]
-}
-
+// Move constants outside component
 const BAG_TYPE_INFO = {
   'Backpack': {
     title: 'Badminton Backpacks',
@@ -36,6 +31,12 @@ const BAG_TYPE_INFO = {
     icon: '🎯'
   }
 } as const;
+
+type BagType = keyof typeof BAG_TYPE_INFO;
+
+interface GroupedBags {
+  [type: string]: Bag[]
+}
 
 const BagList = () => {
   const [bags, setBags] = useState<Bag[] | null>(null);
@@ -79,7 +80,9 @@ const BagList = () => {
     };
   }, []);
 
-  const groupBagsByType = (bags: Bag[]): GroupedBags => {
+  // Memoize grouped bags to prevent unnecessary recalculations
+  const groupedBags = useMemo(() => {
+    if (!bags) return {};
     return bags.reduce((acc, bag) => {
       const type = bag.type as BagType;
       if (!acc[type]) {
@@ -88,14 +91,39 @@ const BagList = () => {
       acc[type].push(bag);
       return acc;
     }, {} as GroupedBags);
-  };
+  }, [bags]);
 
-  const groupedBags = bags ? groupBagsByType(bags) : {};
+  // Memoize bag card component to prevent unnecessary re-renders
+  const BagCard = ({ bag }: { bag: Bag }) => (
+    <Link
+      to={`/bags/${bag.id}`}
+      className="no-underline group"
+    >
+      <Card className="hover:shadow-lg transition-all duration-300 group-hover:border-primary h-full">
+        <CardHeader className="p-4">
+          <div className="overflow-hidden rounded-md">
+            <img
+              src={bag.colors[0].photo}
+              alt={bag.name}
+              className="w-full h-48 object-contain rounded-md group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors">
+            {bag.name}
+          </CardTitle>
+          <div className="flex justify-between items-center">
+            <p className="text-primary font-semibold">€{bag.price}</p>
+            <p className="text-sm text-muted-foreground">{bag.brand}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
 
-  if (isLoading) {
-    return <LoaderUI />;
-  }
-
+  if (isLoading) return <LoaderUI />;
   if (error) {
     return (
       <div className="p-6">
@@ -139,32 +167,7 @@ const BagList = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {bags.map((bag) => (
-                <Link
-                  key={bag.id}
-                  to={`/bags/${bag.id}`}
-                  className="no-underline group"
-                >
-                  <Card className="hover:shadow-lg transition-all duration-300 group-hover:border-primary h-full">
-                    <CardHeader className="p-4">
-                      <div className="overflow-hidden rounded-md">
-                        <img
-                          src={bag.colors[0].photo}
-                          alt={bag.name}
-                          className="w-full h-48 object-contain rounded-md group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors">
-                        {bag.name}
-                      </CardTitle>
-                      <div className="flex justify-between items-center">
-                        <p className="text-primary font-semibold">€{bag.price}</p>
-                        <p className="text-sm text-muted-foreground">{bag.brand}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <BagCard key={bag.id} bag={bag} />
               ))}
             </div>
             <Separator className="mt-8" />

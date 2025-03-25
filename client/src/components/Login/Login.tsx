@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import loginService from '../../services/loginService';
 import { useAuth } from '../../context/AuthContext';
+import type { UserRole } from '../../types/auth';
 
 // Define the form schema
 const loginSchema = z.object({
@@ -25,7 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const navigate = useNavigate();
-  const { updateAuth } = useAuth();
+  const { login } = useAuth();
 
   // Initialize form
   const form = useForm<LoginFormValues>({
@@ -38,17 +38,10 @@ const Login = () => {
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      const response = await loginService.login(values);
+      const response = await login(values.email, values.password);
 
-      if (response.success && response.data) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('email', response.data.email);
-        localStorage.setItem('role', response.data.role);
-
-        // Update auth context
-        updateAuth(response.data.token, response.data.email, response.data.role);
-
-        if (response.data.role === 'admin') {
+      if (response.success) {
+        if (response.data.role === 'admin' as UserRole) {
           navigate('/seller');
         } else {
           navigate('/');

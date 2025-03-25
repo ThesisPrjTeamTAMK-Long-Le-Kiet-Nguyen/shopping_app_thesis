@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchProductById } from '../../../services/productService'
 import cartService from '../../../services/cartService'
 import { Card, CardContent } from "@/components/ui/card"
@@ -20,67 +20,59 @@ const RacketDetails = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let isMounted = true;
+  // Memoize fetch function
+  const fetchRacketDetails = useCallback(async () => {
+    if (!id) {
+      setError('Invalid racket ID');
+      return;
+    }
 
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        if (!id) {
-          setError('Invalid racket ID');
-          return;
+      const response = await fetchProductById('rackets', id);
+      if (response.success && response.data) {
+        const racketData = response.data as Racket;
+        setRacket(racketData);
+        if (racketData.colors.length > 0) {
+          const defaultColor = racketData.colors[0];
+          setSelectedColor(defaultColor);
+          const defaultType = defaultColor.types?.find(type => type.type === "4ug5") || defaultColor.types?.[0];
+          setSelectedType(defaultType || null);
         }
-
-        const response = await fetchProductById('rackets', id);
-        if (!isMounted) return;
-
-        if (response.success && response.data) {
-          const racketData = response.data as Racket;
-          setRacket(racketData);
-          if (racketData.colors.length > 0) {
-            const defaultColor = racketData.colors[0];
-            setSelectedColor(defaultColor);
-            const defaultType = defaultColor.types?.find(type => type.type === "4ug5") || defaultColor.types?.[0];
-            setSelectedType(defaultType || null);
-          }
-        } else {
-          setError('Failed to load racket details');
-          toast.error('Failed to load racket details');
-        }
-      } catch (error) {
-        console.error('Error fetching racket details:', error);
-        if (isMounted) {
-          setError('Failed to load racket details. Please try again later.');
-          toast.error('Failed to load racket details');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+      } else {
+        setError('Failed to load racket details');
+        toast.error('Failed to load racket details');
       }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
+    } catch (error) {
+      console.error('Error fetching racket details:', error);
+      setError('Failed to load racket details. Please try again later.');
+      toast.error('Failed to load racket details');
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
 
-  const handleColorChange = (color: Color) => {
+  useEffect(() => {
+    fetchRacketDetails();
+  }, [fetchRacketDetails]);
+
+  // Memoize color selection handler
+  const handleColorChange = useCallback((color: Color) => {
     setSelectedColor(color);
     const defaultType = color.types?.find(type => type.type === "4ug5") || color.types?.[0];
     setSelectedType(defaultType || null);
-  };
+  }, []);
 
-  const handleTypeChange = (type: Type) => {
+  // Memoize type selection handler
+  const handleTypeChange = useCallback((type: Type) => {
     setSelectedType(type);
-  };
+  }, []);
 
-  const handleAddToCart = async () => {
-    if (!racket || !selectedColor || !selectedType || selectedType.quantity <= 0) return;
+  // Memoize add to cart handler
+  const handleAddToCart = useCallback(async () => {
+    if (!racket || !selectedColor || !selectedType || (selectedType.quantity ?? 0) <= 0) return;
 
     const confirmAdd = window.confirm(
       `Are you sure you want to add this item to your cart?\n\n` +
@@ -90,55 +82,97 @@ const RacketDetails = () => {
       `Price: $${racket.price}`
     );
 
-    if (confirmAdd) {
-      try {
-        setIsAddingToCart(true);
-        const itemToAdd: CartItem = {
-          id: racket.id,
-          name: racket.name,
-          price: racket.price,
-          color: selectedColor.color,
-          type: selectedType.type,
-          quantity: 1
-        };
+    if (!confirmAdd) return;
 
-        const response = await cartService.addToCart(itemToAdd);
-        if (response.success) {
-          toast.success('Added to shopping cart', {
-            description: `${racket.name} - ${selectedColor.color} (${selectedType.type})`,
-            duration: 3000,
-          });
-        } else {
-          toast.error('Failed to add item to cart', {
-            description: 'Please try again later',
-          });
-        }
-      } catch (error) {
-        console.error('Failed to add item to cart:', error);
+    try {
+      setIsAddingToCart(true);
+      const itemToAdd: CartItem = {
+        id: racket.id,
+        name: racket.name,
+        price: racket.price,
+        color: selectedColor.color,
+        type: selectedType.type,
+        quantity: 1
+      };
+
+      const response = await cartService.addToCart(itemToAdd);
+      if (response.success) {
+        toast.success('Added to shopping cart', {
+          description: `${racket.name} - ${selectedColor.color} (${selectedType.type})`,
+          duration: 3000,
+        });
+      } else {
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
         });
-      } finally {
-        setIsAddingToCart(false);
       }
+    } catch (error) {
+      console.error('Failed to add item to cart:', error);
+      toast.error('Failed to add item to cart', {
+        description: 'Please try again later',
+      });
+    } finally {
+      setIsAddingToCart(false);
     }
-  };
+  }, [racket, selectedColor, selectedType]);
 
-  // Add type guard function
-  const hasTypes = (color: Color): color is Color & { types: Type[] } => {
+  // Type guard function
+  const hasTypes = useCallback((color: Color): color is Color & { types: Type[] } => {
     return Array.isArray(color.types) && color.types.length > 0;
-  };
+  }, []);
 
-  if (isLoading) {
-    return <LoaderUI />;
-  }
+  // Memoize color buttons
+  const colorButtons = useMemo(() => {
+    if (!racket) return [];
+    return racket.colors.map((colorInfo, index) => (
+      <Button
+        key={index}
+        variant={selectedColor === colorInfo ? "default" : "outline"}
+        onClick={() => handleColorChange(colorInfo)}
+        disabled={!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)}
+        className={`
+          relative px-4 py-2 min-w-[80px]
+          ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+          ${!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0) ? 'opacity-50' : ''}
+        `}
+      >
+        {colorInfo.color}
+      </Button>
+    ));
+  }, [racket, selectedColor, handleColorChange, hasTypes]);
 
+  // Memoize type buttons
+  const typeButtons = useMemo(() => {
+    if (!selectedColor || !hasTypes(selectedColor)) return [];
+    return selectedColor.types.map((typeInfo, index) => (
+      <Button
+        key={index}
+        variant={selectedType === typeInfo ? "default" : "outline"}
+        onClick={() => handleTypeChange(typeInfo)}
+        disabled={typeInfo.quantity === 0}
+        className={`
+          relative px-4 py-2 min-w-[80px]
+          ${selectedType === typeInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+          ${typeInfo.quantity === 0 ? 'opacity-50' : ''}
+        `}
+      >
+        <span>{typeInfo.type}</span>
+        {typeInfo.quantity === 0 && (
+          <Badge variant="outline" className="absolute -top-2 -right-2">
+            Sold out
+          </Badge>
+        )}
+      </Button>
+    ));
+  }, [selectedColor, selectedType, handleTypeChange, hasTypes]);
+
+  if (isLoading) return <LoaderUI />;
   if (error) {
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="text-center space-y-4">
           <p className="text-red-500">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={fetchRacketDetails}>Try Again</Button>
         </div>
       </div>
     );
@@ -165,6 +199,7 @@ const RacketDetails = () => {
                 src={selectedColor?.photo}
                 alt={`${racket.name} in ${selectedColor?.color}`}
                 className="w-full max-w-md rounded-lg object-contain"
+                loading="lazy"
               />
             </div>
 
@@ -181,21 +216,7 @@ const RacketDetails = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Select Color</h3>
                 <div className="flex flex-wrap gap-2">
-                  {racket.colors.map((colorInfo, index) => (
-                    <Button
-                      key={index}
-                      variant={selectedColor === colorInfo ? "default" : "outline"}
-                      onClick={() => handleColorChange(colorInfo)}
-                      disabled={!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)}
-                      className={`
-                        relative px-4 py-2 min-w-[80px]
-                        ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                        ${!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0) ? 'opacity-50' : ''}
-                      `}
-                    >
-                      {colorInfo.color}
-                    </Button>
-                  ))}
+                  {colorButtons}
                 </div>
               </div>
 
@@ -204,26 +225,7 @@ const RacketDetails = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Select Type</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedColor.types.map((typeInfo, index) => (
-                      <Button
-                        key={index}
-                        variant={selectedType === typeInfo ? "default" : "outline"}
-                        onClick={() => handleTypeChange(typeInfo)}
-                        disabled={typeInfo.quantity === 0}
-                        className={`
-                          relative px-4 py-2 min-w-[80px]
-                          ${selectedType === typeInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                          ${typeInfo.quantity === 0 ? 'opacity-50' : ''}
-                        `}
-                      >
-                        <span>{typeInfo.type}</span>
-                        {typeInfo.quantity === 0 && (
-                          <Badge variant="outline" className="absolute -top-2 -right-2">
-                            Sold out
-                          </Badge>
-                        )}
-                      </Button>
-                    ))}
+                    {typeButtons}
                   </div>
                   <Badge
                     variant={selectedColor.types.every(type => type.quantity === 0) ? "destructive" : "secondary"}
@@ -242,16 +244,12 @@ const RacketDetails = () => {
                   shadow-md hover:shadow-lg"
                 size="lg"
                 onClick={handleAddToCart}
-                disabled={!selectedType || selectedType.quantity === 0 || isAddingToCart}
+                disabled={!selectedType || (selectedType.quantity ?? 0) === 0 || isAddingToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {isAddingToCart ? (
-                  'Adding to Cart...'
-                ) : !selectedType || selectedType.quantity === 0 ? (
-                  'Out of Stock'
-                ) : (
-                  'Add to Shopping Cart'
-                )}
+                {isAddingToCart ? 'Adding to Cart...' : 
+                 !selectedType || (selectedType.quantity ?? 0) === 0 ? 'Out of Stock' : 
+                 'Add to Shopping Cart'}
               </Button>
             </div>
 

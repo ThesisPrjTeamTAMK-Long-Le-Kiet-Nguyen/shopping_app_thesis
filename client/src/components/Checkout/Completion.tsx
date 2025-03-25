@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import cartService from '@/services/cartService';
 
@@ -10,27 +10,54 @@ interface LocationState {
   orderNumber: string;
 }
 
+// Memoized OrderNumber component
+const OrderNumber = ({ orderNumber }: { orderNumber: string }) => (
+  <div className="bg-muted p-6 rounded-lg">
+    <div className="flex justify-between">
+      <span className="font-medium">Order Number:</span>
+      <span className="font-semibold">#{orderNumber}</span>
+    </div>
+  </div>
+);
+
+// Memoized OrderInfo component
+const OrderInfo = () => (
+  <div className="space-y-4">
+    <p className="text-base text-muted-foreground">
+      Your order will be processing, check "your order" to see the order status.
+    </p>
+    <p className="text-sm text-muted-foreground">
+      Contact us through email or phone if needed.
+    </p>
+  </div>
+);
+
 const Completion = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const orderNumber = (location.state as LocationState)?.orderNumber || 'N/A';
+  const orderNumber = useMemo(() => 
+    (location.state as LocationState)?.orderNumber || 'N/A',
+    [location.state]
+  );
 
-  useEffect(() => {
-    // Clear cart after successful order
-    const clearCart = async () => {
-      try {
-        await cartService.clearCart();
-      } catch (error) {
-        console.error('Failed to clear cart:', error);
-        toast.error('Failed to clear cart');
-      }
-    };
-    clearCart();
+  // Memoize clear cart function
+  const clearCart = useCallback(async () => {
+    try {
+      await cartService.clearCart();
+    } catch (error) {
+      console.error('Failed to clear cart:', error);
+      toast.error('Failed to clear cart');
+    }
   }, []);
 
-  const handleContinueShopping = () => {
+  useEffect(() => {
+    clearCart();
+  }, [clearCart]);
+
+  // Memoize navigation handler
+  const handleContinueShopping = useCallback(() => {
     navigate('/');
-  };
+  }, [navigate]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -46,27 +73,15 @@ const Completion = () => {
               Your order has been successfully placed
             </p>
 
-            <div className="bg-muted p-6 rounded-lg">
-              <div className="flex justify-between">
-                <span className="font-medium">Order Number:</span>
-                <span className="font-semibold">#{orderNumber}</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-base text-muted-foreground">
-                Your order will be processing, check "your order" to see the order status.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Contact us through email or phone if needed.
-              </p>
-            </div>
+            <OrderNumber orderNumber={orderNumber} />
+            <OrderInfo />
 
             <Button 
               onClick={handleContinueShopping}
               className="mt-6"
               size="lg"
             >
+              <ShoppingBag className="w-4 h-4 mr-2" />
               Continue Shopping
             </Button>
           </div>

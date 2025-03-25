@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchProductById } from '../../../services/productService'
 import cartService from '../../../services/cartService'
 import { Card, CardContent } from "@/components/ui/card"
@@ -20,77 +20,71 @@ const ShuttlecockDetails = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let isMounted = true
+  // Memoize fetch function
+  const fetchShuttlecockDetails = useCallback(async () => {
+    if (!id) {
+      setError('Invalid shuttlecock ID');
+      return;
+    }
 
-    const fetchData = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        if (!id) {
-          setError('Invalid shuttlecock ID')
-          return
-        }
-
-        const response = await fetchProductById('shuttlecocks', id)
-        if (!isMounted) return
-
-        if (response.success && response.data) {
-          const shuttlecockData = response.data as Shuttlecock
-          setShuttlecock(shuttlecockData)
-          if (shuttlecockData.colors.length > 0) {
-            const defaultColor = shuttlecockData.colors[0]
-            setSelectedColor(defaultColor)
-            if (defaultColor.types && defaultColor.types.length > 0) {
-              setSelectedType(defaultColor.types[0])
-            }
+      const response = await fetchProductById('shuttlecocks', id);
+      if (response.success && response.data) {
+        const shuttlecockData = response.data as Shuttlecock;
+        setShuttlecock(shuttlecockData);
+        if (shuttlecockData.colors.length > 0) {
+          const defaultColor = shuttlecockData.colors[0];
+          setSelectedColor(defaultColor);
+          if (defaultColor.types && defaultColor.types.length > 0) {
+            setSelectedType(defaultColor.types[0]);
           }
-        } else {
-          setError('Failed to load shuttlecock details')
-          toast.error('Failed to load shuttlecock details')
         }
-      } catch (error) {
-        console.error('Error fetching shuttlecock details:', error)
-        if (isMounted) {
-          setError('Failed to load shuttlecock details. Please try again later.')
-          toast.error('Failed to load shuttlecock details')
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
+      } else {
+        setError('Failed to load shuttlecock details');
+        toast.error('Failed to load shuttlecock details');
       }
+    } catch (error) {
+      console.error('Error fetching shuttlecock details:', error);
+      setError('Failed to load shuttlecock details. Please try again later.');
+      toast.error('Failed to load shuttlecock details');
+    } finally {
+      setIsLoading(false);
     }
+  }, [id]);
 
-    fetchData()
+  useEffect(() => {
+    fetchShuttlecockDetails();
+  }, [fetchShuttlecockDetails]);
 
-    return () => {
-      isMounted = false
-    }
-  }, [id])
-
-  const handleColorChange = (color: Color) => {
-    setSelectedColor(color)
+  // Memoize color selection handler
+  const handleColorChange = useCallback((color: Color) => {
+    setSelectedColor(color);
     if (color.types && color.types.length > 0) {
-      setSelectedType(color.types[0])
+      setSelectedType(color.types[0]);
     }
-  }
+  }, []);
 
-  const handleTypeChange = (type: Type) => {
-    setSelectedType(type)
-  }
+  // Memoize type selection handler
+  const handleTypeChange = useCallback((type: Type) => {
+    setSelectedType(type);
+  }, []);
 
-  const hasTypes = (color: Color): color is Color & { types: Type[] } => {
-    return Array.isArray(color.types) && color.types.length > 0
-  }
+  // Type guard function
+  const hasTypes = useCallback((color: Color): color is Color & { types: Type[] } => {
+    return Array.isArray(color.types) && color.types.length > 0;
+  }, []);
 
-  const hasStock = (type: Type): boolean => {
-    return typeof type.quantity === 'number' && type.quantity > 0
-  }
+  // Stock check function
+  const hasStock = useCallback((type: Type): boolean => {
+    return typeof type.quantity === 'number' && type.quantity > 0;
+  }, []);
 
-  const handleAddToCart = async () => {
-    if (!shuttlecock || !selectedColor || !selectedType || !hasStock(selectedType)) return
+  // Memoize add to cart handler
+  const handleAddToCart = useCallback(async () => {
+    if (!shuttlecock || !selectedColor || !selectedType || !hasStock(selectedType)) return;
 
     const confirmAdd = window.confirm(
       `Are you sure you want to add this item to your cart?\n\n` +
@@ -98,55 +92,102 @@ const ShuttlecockDetails = () => {
       `Color: ${selectedColor.color}\n` +
       `Type: ${selectedType.type}\n` +
       `Price: $${shuttlecock.price}`
-    )
+    );
 
-    if (confirmAdd) {
-      try {
-        setIsAddingToCart(true)
-        const itemToAdd: CartItem = {
-          id: shuttlecock.id,
-          name: shuttlecock.name,
-          price: shuttlecock.price,
-          color: selectedColor.color,
-          type: selectedType.type,
-          quantity: 1
-        }
+    if (!confirmAdd) return;
 
-        const response = await cartService.addToCart(itemToAdd)
-        if (response.success) {
-          toast.success('Added to shopping cart', {
-            description: `${shuttlecock.name} - ${selectedColor.color} (${selectedType.type})`,
-            duration: 3000,
-          })
-        } else {
-          toast.error('Failed to add item to cart', {
-            description: 'Please try again later',
-          })
-        }
-      } catch (error) {
-        console.error('Failed to add item to cart:', error)
+    try {
+      setIsAddingToCart(true);
+      const itemToAdd: CartItem = {
+        id: shuttlecock.id,
+        name: shuttlecock.name,
+        price: shuttlecock.price,
+        color: selectedColor.color,
+        type: selectedType.type,
+        quantity: 1
+      };
+
+      const response = await cartService.addToCart(itemToAdd);
+      if (response.success) {
+        toast.success('Added to shopping cart', {
+          description: `${shuttlecock.name} - ${selectedColor.color} (${selectedType.type})`,
+          duration: 3000,
+        });
+      } else {
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
-        })
-      } finally {
-        setIsAddingToCart(false)
+        });
       }
+    } catch (error) {
+      console.error('Failed to add item to cart:', error);
+      toast.error('Failed to add item to cart', {
+        description: 'Please try again later',
+      });
+    } finally {
+      setIsAddingToCart(false);
     }
-  }
+  }, [shuttlecock, selectedColor, selectedType, hasStock]);
 
-  if (isLoading) {
-    return <LoaderUI />
-  }
+  // Memoize color buttons
+  const colorButtons = useMemo(() => {
+    if (!shuttlecock) return [];
+    return shuttlecock.colors.map((colorInfo, index) => (
+      <Button
+        key={index}
+        variant={selectedColor === colorInfo ? "default" : "outline"}
+        onClick={() => handleColorChange(colorInfo)}
+        disabled={!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)}
+        className={`
+          relative px-4 py-2 min-w-[80px]
+          ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+          ${!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0) ? 'opacity-50' : ''}
+        `}
+      >
+        {colorInfo.color}
+        {(!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)) && (
+          <Badge variant="outline" className="absolute -top-2 -right-2">
+            Sold out
+          </Badge>
+        )}
+      </Button>
+    ));
+  }, [shuttlecock, selectedColor, handleColorChange, hasTypes]);
 
+  // Memoize type buttons
+  const typeButtons = useMemo(() => {
+    if (!selectedColor || !hasTypes(selectedColor)) return [];
+    return selectedColor.types.map((typeInfo, index) => (
+      <Button
+        key={index}
+        variant={selectedType === typeInfo ? "default" : "outline"}
+        onClick={() => handleTypeChange(typeInfo)}
+        disabled={!hasStock(typeInfo)}
+        className={`
+          relative px-4 py-2 min-w-[80px]
+          ${selectedType === typeInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+          ${!hasStock(typeInfo) ? 'opacity-50' : ''}
+        `}
+      >
+        {typeInfo.type}
+        {!hasStock(typeInfo) && (
+          <Badge variant="outline" className="absolute -top-2 -right-2">
+            Sold out
+          </Badge>
+        )}
+      </Button>
+    ));
+  }, [selectedColor, selectedType, handleTypeChange, hasTypes, hasStock]);
+
+  if (isLoading) return <LoaderUI />;
   if (error) {
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="text-center space-y-4">
           <p className="text-red-500">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={fetchShuttlecockDetails}>Try Again</Button>
         </div>
       </div>
-    )
+    );
   }
 
   if (!shuttlecock) {
@@ -156,7 +197,7 @@ const ShuttlecockDetails = () => {
           <p className="text-muted-foreground">Shuttlecock not found</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -170,6 +211,7 @@ const ShuttlecockDetails = () => {
                 src={selectedColor?.photo}
                 alt={`${shuttlecock.name} in ${selectedColor?.color}`}
                 className="w-full max-w-md rounded-lg object-contain"
+                loading="lazy"
               />
             </div>
 
@@ -186,26 +228,7 @@ const ShuttlecockDetails = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Select Color</h3>
                 <div className="flex flex-wrap gap-2">
-                  {shuttlecock.colors.map((colorInfo, index) => (
-                    <Button
-                      key={index}
-                      variant={selectedColor === colorInfo ? "default" : "outline"}
-                      onClick={() => handleColorChange(colorInfo)}
-                      disabled={!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)}
-                      className={`
-                        relative px-4 py-2 min-w-[80px]
-                        ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                        ${!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0) ? 'opacity-50' : ''}
-                      `}
-                    >
-                      {colorInfo.color}
-                      {(!hasTypes(colorInfo) || colorInfo.types.every(type => type.quantity === 0)) && (
-                        <Badge variant="outline" className="absolute -top-2 -right-2">
-                          Sold out
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
+                  {colorButtons}
                 </div>
               </div>
 
@@ -214,26 +237,7 @@ const ShuttlecockDetails = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Select Type</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedColor.types.map((typeInfo, index) => (
-                      <Button
-                        key={index}
-                        variant={selectedType === typeInfo ? "default" : "outline"}
-                        onClick={() => handleTypeChange(typeInfo)}
-                        disabled={!hasStock(typeInfo)}
-                        className={`
-                          relative px-4 py-2 min-w-[80px]
-                          ${selectedType === typeInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                          ${!hasStock(typeInfo) ? 'opacity-50' : ''}
-                        `}
-                      >
-                        {typeInfo.type}
-                        {!hasStock(typeInfo) && (
-                          <Badge variant="outline" className="absolute -top-2 -right-2">
-                            Sold out
-                          </Badge>
-                        )}
-                      </Button>
-                    ))}
+                    {typeButtons}
                   </div>
                   <Badge
                     variant={selectedColor.types.every(type => !hasStock(type)) ? "destructive" : "secondary"}
@@ -255,13 +259,9 @@ const ShuttlecockDetails = () => {
                 disabled={!selectedColor || !selectedType || !hasStock(selectedType) || isAddingToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {isAddingToCart ? (
-                  'Adding to Cart...'
-                ) : !selectedColor || !selectedType || !hasStock(selectedType) ? (
-                  'Out of Stock'
-                ) : (
-                  'Add to Shopping Cart'
-                )}
+                {isAddingToCart ? 'Adding to Cart...' : 
+                 !selectedColor || !selectedType || !hasStock(selectedType) ? 'Out of Stock' : 
+                 'Add to Shopping Cart'}
               </Button>
             </div>
 
@@ -288,7 +288,7 @@ const ShuttlecockDetails = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ShuttlecockDetails
+export default ShuttlecockDetails;

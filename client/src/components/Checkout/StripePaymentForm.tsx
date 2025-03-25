@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,14 @@ interface StripePaymentFormProps {
 
 const stripePromise = loadStripe(config.STRIPE_PUBLISHABLE_KEY);
 
+// Memoized PaymentForm component
 const PaymentForm = ({ onCancel }: Omit<StripePaymentFormProps, 'orderId'>) => {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Memoize submit handler
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!stripe || !elements) {
@@ -44,7 +46,13 @@ const PaymentForm = ({ onCancel }: Omit<StripePaymentFormProps, 'orderId'>) => {
         } finally {
             setIsProcessing(false);
         }
-    };
+    }, [stripe, elements]);
+
+    // Memoize button disabled state
+    const isButtonDisabled = useMemo(() => 
+        !stripe || isProcessing,
+        [stripe, isProcessing]
+    );
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -60,7 +68,7 @@ const PaymentForm = ({ onCancel }: Omit<StripePaymentFormProps, 'orderId'>) => {
                 </Button>
                 <Button
                     type="submit"
-                    disabled={!stripe || isProcessing}
+                    disabled={isButtonDisabled}
                     className="flex-1"
                 >
                     {isProcessing ? 'Processing...' : 'Pay Now'}
@@ -70,43 +78,59 @@ const PaymentForm = ({ onCancel }: Omit<StripePaymentFormProps, 'orderId'>) => {
     );
 };
 
+// Memoized ErrorDisplay component
+const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
+    <div className="text-center space-y-4">
+        <p className="text-red-500">{error}</p>
+        <Button onClick={onRetry}>Try Again</Button>
+    </div>
+);
+
+// Memoized LoadingDisplay component
+const LoadingDisplay = () => (
+    <div className="text-center">
+        <p className="text-muted-foreground">Loading payment form...</p>
+    </div>
+);
+
 const StripePaymentForm = ({ orderId, onCancel }: StripePaymentFormProps) => {
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const initializePayment = async () => {
-            try {
-                const response = await paymentService.createPaymentIntent(orderId);
-                if (response.success && response.data) {
-                    setClientSecret(response.data.clientSecret);
-                } else {
-                    setError('Failed to initialize payment');
-                }
-            } catch (error) {
-                console.error('Payment initialization error:', error);
+    // Memoize payment initialization
+    const initializePayment = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const response = await paymentService.createPaymentIntent(orderId);
+            if (response.success && response.data) {
+                setClientSecret(response.data.clientSecret);
+            } else {
                 setError('Failed to initialize payment');
             }
-        };
-
-        initializePayment();
+        } catch (error) {
+            console.error('Payment initialization error:', error);
+            setError('Failed to initialize payment');
+        } finally {
+            setIsLoading(false);
+        }
     }, [orderId]);
 
+    useEffect(() => {
+        initializePayment();
+    }, [initializePayment]);
+
     if (error) {
-        return (
-            <div className="text-center space-y-4">
-                <p className="text-red-500">{error}</p>
-                <Button onClick={onCancel}>Try Again</Button>
-            </div>
-        );
+        return <ErrorDisplay error={error} onRetry={initializePayment} />;
+    }
+
+    if (isLoading) {
+        return <LoadingDisplay />;
     }
 
     if (!clientSecret) {
-        return (
-            <div className="text-center">
-                <p className="text-muted-foreground">Loading payment form...</p>
-            </div>
-        );
+        return <ErrorDisplay error="Payment initialization failed" onRetry={initializePayment} />;
     }
 
     return (

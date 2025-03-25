@@ -7,12 +7,12 @@ export interface User {
   createdAt: Date;
 }
 
-export interface LoginResponse {
+export interface AuthResponse {
   success: boolean;
   data: {
     email: string;
     token: string;
-    role: string;
+    role: UserRole;
   };
 }
 
@@ -23,4 +23,10 @@ export interface Credentials {
 
 export interface UserData extends Credentials {
   confirmPassword?: string;
+}
+
+export interface AuthState {
+  token: string | null;
+  email: string | null;
+  role: UserRole | null;
 }

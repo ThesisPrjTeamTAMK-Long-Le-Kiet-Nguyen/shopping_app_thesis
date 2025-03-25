@@ -1,26 +1,26 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import ProductList from './components/ProductList'
 import Navbar from './components/Header/Navbar'
-import Login from './components/Login/Login'
-import SignUp from './components/Login/SignUp'
-import ShoppingCart from './components/ShoppingCart/ShoppingCart'
-import ProtectedRoute from './components/ProtectedRoute'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
 import ContactInfo from './components/Footer/ContactInfo'
-import {
-  SellerPage,
-  RacketManagement,
-  BagManagement,
-  ShoeManagement,
-  StringingManagement,
-  GripManagement,
-  ShuttlecockManagement,
-  OrderAdmin
-} from './components/SellerPage'
-import CheckoutPage from './components/Checkout/CheckoutPage'
-import Completion from './components/Checkout/Completion'
-import UserOrders from './components/Checkout/UserOrders'
+import ProtectedRoute from './components/ProtectedRoute'
+import LoaderUI from './components/LoaderUI'
+import { adminRoutes } from './components/SellerPage/routes'
+
+// Group routes by feature for better code organization
+const PublicRoutes = {
+  ProductList: lazy(() => import('./components/ProductList')),
+  Login: lazy(() => import('./components/Login/Login')),
+  SignUp: lazy(() => import('./components/Login/SignUp')),
+}
+
+const ShoppingRoutes = {
+  Cart: lazy(() => import('./components/ShoppingCart/ShoppingCart')),
+  Checkout: lazy(() => import('./components/Checkout/CheckoutPage')),
+  Completion: lazy(() => import('./components/Checkout/Completion')),
+  Orders: lazy(() => import('./components/Checkout/UserOrders')),
+}
 
 const App = () => {
   return (
@@ -30,42 +30,36 @@ const App = () => {
         <div className="min-h-screen flex flex-col">
           <Navbar />
           <main className="flex-grow">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/cart" element={<ShoppingCart />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/completion" element={<Completion />} />
-              <Route path="/orders" element={<UserOrders />} />
-                          
-              {/* Protected Admin Routes */}
-              <Route path="/seller" element={
-                <ProtectedRoute element={<SellerPage />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/orders" element={
-                <ProtectedRoute element={<OrderAdmin />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/rackets" element={
-                <ProtectedRoute element={<RacketManagement />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/bags" element={
-                <ProtectedRoute element={<BagManagement />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/shoes" element={
-                <ProtectedRoute element={<ShoeManagement />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/stringings" element={
-                <ProtectedRoute element={<StringingManagement />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/grips" element={
-                <ProtectedRoute element={<GripManagement />} allowedRoles={['admin']} />
-              } />
-              <Route path="/seller/shuttlecocks" element={
-                <ProtectedRoute element={<ShuttlecockManagement />} allowedRoles={['admin']} />
-              } />
+            <Suspense fallback={<LoaderUI />}>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/login" element={<PublicRoutes.Login />} />
+                <Route path="/signup" element={<PublicRoutes.SignUp />} />
 
-              <Route path="/*" element={<ProductList />} />
-            </Routes>
+                {/* Shopping Routes */}
+                <Route path="/cart" element={<ShoppingRoutes.Cart />} />
+                <Route path="/checkout" element={<ShoppingRoutes.Checkout />} />
+                <Route path="/completion" element={<ShoppingRoutes.Completion />} />
+                <Route path="/orders" element={<ShoppingRoutes.Orders />} />
+                
+                {/* Admin Routes */}
+                {adminRoutes.map(({ path, Component }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <ProtectedRoute
+                        element={<Component />}
+                        allowedRoles={['admin']}
+                      />
+                    }
+                  />
+                ))}
+
+                {/* Default Route */}
+                <Route path="/*" element={<PublicRoutes.ProductList />} />
+              </Routes>
+            </Suspense>
           </main>
           <ContactInfo />
         </div>
