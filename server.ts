@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import express, { Express } from 'express';
-import cors from 'cors';
 import mongoose from 'mongoose';
 import path from 'path';
 import middleware from './utils/middleware';
@@ -27,19 +26,9 @@ mongoose.connect(mongoUrl)
         logger.error('MongoDB connection error:', err);
     });
 
-// CORS configuration
-const corsOptions = {
-  origin: [
-    'http://localhost:5173', // Development frontend
-    'https://shopping-app-thesis.fly.dev', // Production frontend
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+
 
 // Middleware
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use(middleware.requestLogger);
 

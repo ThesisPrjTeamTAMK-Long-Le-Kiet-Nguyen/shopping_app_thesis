@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
+    "start": "ts-node-dev app.ts",
     "dev": "tsx server.ts",
     "build": "tsc",
     "build:ui": "npm install --prefix ./client && npm run build --prefix ./client && npm install",
-    "start": "tsx dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts"
   },
@@ -15,7 +15,6 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
