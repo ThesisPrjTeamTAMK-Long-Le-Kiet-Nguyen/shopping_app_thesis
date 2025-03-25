@@ -1,15 +1,12 @@
 import axios from 'axios';
 import { CartItem, ApiResponse, Cart } from '../types';
+import { authService } from './authService';
 
 const baseUrl = '/api/carts';
 
-// Function to get the token from localStorage
-const getToken = (): string | null => {
-  return localStorage.getItem('token'); // Assuming the token is stored in localStorage
-};
-
+// Get config with auth headers
 const getConfig = () => ({
-  headers: { Authorization: `Bearer ${getToken()}` }
+  headers: authService.getAuthHeaders()
 });
 
 // Add an item to the cart
@@ -19,6 +16,7 @@ export async function addToCart(item: CartItem): Promise<ApiResponse<Cart>> {
     return response.data;
   } catch (error) {
     console.error('Failed to add item to cart:', error);
+    
     throw error;
   }
 }

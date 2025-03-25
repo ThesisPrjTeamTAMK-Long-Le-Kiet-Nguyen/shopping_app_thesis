@@ -2,9 +2,9 @@ import { Routes, Route } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { fetchRackets, fetchShoes, fetchStringings, fetchShuttlecocks } from '../../services/productService'
+import { fetchData } from '../../services/productService'
 import { toast } from 'sonner'
 import { cn } from "@/lib/utils"
 import RacketList from './Racket/RacketList'
@@ -48,6 +48,33 @@ type FeaturedProduct = {
   category: string;
 }
 
+// Memoized FeaturedProductCard component
+const FeaturedProductCard = ({ product }: { product: FeaturedProduct }) => (
+  <Link
+    to={`/${product.category}/${product.id}`}
+    className="no-underline group"
+  >
+    <Card className="hover:shadow-lg transition-all duration-300 group-hover:border-primary h-full">
+      <CardHeader className="p-4">
+        <div className="overflow-hidden rounded-md">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-48 object-contain rounded-md group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+        </div>
+      </CardHeader>
+      <CardContent className="p-4">
+        <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
+          {product.name}
+        </CardTitle>
+        <p className="text-primary font-semibold">€{product.price}</p>
+      </CardContent>
+    </Card>
+  </Link>
+);
+
 const HomePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -56,98 +83,71 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
+  // Memoize fetch function
+  const fetchFeaturedProducts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    const fetchFeaturedProducts = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const [racketsRes, shoesRes, stringsRes, shuttlesRes] = await Promise.all([
-          fetchRackets(),
-          fetchShoes(),
-          fetchStringings(),
-          fetchShuttlecocks()
-        ]);
-
-        if (!isMounted) return;
-
-        const featured: FeaturedProduct[] = [];
-
-        if (racketsRes.success && racketsRes.data) {
-          const rackets = racketsRes.data.slice(0, 3);
-          featured.push(...rackets.map(racket => ({
-            id: racket.id,
-            name: racket.name,
-            price: racket.price,
-            image: racket.colors[0].photo,
-            category: 'racket'
-          })));
-        }
-
-        if (shoesRes.success && shoesRes.data) {
-          const shoes = shoesRes.data.slice(0, 3);
-          featured.push(...shoes.map(shoe => ({
-            id: shoe.id,
-            name: shoe.name,
-            price: shoe.price,
-            image: shoe.colors[0].photo,
-            category: 'shoes'
-          })));
-        }
-
-        if (stringsRes.success && stringsRes.data) {
-          const strings = stringsRes.data.slice(0, 3);
-          featured.push(...strings.map(string => ({
-            id: string.id,
-            name: string.name,
-            price: string.price,
-            image: string.colors[0].photo,
-            category: 'stringings'
-          })));
-        }
-
-        if (shuttlesRes.success && shuttlesRes.data) {
-          const shuttles = shuttlesRes.data.slice(0, 3);
-          featured.push(...shuttles.map(shuttle => ({
-            id: shuttle.id,
-            name: shuttle.name,
-            price: shuttle.price,
-            image: shuttle.colors[0].photo,
-            category: 'shuttlecocks'
-          })));
-        }
-
-        if (!isMounted) return;
-
-        if (featured.length === 0) {
-          setError('No featured products available');
-          return;
-        }
-
-        const shuffled = [...featured].sort(() => Math.random() - 0.5);
-        setFeaturedProducts(shuffled);
-      } catch (error) {
-        console.error('Error fetching featured products:', error);
-        toast.error('Failed to load featured products');
-        if (isMounted) {
-          setError('Failed to load featured products. Please try again later.');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+      const response = await fetchData();
+      if (!response.success || !response.data) {
+        throw new Error('Failed to fetch products');
       }
-    };
 
-    fetchFeaturedProducts();
+      const { rackets, shoes, stringings, shuttlecocks } = response.data;
+      const allProducts: FeaturedProduct[] = [
+        ...(rackets?.slice(0, 3).map(racket => ({
+          id: racket.id,
+          name: racket.name,
+          price: racket.price,
+          image: racket.colors[0].photo,
+          category: 'racket'
+        })) ?? []),
+        ...(shoes?.slice(0, 3).map(shoe => ({
+          id: shoe.id,
+          name: shoe.name,
+          price: shoe.price,
+          image: shoe.colors[0].photo,
+          category: 'shoes'
+        })) ?? []),
+        ...(stringings?.slice(0, 3).map(string => ({
+          id: string.id,
+          name: string.name,
+          price: string.price,
+          image: string.colors[0].photo,
+          category: 'stringings'
+        })) ?? []),
+        ...(shuttlecocks?.slice(0, 3).map(shuttle => ({
+          id: shuttle.id,
+          name: shuttle.name,
+          price: shuttle.price,
+          image: shuttle.colors[0].photo,
+          category: 'shuttlecocks'
+        })) ?? [])
+      ];
 
-    return () => {
-      isMounted = false;
-    };
+      if (allProducts.length === 0) {
+        setError('No featured products available');
+        return;
+      }
+
+      // Shuffle and limit to 12 products
+      const shuffled = [...allProducts].sort(() => Math.random() - 0.5).slice(0, 12);
+      setFeaturedProducts(shuffled);
+    } catch (error) {
+      console.error('Error fetching featured products:', error);
+      setError('Failed to load featured products. Please try again later.');
+      toast.error('Failed to load featured products');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchFeaturedProducts();
+  }, [fetchFeaturedProducts]);
+
+  // Memoize navigation handler
   const navigate = useCallback((newDirection: 'prev' | 'next') => {
     if (isAnimating) return;
 
@@ -165,6 +165,7 @@ const HomePage = () => {
     setTimeout(() => setIsAnimating(false), 750);
   }, [isAnimating]);
 
+  // Auto-slide effect
   useEffect(() => {
     const interval = setInterval(() => {
       navigate('next');
@@ -173,9 +174,36 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, [navigate]);
 
-  const currentImage = MARKETING_IMAGES[currentIndex];
-  const prevIndex = currentIndex === 0 ? MARKETING_IMAGES.length - 1 : currentIndex - 1;
-  const nextIndex = currentIndex === MARKETING_IMAGES.length - 1 ? 0 : currentIndex + 1;
+  // Memoize current image indices
+  const { currentImage, prevIndex, nextIndex } = useMemo(() => ({
+    currentImage: MARKETING_IMAGES[currentIndex],
+    prevIndex: currentIndex === 0 ? MARKETING_IMAGES.length - 1 : currentIndex - 1,
+    nextIndex: currentIndex === MARKETING_IMAGES.length - 1 ? 0 : currentIndex + 1
+  }), [currentIndex]);
+
+  // Memoize slider dots
+  const sliderDots = useMemo(() => (
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      {MARKETING_IMAGES.map((_, index) => (
+        <button
+          key={index}
+          className={cn(
+            "h-2 rounded-full transition-all duration-300",
+            index === currentIndex 
+              ? 'bg-white w-6' 
+              : 'bg-white/50 hover:bg-white/80 w-2',
+            isAnimating ? 'scale-95' : 'scale-100'
+          )}
+          onClick={() => {
+            if (index !== currentIndex) {
+              setDirection(index > currentIndex ? 'right' : 'left');
+              setCurrentIndex(index);
+            }
+          }}
+        />
+      ))}
+    </div>
+  ), [currentIndex, isAnimating, setDirection]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -191,7 +219,7 @@ const HomePage = () => {
         {/* Marketing Image Slider */}
         <div className="relative mb-16 group">
           <div className="relative h-[600px] overflow-hidden rounded-xl">
-            {/* Previous Image (for transition) */}
+            {/* Previous Image */}
             <img
               src={MARKETING_IMAGES[prevIndex].image}
               alt={MARKETING_IMAGES[prevIndex].alt}
@@ -216,7 +244,7 @@ const HomePage = () => {
               )}
             />
 
-            {/* Next Image (for transition) */}
+            {/* Next Image */}
             <img
               src={MARKETING_IMAGES[nextIndex].image}
               alt={MARKETING_IMAGES[nextIndex].alt}
@@ -249,26 +277,7 @@ const HomePage = () => {
             <ChevronRight className="h-8 w-8" />
           </Button>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {MARKETING_IMAGES.map((_, index) => (
-              <button
-                key={index}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
-                  index === currentIndex 
-                    ? 'bg-white w-6' 
-                    : 'bg-white/50 hover:bg-white/80 w-2',
-                  isAnimating ? 'scale-95' : 'scale-100'
-                )}
-                onClick={() => {
-                  if (index !== currentIndex) {
-                    setDirection(index > currentIndex ? 'right' : 'left');
-                    setCurrentIndex(index);
-                  }
-                }}
-              />
-            ))}
-          </div>
+          {sliderDots}
         </div>
 
         {/* Featured Products */}
@@ -277,36 +286,14 @@ const HomePage = () => {
         ) : error ? (
           <div className="text-center py-8">
             <p className="text-red-500 mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()}>Try Again</Button>
+            <Button onClick={fetchFeaturedProducts}>Try Again</Button>
           </div>
         ) : featuredProducts.length > 0 ? (
           <div className="mt-16">
             <h2 className="text-3xl font-bold mb-8 text-center">Featured Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
-                <Link
-                  key={product.id}
-                  to={`/${product.category}/${product.id}`}
-                  className="no-underline group"
-                >
-                  <Card className="hover:shadow-lg transition-all duration-300 group-hover:border-primary h-full">
-                    <CardHeader className="p-4">
-                      <div className="overflow-hidden rounded-md">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-48 object-contain rounded-md group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                        {product.name}
-                      </CardTitle>
-                      <p className="text-primary font-semibold">€{product.price}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <FeaturedProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>

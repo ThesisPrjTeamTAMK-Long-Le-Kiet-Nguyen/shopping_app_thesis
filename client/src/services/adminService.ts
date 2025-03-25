@@ -3,17 +3,13 @@ import {
   Racket, Bag, Shoe, Stringing, Grip, Shuttlecock,
   ApiResponse, ColorAddRequest, TypeAddRequest, ShoeRequest
 } from '../types';
+import { authService } from './authService';
 
 const baseUrl = '/api/products';
 
-// Function to get the token from localStorage
-const getToken = (): string | null => {
-  return localStorage.getItem('token');
-};
-
-// Helper function to create config with authorization header
+// Get config with auth headers
 const getConfig = () => ({
-  headers: { Authorization: `Bearer ${getToken()}` }
+  headers: authService.getAuthHeaders()
 });
 
 // Racket operations

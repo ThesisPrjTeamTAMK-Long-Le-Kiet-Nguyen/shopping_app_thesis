@@ -1,15 +1,12 @@
 import axios from 'axios';
 import { ApiResponse, Order } from '../types';
+import { authService } from './authService';
 
 const baseUrl = '/api/orders';
 
-// Function to get the token from localStorage
-const getToken = (): string | null => {
-  return localStorage.getItem('token');
-};
-
+// Get config with auth headers
 const getConfig = () => ({
-  headers: { Authorization: `Bearer ${getToken()}` }
+  headers: authService.getAuthHeaders()
 });
 
 // Create a new order

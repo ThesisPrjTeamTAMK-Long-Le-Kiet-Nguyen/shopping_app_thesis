@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchRackets } from '../../../services/productService'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -30,71 +30,89 @@ const RACKET_TYPE_INFO = {
   }
 } as const
 
+type RacketType = keyof typeof RACKET_TYPE_INFO
+
 const RacketList = () => {
   const [rackets, setRackets] = useState<Racket[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let isMounted = true
+  // Memoize fetch function
+  const fetchRacketList = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
 
-    const fetchData = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
-
-        const response = await fetchRackets()
-        if (!isMounted) return
-
-        if (response.success && response.data) {
-          setRackets(response.data)
-        } else {
-          setError('Failed to load rackets')
-          toast.error('Failed to load rackets')
-        }
-      } catch (error) {
-        console.error('Error fetching rackets:', error)
-        if (isMounted) {
-          setError('Failed to load rackets. Please try again later.')
-          toast.error('Failed to load rackets')
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
+      const response = await fetchRackets()
+      if (response.success && response.data) {
+        setRackets(response.data)
+      } else {
+        setError('Failed to load rackets')
+        toast.error('Failed to load rackets')
       }
-    }
-
-    fetchData()
-
-    return () => {
-      isMounted = false
+    } catch (error) {
+      console.error('Error fetching rackets:', error)
+      setError('Failed to load rackets. Please try again later.')
+      toast.error('Failed to load rackets')
+    } finally {
+      setIsLoading(false)
     }
   }, [])
 
-  const groupRacketsByType = (rackets: Racket[]): GroupedRackets => {
+  useEffect(() => {
+    fetchRacketList()
+  }, [fetchRacketList])
+
+  // Memoize grouped rackets calculation
+  const groupedRackets = useMemo(() => {
+    if (!rackets) return {}
     return rackets.reduce((acc, racket) => {
-      const type = racket.racketType
+      const type = racket.racketType as RacketType
       if (!acc[type]) {
         acc[type] = []
       }
       acc[type].push(racket)
       return acc
     }, {} as GroupedRackets)
-  }
+  }, [rackets])
 
-  const groupedRackets = rackets ? groupRacketsByType(rackets) : {}
+  // Memoize racket card component
+  const RacketCard = useMemo(() => {
+    return ({ racket }: { racket: Racket }) => (
+      <Link 
+        to={`/racket/${racket.id}`}
+        className="no-underline group"
+      >
+        <Card className="hover:shadow-lg transition-all duration-300 group-hover:border-primary">
+          <CardHeader className="p-4">
+            <img
+              src={racket.colors[0].photo}
+              alt={racket.name}
+              className="w-full h-48 object-contain rounded-md group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          </CardHeader>
+          <CardContent className="p-4">
+            <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors">
+              {racket.name}
+            </CardTitle>
+            <div className="flex justify-between items-center">
+              <p className="text-primary font-semibold">€{racket.price}</p>
+              <p className="text-sm text-muted-foreground">{racket.brand}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    )
+  }, [])
 
-  if (isLoading) {
-    return <LoaderUI />
-  }
-
+  if (isLoading) return <LoaderUI />
   if (error) {
     return (
       <div className="p-6">
         <div className="text-center space-y-4">
           <p className="text-red-500">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={fetchRacketList}>Try Again</Button>
         </div>
       </div>
     )
@@ -129,30 +147,7 @@ const RacketList = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {racketsOfType.map((racket) => (
-                <Link 
-                  key={racket.id} 
-                  to={`/racket/${racket.id}`}
-                  className="no-underline group"
-                >
-                  <Card className="hover:shadow-lg transition-all duration-300 group-hover:border-primary">
-                    <CardHeader className="p-4">
-                      <img
-                        src={racket.colors[0].photo}
-                        alt={racket.name}
-                        className="w-full h-48 object-contain rounded-md group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors">
-                        {racket.name}
-                      </CardTitle>
-                      <div className="flex justify-between items-center">
-                        <p className="text-primary font-semibold">€{racket.price}</p>
-                        <p className="text-sm text-muted-foreground">{racket.brand}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <RacketCard key={racket.id} racket={racket} />
               ))}
             </div>
             <Separator className="my-8" />

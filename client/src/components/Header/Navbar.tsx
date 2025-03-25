@@ -22,32 +22,26 @@ const productItems = [
   { path: '/shuttlecocks', label: 'Shuttlecocks' },
   { path: '/grips', label: 'Grips' },
   { path: '/bags', label: 'Bags' },
-];
+] as const;
 
 const Navbar = () => {
   const location = useLocation();
-  const { token, email, role, updateAuth } = useAuth();
+  const { email, role, logout, isAuthenticated } = useAuth();
   const [activePath, setActivePath] = useState(location.pathname);
 
-  // Update active path immediately when location changes
   useEffect(() => {
     setActivePath(location.pathname);
   }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
-    localStorage.removeItem('role');
-    updateAuth(null, null, null);
+    logout();
   };
 
-  // Helper function to check if the current path matches
-  const isActivePath = (path: string) => {
+  const isActivePath = (path: string): boolean => {
     return activePath === path;
   };
 
-  // Separate styles for regular nav items and admin dashboard
-  const getNavStyles = (path: string) => {
+  const getNavStyles = (path: string): string => {
     return cn(
       navigationMenuTriggerStyle(),
       "transition-all duration-200",
@@ -66,7 +60,6 @@ const Navbar = () => {
       <div className="container flex h-14 items-center px-4">
         <NavigationMenu>
           <NavigationMenuList className="gap-2">
-            {/* Home - always visible */}
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link to="/" className={getNavStyles('/')}>
@@ -75,7 +68,6 @@ const Navbar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            {/* Products Dropdown - visible on small screens */}
             <NavigationMenuItem className="lg:hidden">
               <NavigationMenuTrigger>Products</NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -99,7 +91,6 @@ const Navbar = () => {
               </NavigationMenuContent>
             </NavigationMenuItem>
 
-            {/* Regular navigation items - visible on large screens */}
             <div className="hidden lg:flex lg:items-center lg:space-x-1">
               {productItems.map(({ path, label }) => (
                 <NavigationMenuItem key={path}>
@@ -113,7 +104,7 @@ const Navbar = () => {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
-              {token && (
+              {isAuthenticated && (
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link 
@@ -127,7 +118,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Admin Dashboard - always visible if admin */}
             {role === 'admin' && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
@@ -143,7 +133,6 @@ const Navbar = () => {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Right side: Cart and User */}
         <div className="ml-auto flex items-center space-x-4">
           <Link to="/cart">
             <Button 
@@ -158,7 +147,7 @@ const Navbar = () => {
             </Button>
           </Link>
 
-          {token ? (
+          {isAuthenticated ? (
             <div className="user-menu">
               <Button variant="ghost" className="user-button">
                 <User className="h-5 w-5" />

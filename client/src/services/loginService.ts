@@ -1,11 +1,8 @@
-import axios from 'axios'
-import { Credentials, LoginResponse } from '../types'
+import { authService } from './authService';
+import type { Credentials, AuthResponse } from '../types/auth';
 
-const baseUrl = '/api/login'
-
-export async function login(credentials: Credentials): Promise<LoginResponse> {
-  const response = await axios.post(baseUrl, credentials)
-  return response.data
+export async function login(credentials: Credentials): Promise<AuthResponse> {
+  return authService.login(credentials.email, credentials.password);
 }
 
-export default { login }
+export default { login };

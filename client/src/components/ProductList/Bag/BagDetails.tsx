@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchProductById } from '../../../services/productService'
 import cartService from '../../../services/cartService'
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,62 +19,49 @@ const BagDetails = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let isMounted = true;
+  // Memoize fetch function
+  const fetchBagDetails = useCallback(async () => {
+    if (!id) {
+      setError('Invalid bag ID');
+      return;
+    }
 
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        if (!id) {
-          setError('Invalid bag ID');
-          return;
+      const response = await fetchProductById('bags', id);
+      if (response.success && response.data) {
+        const bagData = response.data as Bag;
+        setBag(bagData);
+        if (bagData.colors.length > 0) {
+          setSelectedColor(bagData.colors[0]);
         }
-
-        const response = await fetchProductById('bags', id);
-        if (!isMounted) return;
-
-        if (response.success && response.data) {
-          const bagData = response.data as Bag;
-          setBag(bagData);
-          if (bagData.colors.length > 0) {
-            setSelectedColor(bagData.colors[0]);
-          }
-        } else {
-          setError('Failed to load bag details');
-          toast.error('Failed to load bag details');
-        }
-      } catch (error) {
-        console.error('Error fetching bag details:', error);
-        if (isMounted) {
-          setError('Failed to load bag details. Please try again later.');
-          toast.error('Failed to load bag details');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+      } else {
+        setError('Failed to load bag details');
+        toast.error('Failed to load bag details');
       }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
+    } catch (error) {
+      console.error('Error fetching bag details:', error);
+      setError('Failed to load bag details. Please try again later.');
+      toast.error('Failed to load bag details');
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
 
-  const handleColorChange = (color: Color) => {
+  useEffect(() => {
+    fetchBagDetails();
+  }, [fetchBagDetails]);
+
+  // Memoize color selection handler
+  const handleColorChange = useCallback((color: Color) => {
     setSelectedColor(color);
-  };
+  }, []);
 
-  const handleAddToCart = async () => {
-    const hasStock = (color: Color): boolean => {
-      return typeof color.quantity === 'number' && color.quantity > 0;
-    };
-
-    if (!bag || !selectedColor || !hasStock(selectedColor)) return;
+  // Memoize add to cart handler
+  const handleAddToCart = useCallback(async () => {
+    if (!bag || !selectedColor || (selectedColor.quantity ?? 0) <= 0) return;
 
     const confirmAdd = window.confirm(
       `Are you sure you want to add this item to your cart?\n\n` +
@@ -83,49 +70,71 @@ const BagDetails = () => {
       `Price: $${bag.price}`
     );
 
-    if (confirmAdd) {
-      try {
-        setIsAddingToCart(true);
-        const itemToAdd: CartItem = {
-          id: bag.id,
-          name: bag.name,
-          price: bag.price,
-          color: selectedColor.color,
-          quantity: 1
-        };
+    if (!confirmAdd) return;
 
-        const response = await cartService.addToCart(itemToAdd);
-        if (response.success) {
-          toast.success('Added to shopping cart', {
-            description: `${bag.name} - ${selectedColor.color}`,
-            duration: 3000,
-          });
-        } else {
-          toast.error('Failed to add item to cart', {
-            description: 'Please try again later',
-          });
-        }
-      } catch (error) {
-        console.error('Failed to add item to cart:', error);
+    try {
+      setIsAddingToCart(true);
+      const itemToAdd: CartItem = {
+        id: bag.id,
+        name: bag.name,
+        price: bag.price,
+        color: selectedColor.color,
+        quantity: 1
+      };
+
+      const response = await cartService.addToCart(itemToAdd);
+      if (response.success) {
+        toast.success('Added to shopping cart', {
+          description: `${bag.name} - ${selectedColor.color}`,
+          duration: 3000,
+        });
+      } else {
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
         });
-      } finally {
-        setIsAddingToCart(false);
       }
+    } catch (error) {
+      console.error('Failed to add item to cart:', error);
+      toast.error('Failed to add item to cart', {
+        description: 'Please try again later',
+      });
+    } finally {
+      setIsAddingToCart(false);
     }
-  };
+  }, [bag, selectedColor]);
 
-  if (isLoading) {
-    return <LoaderUI />;
-  }
+  // Memoize color buttons
+  const colorButtons = useMemo(() => {
+    if (!bag) return [];
+    return bag.colors.map((colorInfo, index) => (
+      <Button
+        key={index}
+        variant={selectedColor === colorInfo ? "default" : "outline"}
+        onClick={() => handleColorChange(colorInfo)}
+        disabled={colorInfo.quantity === 0}
+        className={`
+          relative px-4 py-2 min-w-[80px]
+          ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+          ${colorInfo.quantity === 0 ? 'opacity-50' : ''}
+        `}
+      >
+        {colorInfo.color}
+        {colorInfo.quantity === 0 && (
+          <Badge variant="outline" className="absolute -top-2 -right-2">
+            Sold out
+          </Badge>
+        )}
+      </Button>
+    ));
+  }, [bag, selectedColor, handleColorChange]);
 
+  if (isLoading) return <LoaderUI />;
   if (error) {
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="text-center space-y-4">
           <p className="text-red-500">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={fetchBagDetails}>Try Again</Button>
         </div>
       </div>
     );
@@ -152,6 +161,7 @@ const BagDetails = () => {
                 src={selectedColor?.photo}
                 alt={`${bag.name} in ${selectedColor?.color}`}
                 className="w-full max-w-md rounded-lg object-contain"
+                loading="lazy"
               />
             </div>
 
@@ -168,26 +178,7 @@ const BagDetails = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Select Color</h3>
                 <div className="flex flex-wrap gap-2">
-                  {bag.colors.map((colorInfo, index) => (
-                    <Button
-                      key={index}
-                      variant={selectedColor === colorInfo ? "default" : "outline"}
-                      onClick={() => handleColorChange(colorInfo)}
-                      disabled={colorInfo.quantity === 0}
-                      className={`
-                        relative px-4 py-2 min-w-[80px]
-                        ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                        ${colorInfo.quantity === 0 ? 'opacity-50' : ''}
-                      `}
-                    >
-                      {colorInfo.color}
-                      {colorInfo.quantity === 0 && (
-                        <Badge variant="outline" className="absolute -top-2 -right-2">
-                          Sold out
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
+                  {colorButtons}
                 </div>
                 <Badge
                   variant={selectedColor?.quantity === 0 ? "destructive" : "secondary"}
@@ -208,13 +199,9 @@ const BagDetails = () => {
                 disabled={!selectedColor || selectedColor.quantity === 0 || isAddingToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {isAddingToCart ? (
-                  'Adding to Cart...'
-                ) : !selectedColor || selectedColor.quantity === 0 ? (
-                  'Out of Stock'
-                ) : (
-                  'Add to Shopping Cart'
-                )}
+                {isAddingToCart ? 'Adding to Cart...' : 
+                 !selectedColor || selectedColor.quantity === 0 ? 'Out of Stock' : 
+                 'Add to Shopping Cart'}
               </Button>
             </div>
 
@@ -241,7 +228,7 @@ const BagDetails = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default BagDetails
+export default BagDetails;

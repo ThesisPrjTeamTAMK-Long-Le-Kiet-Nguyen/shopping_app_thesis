@@ -1,29 +1,8 @@
-import axios from 'axios';
-import { UserData, ApiResponse } from '../types';
+import { authService } from './authService';
+import type { Credentials } from '../types';
 
-// Update the base URL to match our new backend structure
-const baseUrl = '/api/users';
-
-interface SignupResponse {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
+export async function signup(credentials: Credentials): Promise<{ success: boolean }> {
+  return authService.signup(credentials.email, credentials.password);
 }
 
-async function signup(userData: UserData): Promise<ApiResponse<SignupResponse>> {
-  try {
-    const response = await axios.post(`${baseUrl}/register`, userData);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to sign up:', error);
-    throw error;
-  }
-}
-
-// Using named export for better TypeScript support
-export const signupService = {
-  signup
-};
-
-export default signupService;
+export default { signup };

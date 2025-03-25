@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext'
 import ContactInfo from './components/Footer/ContactInfo'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoaderUI from './components/LoaderUI'
+import { adminRoutes } from './components/SellerPage/routes'
 
 // Group routes by feature for better code organization
 const PublicRoutes = {
@@ -20,35 +21,6 @@ const ShoppingRoutes = {
   Completion: lazy(() => import('./components/Checkout/Completion')),
   Orders: lazy(() => import('./components/Checkout/UserOrders')),
 }
-
-// Optimize admin imports by importing from a single chunk
-const AdminComponents = {
-  SellerPage: lazy(() => import('./components/SellerPage').then(m => ({ default: m.SellerPage }))),
-  OrderAdmin: lazy(() => import('./components/SellerPage').then(m => ({ default: m.OrderAdmin }))),
-  RacketManagement: lazy(() => import('./components/SellerPage').then(m => ({ default: m.RacketManagement }))),
-  BagManagement: lazy(() => import('./components/SellerPage').then(m => ({ default: m.BagManagement }))),
-  ShoeManagement: lazy(() => import('./components/SellerPage').then(m => ({ default: m.ShoeManagement }))),
-  StringingManagement: lazy(() => import('./components/SellerPage').then(m => ({ default: m.StringingManagement }))),
-  GripManagement: lazy(() => import('./components/SellerPage').then(m => ({ default: m.GripManagement }))),
-  ShuttlecockManagement: lazy(() => import('./components/SellerPage').then(m => ({ default: m.ShuttlecockManagement }))),
-}
-
-// Type-safe route configuration
-type AdminRoute = {
-  path: string
-  Component: React.LazyExoticComponent<() => JSX.Element>
-}
-
-const adminRoutes: AdminRoute[] = [
-  { path: '/seller', Component: AdminComponents.SellerPage },
-  { path: '/seller/orders', Component: AdminComponents.OrderAdmin },
-  { path: '/seller/rackets', Component: AdminComponents.RacketManagement },
-  { path: '/seller/bags', Component: AdminComponents.BagManagement },
-  { path: '/seller/shoes', Component: AdminComponents.ShoeManagement },
-  { path: '/seller/stringings', Component: AdminComponents.StringingManagement },
-  { path: '/seller/grips', Component: AdminComponents.GripManagement },
-  { path: '/seller/shuttlecocks', Component: AdminComponents.ShuttlecockManagement },
-]
 
 const App = () => {
   return (

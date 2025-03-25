@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
-import { Navigate } from 'react-router-dom';
-
+import { Navigate, useLocation } from 'react-router-dom';
 import { ReactElement } from 'react';
+import { useAuth } from '../context/AuthContext';
+import LoaderUI from './LoaderUI';
 
 interface ProtectedRouteProps {
   element: ReactElement;
@@ -9,21 +9,21 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ element, allowedRoles }: ProtectedRouteProps) => {
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+  const { role, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
 
-  // Check if the user is authenticated and has the correct role
-  if (!token || (allowedRoles && !allowedRoles.includes(role ?? ''))) {
-    return <Navigate to="/login" replace />; // Redirect to login if not authorized
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return <LoaderUI />;
   }
 
-  return element; // Render the protected component
-};
+  // Check if the user is authenticated and has the correct role
+  if (!isAuthenticated || (allowedRoles && !allowedRoles.includes(role ?? ''))) {
+    // Redirect to login with the attempted URL
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-// Define prop types
-ProtectedRoute.propTypes = {
-  element: PropTypes.element.isRequired, // Expect an element
-  allowedRoles: PropTypes.arrayOf(PropTypes.string).isRequired, // Expect an array of strings
+  return element;
 };
 
 export default ProtectedRoute;

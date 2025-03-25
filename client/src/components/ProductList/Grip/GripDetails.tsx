@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchProductById } from '../../../services/productService'
 import cartService from '../../../services/cartService'
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,61 +19,53 @@ const GripDetails = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let isMounted = true;
+  // Memoize fetch function
+  const fetchGripDetails = useCallback(async () => {
+    if (!id) {
+      setError('Invalid grip ID');
+      return;
+    }
 
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        if (!id) {
-          setError('Invalid grip ID');
-          return;
+      const response = await fetchProductById('grips', id);
+      if (response.success && response.data) {
+        const gripData = response.data as Grip;
+        setGrip(gripData);
+        if (gripData.colors.length > 0) {
+          setSelectedColor(gripData.colors[0]);
         }
-
-        const response = await fetchProductById('grips', id);
-        if (!isMounted) return;
-
-        if (response.success && response.data) {
-          const gripData = response.data as Grip;
-          setGrip(gripData);
-          if (gripData.colors.length > 0) {
-            setSelectedColor(gripData.colors[0]);
-          }
-        } else {
-          setError('Failed to load grip details');
-          toast.error('Failed to load grip details');
-        }
-      } catch (error) {
-        console.error('Error fetching grip details:', error);
-        if (isMounted) {
-          setError('Failed to load grip details. Please try again later.');
-          toast.error('Failed to load grip details');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+      } else {
+        setError('Failed to load grip details');
+        toast.error('Failed to load grip details');
       }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
+    } catch (error) {
+      console.error('Error fetching grip details:', error);
+      setError('Failed to load grip details. Please try again later.');
+      toast.error('Failed to load grip details');
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
 
-  const handleColorChange = (color: Color) => {
+  useEffect(() => {
+    fetchGripDetails();
+  }, [fetchGripDetails]);
+
+  // Memoize color selection handler
+  const handleColorChange = useCallback((color: Color) => {
     setSelectedColor(color);
-  };
+  }, []);
 
-  const hasStock = (color: Color): boolean => {
-    return typeof color.quantity === 'number' && color.quantity > 0;
-  };
+  // Memoize stock check function
+  const hasStock = useCallback((color: Color): boolean => {
+    return (color.quantity ?? 0) > 0;
+  }, []);
 
-  const handleAddToCart = async () => {
+  // Memoize add to cart handler
+  const handleAddToCart = useCallback(async () => {
     if (!grip || !selectedColor || !hasStock(selectedColor)) return;
 
     const confirmAdd = window.confirm(
@@ -83,49 +75,71 @@ const GripDetails = () => {
       `Price: $${grip.price}`
     );
 
-    if (confirmAdd) {
-      try {
-        setIsAddingToCart(true);
-        const itemToAdd: CartItem = {
-          id: grip.id,
-          name: grip.name,
-          price: grip.price,
-          color: selectedColor.color,
-          quantity: 1
-        };
+    if (!confirmAdd) return;
 
-        const response = await cartService.addToCart(itemToAdd);
-        if (response.success) {
-          toast.success('Added to shopping cart', {
-            description: `${grip.name} - ${selectedColor.color}`,
-            duration: 3000,
-          });
-        } else {
-          toast.error('Failed to add item to cart', {
-            description: 'Please try again later',
-          });
-        }
-      } catch (error) {
-        console.error('Failed to add item to cart:', error);
+    try {
+      setIsAddingToCart(true);
+      const itemToAdd: CartItem = {
+        id: grip.id,
+        name: grip.name,
+        price: grip.price,
+        color: selectedColor.color,
+        quantity: 1
+      };
+
+      const response = await cartService.addToCart(itemToAdd);
+      if (response.success) {
+        toast.success('Added to shopping cart', {
+          description: `${grip.name} - ${selectedColor.color}`,
+          duration: 3000,
+        });
+      } else {
         toast.error('Failed to add item to cart', {
           description: 'Please try again later',
         });
-      } finally {
-        setIsAddingToCart(false);
       }
+    } catch (error) {
+      console.error('Failed to add item to cart:', error);
+      toast.error('Failed to add item to cart', {
+        description: 'Please try again later',
+      });
+    } finally {
+      setIsAddingToCart(false);
     }
-  };
+  }, [grip, selectedColor, hasStock]);
 
-  if (isLoading) {
-    return <LoaderUI />;
-  }
+  // Memoize color buttons
+  const colorButtons = useMemo(() => {
+    if (!grip) return [];
+    return grip.colors.map((colorInfo, index) => (
+      <Button
+        key={index}
+        variant={selectedColor === colorInfo ? "default" : "outline"}
+        onClick={() => handleColorChange(colorInfo)}
+        disabled={!hasStock(colorInfo)}
+        className={`
+          relative px-4 py-2 min-w-[80px]
+          ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
+          ${!hasStock(colorInfo) ? 'opacity-50' : ''}
+        `}
+      >
+        {colorInfo.color}
+        {!hasStock(colorInfo) && (
+          <Badge variant="outline" className="absolute -top-2 -right-2">
+            Sold out
+          </Badge>
+        )}
+      </Button>
+    ));
+  }, [grip, selectedColor, handleColorChange, hasStock]);
 
+  if (isLoading) return <LoaderUI />;
   if (error) {
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="text-center space-y-4">
           <p className="text-red-500">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={fetchGripDetails}>Try Again</Button>
         </div>
       </div>
     );
@@ -152,6 +166,7 @@ const GripDetails = () => {
                 src={selectedColor?.photo}
                 alt={`${grip.name} in ${selectedColor?.color}`}
                 className="w-full max-w-md rounded-lg object-contain"
+                loading="lazy"
               />
             </div>
 
@@ -168,26 +183,7 @@ const GripDetails = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Select Color</h3>
                 <div className="flex flex-wrap gap-2">
-                  {grip.colors.map((colorInfo, index) => (
-                    <Button
-                      key={index}
-                      variant={selectedColor === colorInfo ? "default" : "outline"}
-                      onClick={() => handleColorChange(colorInfo)}
-                      disabled={!hasStock(colorInfo)}
-                      className={`
-                        relative px-4 py-2 min-w-[80px]
-                        ${selectedColor === colorInfo ? 'ring-2 ring-primary ring-offset-2' : ''}
-                        ${!hasStock(colorInfo) ? 'opacity-50' : ''}
-                      `}
-                    >
-                      {colorInfo.color}
-                      {!hasStock(colorInfo) && (
-                        <Badge variant="outline" className="absolute -top-2 -right-2">
-                          Sold out
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
+                  {colorButtons}
                 </div>
                 <Badge
                   variant={!selectedColor || !hasStock(selectedColor) ? "destructive" : "secondary"}
@@ -208,13 +204,9 @@ const GripDetails = () => {
                 disabled={!selectedColor || !hasStock(selectedColor) || isAddingToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {isAddingToCart ? (
-                  'Adding to Cart...'
-                ) : !selectedColor || !hasStock(selectedColor) ? (
-                  'Out of Stock'
-                ) : (
-                  'Add to Shopping Cart'
-                )}
+                {isAddingToCart ? 'Adding to Cart...' : 
+                 !selectedColor || !hasStock(selectedColor) ? 'Out of Stock' : 
+                 'Add to Shopping Cart'}
               </Button>
             </div>
 
