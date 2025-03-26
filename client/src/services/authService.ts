@@ -62,25 +62,6 @@ class AuthService {
     }
   }
 
-  // Signup
-  public async signup(email: string, password: string): Promise<AuthResponse> {
-    try {
-      const response = await axios.post<AuthResponse>(`${this.baseUrl}/signup`, {
-        email,
-        password,
-      });
-
-      if (response.data.success) {
-        this.setAuthState(response.data.data);
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error('Signup failed:', error);
-      throw error;
-    }
-  }
-
   // Logout
   public logout(): void {
     this.clearAuthState();

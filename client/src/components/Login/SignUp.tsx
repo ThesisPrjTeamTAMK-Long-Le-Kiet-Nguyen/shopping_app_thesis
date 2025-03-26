@@ -13,6 +13,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import signupService from '../../services/signupService';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 // Define the form schema
 const signupSchema = z.object({
@@ -28,6 +31,7 @@ type SignUpFormValues = z.infer<typeof signupSchema>;
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize form
   const form = useForm<SignUpFormValues>({
@@ -41,14 +45,26 @@ const SignUp = () => {
 
   const onSubmit = async (values: SignUpFormValues) => {
     try {
+      setIsSubmitting(true);
       await signupService.signup(values);
-      alert('Registration successful! You can now log in.');
-      navigate('/login');
+      
+      toast.success('Registration successful!', {
+        description: 'Your account has been created. Please log in.',
+        duration: 3000,
+      });
+
+      // Navigate to login page after a short delay
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (error) {
       console.error('Error signing up:', error);
-      form.setError("root", { 
-        message: "Registration failed. Please try again." 
+      toast.error('Registration failed', {
+        description: 'Please check your information and try again.',
+        duration: 3000,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -64,7 +80,11 @@ const SignUp = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
+                  <Input 
+                    placeholder="Enter your email" 
+                    {...field} 
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -77,7 +97,12 @@ const SignUp = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="Create a password" {...field} />
+                  <Input 
+                    type="password" 
+                    placeholder="Create a password" 
+                    {...field} 
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,19 +115,30 @@ const SignUp = () => {
               <FormItem>
                 <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="Confirm your password" {...field} />
+                  <Input 
+                    type="password" 
+                    placeholder="Confirm your password" 
+                    {...field} 
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {form.formState.errors.root && (
-            <p className="text-sm font-medium text-red-500">
-              {form.formState.errors.root.message}
-            </p>
-          )}
-          <Button type="submit" className="w-full">
-            Sign Up
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating Account...
+              </>
+            ) : (
+              'Sign Up'
+            )}
           </Button>
         </form>
       </Form>
