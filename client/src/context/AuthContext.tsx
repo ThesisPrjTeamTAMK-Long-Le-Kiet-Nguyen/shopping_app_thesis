@@ -11,7 +11,6 @@ interface AuthContextType {
   hasRole: (role: UserRole) => boolean;
   hasAnyRole: (roles: UserRole[]) => boolean;
   login: (email: string, password: string) => Promise<AuthResponse>;
-  signup: (email: string, password: string) => Promise<AuthResponse>;
   logout: () => void;
 }
 
@@ -40,19 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signup = async (email: string, password: string): Promise<AuthResponse> => {
-    setIsLoading(true);
-    try {
-      const response = await authService.signup(email, password);
-      if (response.success) {
-        setAuth(response.data);
-      }
-      return response;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const logout = (): void => {
     authService.logout();
     setAuth(authService.getAuthState());
@@ -65,7 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     hasRole: authService.hasRole.bind(authService),
     hasAnyRole: authService.hasAnyRole.bind(authService),
     login,
-    signup,
     logout,
   };
 

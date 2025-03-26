@@ -1,8 +1,23 @@
-import { authService } from './authService';
-import type { Credentials } from '../types';
+import axios from 'axios';
+import type { UserData } from '../types/auth';
 
-export async function signup(credentials: Credentials): Promise<{ success: boolean }> {
-  return authService.signup(credentials.email, credentials.password);
+interface SignupResponse {
+  success: boolean;
+  message: string;
 }
 
-export default { signup };
+async function signup(userData: UserData): Promise<SignupResponse> {
+  try {
+    const response = await axios.post('/api/users/register', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to sign up:', error);
+    throw error;
+  }
+}
+
+export const signupService = {
+  signup
+};
+
+export default signupService;
