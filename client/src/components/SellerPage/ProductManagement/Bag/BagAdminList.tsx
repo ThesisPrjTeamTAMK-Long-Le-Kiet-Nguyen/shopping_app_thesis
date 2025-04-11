@@ -95,6 +95,7 @@ const BagAdminList = () => {
                 <TableHead>Product ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Colors</TableHead>
+                <TableHead>Quantity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -114,6 +115,15 @@ const BagAdminList = () => {
                             {color._id || 'No ID'}
                           </Badge>
                           <span>{color.color}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-2">
+                      {bag.colors.map((color) => (
+                        <div key={color._id || color.color} className="flex items-center gap-2">
+                          <span>{color.quantity ?? 'N/A'}</span>
                         </div>
                       ))}
                     </div>

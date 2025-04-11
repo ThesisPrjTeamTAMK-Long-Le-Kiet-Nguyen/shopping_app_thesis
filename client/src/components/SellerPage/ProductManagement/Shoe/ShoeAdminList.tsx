@@ -96,6 +96,7 @@ const ShoeAdminList = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Colors</TableHead>
                 <TableHead>Sizes</TableHead>
+                <TableHead>Quantity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -132,6 +133,20 @@ const ShoeAdminList = () => {
                                 {size._id || 'No ID'}
                               </Badge>
                               <span>{size.size}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-2">
+                      {shoe.colors.map((color) => (
+                        <div key={color._id || color.color} className="space-y-1">
+                          {color.types?.map((size) => (
+                            <div key={size._id || size.size} className="flex items-center gap-2">
+                              <span>{size.size}:</span>
+                              <span>{size.quantity ?? 'N/A'}</span>
                             </div>
                           ))}
                         </div>

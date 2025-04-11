@@ -96,6 +96,7 @@ const RacketAdminList = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Colors</TableHead>
                 <TableHead>Types</TableHead>
+                <TableHead>Quantity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -132,6 +133,20 @@ const RacketAdminList = () => {
                                 {type._id || 'No ID'}
                               </Badge>
                               <span>{type.type}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-2">
+                      {racket.colors.map((color) => (
+                        <div key={color._id || color.color} className="space-y-1">
+                          {color.types?.map((type) => (
+                            <div key={type._id || type.type} className="flex items-center gap-2">
+                              <span>{type.type}:</span>
+                              <span>{type.quantity ?? 'N/A'}</span>
                             </div>
                           ))}
                         </div>
